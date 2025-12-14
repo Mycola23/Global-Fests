@@ -33,10 +33,9 @@ namespace GlobalFests.Repositories
                 .Include(r => r.Users)
                 .Include(r => r.Permissions);
 
-            if (!trackChanges)
-                query = (Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Role, ICollection<Permission>>)query.AsNoTracking();
-
-            return await query.ToListAsync(cancellationToken);
+            if (trackChanges)
+                return await query.ToListAsync(cancellationToken);
+            return await query.AsNoTracking().ToListAsync(cancellationToken);
         }
 
         public async Task<Role> UpdateAsync(Role entity, CancellationToken cancellationToken = default)

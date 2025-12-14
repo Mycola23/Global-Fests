@@ -30,10 +30,10 @@ namespace GlobalFests.Repositories
         {
             var query = _context.Set<EventType>().Include(e => e.Events);
 
-            if (!trackChanges)
-                query = (Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<EventType, ICollection<Event>>)query.AsNoTracking();
-
-            return await query.ToListAsync(cancellationToken);
+            if (trackChanges)
+                return await query.ToListAsync(cancellationToken);
+            
+            return await query.AsNoTracking().ToListAsync(cancellationToken);
         }
 
         public async Task<EventType> UpdateAsync(EventType entity, CancellationToken cancellationToken = default)

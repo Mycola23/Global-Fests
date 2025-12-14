@@ -33,10 +33,9 @@ namespace GlobalFests.Repositories
                 .Include(p => p.Country)
                 .Include(p => p.Events);
 
-            if (!trackChanges)
-                query = (Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Performer, ICollection<Event>>)query.AsNoTracking();
-
-            return await query.ToListAsync(cancellationToken);
+            if (trackChanges)
+                return await query.ToListAsync(cancellationToken);
+            return await query.AsNoTracking().ToListAsync(cancellationToken);
         }
 
         public async Task<Performer> UpdateAsync(Performer entity, CancellationToken cancellationToken = default)

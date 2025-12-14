@@ -33,10 +33,9 @@ namespace GlobalFests.Repositories
                 .Include(t => t.Event)
                 .Include(t => t.User);
 
-            if (!trackChanges)
-                query = (Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Ticket, User>)query.AsNoTracking();
-
-            return await query.ToListAsync(cancellationToken);
+            if (trackChanges)
+                return await query.ToListAsync(cancellationToken);
+            return await query.AsNoTracking().ToListAsync(cancellationToken);
         }
 
         public async Task<Ticket> UpdateAsync(Ticket entity, CancellationToken cancellationToken = default)
