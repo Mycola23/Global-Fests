@@ -1,0 +1,141 @@
+﻿@model GlobalFests.EFModels.Event
+@{
+    ViewData["Title"] = "Create Event";
+}
+
+<h1>Create New Event</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label"></label>
+                        <input asp-for="Title" class="form-control" required />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="StartDate" class="form-label"></label>
+                            <input asp-for="StartDate" type="datetime-local" class="form-control" required />
+                            <span asp-validation-for="StartDate" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="EndDate" class="form-label"></label>
+                            <input asp-for="EndDate" type="datetime-local" class="form-control" required />
+                            <span asp-validation-for="EndDate" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TypeId" class="form-label">Event Type</label>
+                        <select asp-for="TypeId" class="form-select" required>
+                            <option value="">Select Event Type</option>
+                            @foreach (var type in (List<GlobalFests.EFModels.EventType>)ViewBag.EventTypes)
+                            {
+                                <option value="@type.Id">@type.Type</option>
+                            }
+                        </select>
+                        <span asp-validation-for="TypeId" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CountryId" class="form-label">Country</label>
+                        <select asp-for="CountryId" class="form-select" required>
+                            <option value="">Select Country</option>
+                            @foreach (var country in (List<GlobalFests.EFModels.Country>)ViewBag.Countries)
+                            {
+                                <option value="@country.Id">@country.CountryName</option>
+                            }
+                        </select>
+                        <span asp-validation-for="CountryId" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="City" class="form-label"></label>
+                            <input asp-for="City" class="form-control" />
+                            <span asp-validation-for="City" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Address" class="form-label"></label>
+                            <input asp-for="Address" class="form-control" />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Latitude" class="form-label"></label>
+                            <input asp-for="Latitude" type="number" step="0.000001" class="form-control" required />
+                            <span asp-validation-for="Latitude" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Longitude" class="form-label"></label>
+                            <input asp-for="Longitude" type="number" step="0.000001" class="form-control" required />
+                            <span asp-validation-for="Longitude" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="TicketPrice" class="form-label"></label>
+                            <input asp-for="TicketPrice" type="number" step="0.01" class="form-control" />
+                            <span asp-validation-for="TicketPrice" class="text-danger"></span>
+                            <small class="form-text text-muted">Leave empty for free events</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="TicketAmount" class="form-label"></label>
+                            <input asp-for="TicketAmount" type="number" class="form-control" required />
+                            <span asp-validation-for="TicketAmount" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Poster" class="form-label">Poster URL</label>
+                        <input asp-for="Poster" class="form-control" />
+                        <span asp-validation-for="Poster" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Create Event
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-info-circle"></i> Tips</h5>
+                <ul class="small">
+                    <li>Provide a clear and descriptive title</li>
+                    <li>Include all relevant details in the description</li>
+                    <li>Make sure dates and times are correct</li>
+                    <li>Set accurate ticket pricing</li>
+                    <li>Your event will be reviewed before approval</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

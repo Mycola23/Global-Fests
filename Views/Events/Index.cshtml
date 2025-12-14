@@ -1,0 +1,208 @@
+﻿@model GlobalFests.DTOs.CursorResult<GlobalFests.DTOs.EventDto>
+@{
+    ViewData["Title"] = "Events";
+}
+
+<h1 class="mb-4">
+    <i class="fas fa-calendar-alt"></i> Browse Events
+</h1>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-search"></i> Search & Filter Events</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Index" method="get">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" name="title" class="form-control" value="@ViewBag.Title" placeholder="Search by title" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label class="form-label">City</label>
+                        <input type="text" name="city" class="form-control" value="@ViewBag.City" placeholder="Search by city" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label class="form-label">Country</label>
+                        <select name="countryId" class="form-select">
+                            <option value="">All Countries</option>
+                            @foreach (var country in (List<GlobalFests.EFModels.Country>)ViewBag.Countries)
+                            {
+                                <option value="@country.Id" selected="@(ViewBag.CountryId == country.Id)">@country.CountryName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label class="form-label">Event Type</label>
+                        <select name="typeId" class="form-select">
+                            <option value="">All Types</option>
+                            @foreach (var type in (List<GlobalFests.EFModels.EventType>)ViewBag.EventTypes)
+                            {
+                                <option value="@type.Id" selected="@(ViewBag.TypeId == type.Id)">@type.Type</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label class="form-label">Min Price ($)</label>
+                        <input type="number" name="minPrice" class="form-control" value="@ViewBag.MinPrice" step="0.01" min="0" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label class="form-label">Max Price ($)</label>
+                        <input type="number" name="maxPrice" class="form-control" value="@ViewBag.MaxPrice" step="0.01" min="0" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label class="form-label">Start Date From</label>
+                        <input type="date" name="startDateFrom" class="form-control" value="@(ViewBag.StartDateFrom != null ? ((DateTime)ViewBag.StartDateFrom).ToString("yyyy-MM-dd") : "")" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label class="form-label">Start Date To</label>
+                        <input type="date" name="startDateTo" class="form-control" value="@(ViewBag.StartDateTo != null ? ((DateTime)ViewBag.StartDateTo).ToString("yyyy-MM-dd") : "")" />
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.Items != null && Model.Items.Any())
+{
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <p class="text-muted mb-0">Found @Model.Items.Count event(s)</p>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a asp-action="Create" class="btn btn-success">
+                <i class="fas fa-plus-circle"></i> Create Event
+            </a>
+        }
+    </div>
+
+    <div class="row">
+        @foreach (var eventItem in Model.Items)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@eventItem.Title</h5>
+                        <h6 class="card-subtitle mb-3">
+                            <span class="badge bg-info">@eventItem.EventType</span>
+                        </h6>
+                        <p class="card-text">
+                            <small>
+                                <i class="fas fa-calendar text-primary"></i>
+                                <strong>@eventItem.StartDate.ToString("MMM dd, yyyy")</strong> - @eventItem.EndDate.ToString("MMM dd, yyyy")
+                            </small><br />
+                            <small>
+                                <i class="fas fa-map-marker-alt text-danger"></i>
+                                @eventItem.City, @eventItem.CountryName
+                            </small><br />
+                            <small>
+                                <i class="fas fa-user text-secondary"></i>
+                                Organized by <strong>@eventItem.OrganizerName</strong>
+                            </small><br />
+                            @if (eventItem.TicketPrice.HasValue && eventItem.TicketPrice.Value > 0)
+                            {
+                                <small>
+                                    <i class="fas fa-ticket-alt text-success"></i>
+                                    <strong class="text-success">$@eventItem.TicketPrice.Value.ToString("N2")</strong>
+                                </small>
+                            }
+                            else
+                            {
+                                <small>
+                                    <i class="fas fa-ticket-alt text-success"></i>
+                                    <strong class="text-success">Free Event</strong>
+                                </small>
+                            }
+                        </p>
+                        @if (!string.IsNullOrEmpty(eventItem.Description))
+                        {
+                            <p class="card-text text-muted small">
+                                @(eventItem.Description.Length > 120 ? eventItem.Description.Substring(0, 120) + "..." : eventItem.Description)
+                            </p>
+                        }
+                    </div>
+                    <div class="card-footer bg-transparent border-top">
+                        <a asp-action="Details" asp-route-id="@eventItem.Id" class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-info-circle"></i> View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (Model.HasNextPage)
+    {
+        <div class="text-center mt-4">
+            <a asp-action="Index"
+               asp-route-title="@ViewBag.Title"
+               asp-route-city="@ViewBag.City"
+               asp-route-countryId="@ViewBag.CountryId"
+               asp-route-typeId="@ViewBag.TypeId"
+               asp-route-minPrice="@ViewBag.MinPrice"
+               asp-route-maxPrice="@ViewBag.MaxPrice"
+               asp-route-startDateFrom="@ViewBag.StartDateFrom"
+               asp-route-startDateTo="@ViewBag.StartDateTo"
+               asp-route-cursorDate="@Model.NextCursorDate"
+               asp-route-cursorId="@Model.NextCursorId"
+               class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-chevron-down"></i> Load More Events
+            </a>
+        </div>
+    }
+}
+else
+{
+    <div class="alert alert-info text-center py-5">
+        <i class="fas fa-info-circle fa-3x mb-3"></i>
+        <h4>No events found</h4>
+        <p class="mb-3">No events match your search criteria. Try adjusting your filters.</p>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a asp-action="Create" class="btn btn-success">
+                <i class="fas fa-plus-circle"></i> Create First Event
+            </a>
+        }
+    </div>
+}

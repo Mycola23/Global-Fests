@@ -36,6 +36,8 @@ public partial class GlobalFestsContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<WishList> WishList { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Country>(entity =>
@@ -47,6 +49,7 @@ public partial class GlobalFestsContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Events__3214EC075F72CDD2");
 
+            
             entity.ToTable(tb => tb.HasTrigger("ValidateEventDates"));
 
             entity.Property(e => e.Approved).HasDefaultValue(false);
@@ -190,22 +193,25 @@ public partial class GlobalFestsContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Users__RoleId__34C8D9D1");
 
-            entity.HasMany(d => d.EventsNavigation).WithMany(p => p.Users)
-                .UsingEntity<Dictionary<string, object>>(
-                    "WishList",
-                    r => r.HasOne<Event>().WithMany()
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__WishList__EventI__52593CB8"),
-                    l => l.HasOne<User>().WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__WishList__UserId__534D60F1"),
-                    j =>
-                    {
-                        j.HasKey("UserId", "EventId").HasName("PK__WishList__001C80CD02092819");
-                        j.ToTable("WishList");
-                    });
+            entity.HasMany(d => d.WishList).WithOne(p => p.User)
+            .HasForeignKey(p => p.UserId)
+            .OnDelete(DeleteBehavior.ClientSetNull)
+            .HasConstraintName("FK__WishList__UserId__534D60F1");
+            });
+
+        modelBuilder.Entity<WishList>(entity =>
+        {
+            entity.HasKey(e => new { e.UserId, e.EventId }).HasName("PK__WishList__001C80CD02092819");
+
+            entity.HasOne(d => d.User).WithMany(p => p.WishList)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__WishList__UserId__534D60F1");
+
+            entity.HasOne(d => d.Event).WithMany(p => p.WishList)
+                .HasForeignKey(d => d.EventId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__WishList__EventI__52593CB8");
         });
 
         OnModelCreatingPartial(modelBuilder);

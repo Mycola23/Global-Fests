@@ -47,7 +47,6 @@ public partial class User
     [InverseProperty("User")]
     public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 
-    [ForeignKey("UserId")]
-    [InverseProperty("Users")]
-    public virtual ICollection<Event> EventsNavigation { get; set; } = new List<Event>();
+    [InverseProperty("User")]
+    public virtual ICollection<WishList> WishList { get; set; } = new List<WishList>();
 }

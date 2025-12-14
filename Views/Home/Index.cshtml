@@ -1,8 +1,119 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model GlobalFests.DTOs.CursorResult<GlobalFests.DTOs.EventDto>
+@{
+    ViewData["Title"] = "Welcome to GlobalFests";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center mb-5">
+    <h1 class="display-4">Welcome to GlobalFests</h1>
+    <p class="lead">Discover amazing events from around the world</p>
+    <a asp-controller="Events" asp-action="Index" class="btn btn-primary btn-lg">Browse All Events</a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2 class="mb-4">Featured Events</h2>
+    </div>
+</div>
+
+@if (Model != null && Model.Items != null && Model.Items.Any())
+{
+    <div class="row">
+        @foreach (var eventItem in Model.Items)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@eventItem.Title</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">@eventItem.EventType</h6>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar"></i> @eventItem.StartDate.ToString("MMM dd, yyyy")
+                            </small><br />
+                            <small class="text-muted">
+                                <i class="fas fa-map-marker-alt"></i> @eventItem.City, @eventItem.CountryName
+                            </small><br />
+                            @if (eventItem.TicketPrice.HasValue)
+                            {
+                                <small class="text-muted">
+                                    <i class="fas fa-ticket-alt"></i> $@eventItem.TicketPrice.Value.ToString("N2")
+                                </small>
+                            }
+                            else
+                            {
+                                <small class="text-success">
+                                    <i class="fas fa-ticket-alt"></i> Free Event
+                                </small>
+                            }
+                        </p>
+                        @if (!string.IsNullOrEmpty(eventItem.Description))
+                        {
+                            <p class="card-text">@(eventItem.Description.Length > 100 ? eventItem.Description.Substring(0, 100) + "..." : eventItem.Description)</p>
+                        }
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a asp-controller="Events" asp-action="Details" asp-route-id="@eventItem.Id" class="btn btn-sm btn-outline-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (Model.Items.Count >= 12)
+    {
+        <div class="text-center mt-4">
+            <a asp-controller="Events" asp-action="Index" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-plus-circle"></i> View All Events
+            </a>
+        </div>
+    }
+}
+else
+{
+    <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle"></i> No events available at the moment. Check back soon!
+    </div>
+}
+
+<div class="text-center mt-5 pt-5">
+    <h3 class="mb-4">Why Choose GlobalFests?</h3>
+    <div class="row mt-4">
+        <div class="col-md-4 mb-4">
+            <i class="fas fa-globe fa-3x text-primary mb-3"></i>
+            <h5>Global Events</h5>
+            <p class="text-muted">Discover festivals and events from around the world in one place</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <i class="fas fa-ticket-alt fa-3x text-primary mb-3"></i>
+            <h5>Easy Booking</h5>
+            <p class="text-muted">Book your tickets quickly and securely with just a few clicks</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <i class="fas fa-users fa-3x text-primary mb-3"></i>
+            <h5>Community</h5>
+            <p class="text-muted">Join a community of event enthusiasts and share experiences</p>
+        </div>
+    </div>
+</div>
+
+<div class="bg-light p-5 rounded mt-5">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h3>Ready to Create Your Event?</h3>
+            <p class="lead mb-0">Share your event with thousands of potential attendees worldwide</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a asp-controller="Events" asp-action="Create" class="btn btn-success btn-lg">
+                    <i class="fas fa-plus-circle"></i> Create Event
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Register" class="btn btn-success btn-lg">
+                    <i class="fas fa-user-plus"></i> Get Started
+                </a>
+            }
+        </div>
+    </div>
 </div>

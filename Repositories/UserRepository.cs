@@ -1,16 +1,22 @@
 ﻿using GlobalFests.Data;
 using GlobalFests.EFModels;
 using Microsoft.EntityFrameworkCore;
+using static GlobalFests.Repositories.UserRepository;
 
 namespace GlobalFests.Repositories
 {
-    public class UserRepository : ICRUD<User>
+    public class UserRepository : IUserRepo
     {
-        private readonly DbContext _context;
+        private readonly GlobalFestsContext _context;
 
-        public UserRepository(DbContext context)
+        public UserRepository(GlobalFestsContext context)
         {
             _context = context;
+        }
+
+        public interface IUserRepo : ICRUD<User>
+        {
+            Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
         }
 
 
@@ -34,6 +40,14 @@ namespace GlobalFests.Repositories
                 .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
         }
 
+        public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+        {
+            return await _context.Set<User>()
+                .Include(u => u.Role)
+                .Include(u => u.Country)
+                .FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+        }
+
 
         public async Task<List<User>> GetAllAsync(bool trackChanges = false, CancellationToken cancellationToken = default)
         {
@@ -41,12 +55,11 @@ namespace GlobalFests.Repositories
                 .Include(u => u.Role)
                 .Include(u => u.Country);
 
-            if (!trackChanges)
+            if (trackChanges)
             {
-                return await query.AsNoTracking().ToListAsync(cancellationToken);
+                return await query.ToListAsync(cancellationToken);
             }
-
-            return await query.ToListAsync(cancellationToken);
+            return await query.AsNoTracking().ToListAsync(cancellationToken);
         }
 
         public async Task<User> UpdateAsync(User entity, CancellationToken cancellationToken = default)
@@ -59,7 +72,6 @@ namespace GlobalFests.Repositories
 
             if (trackedEntity == null)
             {
-
                 _context.Set<User>().Update(entity);
             }
 

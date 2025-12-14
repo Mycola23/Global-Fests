@@ -1,13 +1,68 @@
 using GlobalFests.Data;
+using GlobalFests.EFModels;
+using GlobalFests.Repositories;
+using GlobalFests.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using static GlobalFests.Repositories.UserRepository;
 var builder = WebApplication.CreateBuilder(args);
 
 
 
 builder.Services.AddDbContext<GlobalFestsContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<DbContext>(provider => provider.GetRequiredService<GlobalFestsContext>());
+
+// Register Repositories
+builder.Services.AddScoped<ICRUD<Country>, CountryRepository>();
+builder.Services.AddScoped<ICRUD<EventType>, EventTypeRepository>();
+builder.Services.AddScoped<ICRUD<Genre>, GenreRepository>();
+builder.Services.AddScoped<ICRUD<Performer>, PerformerRepository>();
+builder.Services.AddScoped<ICRUD<Permission>, PermissionRepository>();
+builder.Services.AddScoped<ICRUD<Role>, RoleRepository>();
+builder.Services.AddScoped<ICRUD<Ticket>, TicketRepository>();
+builder.Services.AddScoped<IUserRepo, UserRepository>();
+builder.Services.AddScoped<IEventRepository, EventRepository>();
+
+// Register Services
+builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ILookupService, LookupService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
+
+// Configure Authentication
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.SlidingExpiration = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+    });
+
+builder.Services.AddAuthorization();
+
+// Add session support
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+
+
+
 
 var app = builder.Build();
 

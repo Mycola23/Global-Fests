@@ -75,7 +75,6 @@ public partial class Event
     [InverseProperty("Events")]
     public virtual ICollection<Performer> Performers { get; set; } = new List<Performer>();
 
-    [ForeignKey("EventId")]
-    [InverseProperty("EventsNavigation")]
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    [InverseProperty("Event")]
+    public virtual ICollection<WishList> WishList { get; set; } = new List<WishList>();
 }

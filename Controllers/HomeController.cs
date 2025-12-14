@@ -1,21 +1,37 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using GlobalFests.Models;
+using GlobalFests.Services;
 
 namespace GlobalFests.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly IEventService _eventService;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(IEventService eventService)
     {
-        _logger = logger;
+        _eventService = eventService;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
+        // Показуємо останні затверджені події
+        var events = await _eventService.SearchEventsAsync(
+            title: null,
+            city: null,
+            countryId: null,
+            typeId: null,
+            minPrice: null,
+            maxPrice: null,
+            startDateFrom: null,
+            startDateTo: null,
+            approved: true,
+            cursorDate: null,
+            cursorId: null,
+            pageSize: 12);
+
+        return View(events);
     }
 
     public IActionResult Privacy()
@@ -23,9 +39,14 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult About()
+    {
+        return View();
+    }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        return View();
     }
 }
