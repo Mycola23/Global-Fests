@@ -94,15 +94,32 @@ namespace GlobalFests.Controllers
             if (!User.Identity?.IsAuthenticated ?? true)
                 return RedirectToAction("Login", "Account");
 
-            // Отримуємо OrganizerId з поточного користувача
+            // Отримуємо UserId з поточного користувача
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
                 return RedirectToAction("Login", "Account");
 
-            eventEntity.OrganizerId = int.Parse(userIdClaim.Value);
+            int userId = int.Parse(userIdClaim.Value);
+            eventEntity.OrganizerId = userId;
+
+            // Видаляємо помилки валідації для навігаційних властивостей
+            // Вони приходять з форми як ID, а не як об'єкти
+            ModelState.Remove("Country");
+            ModelState.Remove("Type");
+            ModelState.Remove("Organizer");
+            ModelState.Remove("Tickets");
+            ModelState.Remove("Genres");
+            ModelState.Remove("Performers");
+            ModelState.Remove("WishList");
 
             if (!ModelState.IsValid)
             {
+                var errors = ModelState.Values.SelectMany(v => v.Errors);
+                foreach (var error in errors)
+                {
+                    Console.WriteLine($"Validation Error: {error.ErrorMessage}");
+                }
+
                 ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
                 ViewBag.EventTypes = await _lookupService.GetAllEventTypesAsync();
                 ViewBag.Genres = await _lookupService.GetAllGenresAsync();
@@ -125,31 +142,6 @@ namespace GlobalFests.Controllers
             }
         }
 
-        // GET: Events/Edit/5
-        public async Task<IActionResult> Edit(int id)
-        {
-            if (!User.Identity?.IsAuthenticated ?? true)
-                return RedirectToAction("Login", "Account", new { returnUrl = $"/Events/Edit/{id}" });
-
-            var eventDetails = await _eventService.GetEventWithDetailsAsync(id);
-
-            if (eventDetails == null)
-                return NotFound();
-
-            // Перевіряємо, чи є користувач організатором цієї події
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-                return RedirectToAction("Login", "Account");
-
-            // TODO: Додати перевірку чи користувач є організатором або адміном
-
-            ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
-            ViewBag.EventTypes = await _lookupService.GetAllEventTypesAsync();
-            ViewBag.Genres = await _lookupService.GetAllGenresAsync();
-
-            return View(eventDetails);
-        }
-
         // POST: Events/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -160,6 +152,15 @@ namespace GlobalFests.Controllers
 
             if (id != eventEntity.Id)
                 return BadRequest();
+
+            // Видаляємо помилки валідації для навігаційних властивостей
+            ModelState.Remove("Country");
+            ModelState.Remove("Type");
+            ModelState.Remove("Organizer");
+            ModelState.Remove("Tickets");
+            ModelState.Remove("Genres");
+            ModelState.Remove("Performers");
+            ModelState.Remove("WishList");
 
             if (!ModelState.IsValid)
             {
@@ -184,6 +185,41 @@ namespace GlobalFests.Controllers
                 return View(eventEntity);
             }
         }
+
+        //// POST: Events/Edit/5
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Edit(int id, Event eventEntity)
+        //{
+        //    if (!User.Identity?.IsAuthenticated ?? true)
+        //        return RedirectToAction("Login", "Account");
+
+        //    if (id != eventEntity.Id)
+        //        return BadRequest();
+
+        //    if (!ModelState.IsValid)
+        //    {
+        //        ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
+        //        ViewBag.EventTypes = await _lookupService.GetAllEventTypesAsync();
+        //        ViewBag.Genres = await _lookupService.GetAllGenresAsync();
+        //        return View(eventEntity);
+        //    }
+
+        //    try
+        //    {
+        //        await _eventService.UpdateEventAsync(eventEntity);
+        //        TempData["SuccessMessage"] = "Event updated successfully!";
+        //        return RedirectToAction(nameof(Details), new { id });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ModelState.AddModelError("", $"Error updating event: {ex.Message}");
+        //        ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
+        //        ViewBag.EventTypes = await _lookupService.GetAllEventTypesAsync();
+        //        ViewBag.Genres = await _lookupService.GetAllGenresAsync();
+        //        return View(eventEntity);
+        //    }
+        //}
 
         // GET: Events/Delete/5
         public async Task<IActionResult> Delete(int id)

@@ -3,115 +3,134 @@
     ViewData["Title"] = "Create Event";
 }
 
-<h1>Create New Event</h1>
+<h1 class="mb-4">
+    <i class="fas fa-calendar-plus"></i> Create New Event
+</h1>
 
 <div class="row">
     <div class="col-md-8">
-        <div class="card">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Event Details</h5>
+            </div>
             <div class="card-body">
                 <form asp-action="Create" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
 
                     <div class="mb-3">
-                        <label asp-for="Title" class="form-label"></label>
-                        <input asp-for="Title" class="form-control" required />
+                        <label asp-for="Title" class="form-label"><strong>Event Title *</strong></label>
+                        <input asp-for="Title" class="form-control" placeholder="Enter event title" required />
                         <span asp-validation-for="Title" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Description" class="form-label"></label>
-                        <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                        <label asp-for="Description" class="form-label"><strong>Description</strong></label>
+                        <textarea asp-for="Description" class="form-control" rows="4" placeholder="Describe your event"></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label asp-for="StartDate" class="form-label"></label>
+                            <label asp-for="StartDate" class="form-label"><strong>Start Date *</strong></label>
                             <input asp-for="StartDate" type="datetime-local" class="form-control" required />
                             <span asp-validation-for="StartDate" class="text-danger"></span>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label asp-for="EndDate" class="form-label"></label>
+                            <label asp-for="EndDate" class="form-label"><strong>End Date *</strong></label>
                             <input asp-for="EndDate" type="datetime-local" class="form-control" required />
                             <span asp-validation-for="EndDate" class="text-danger"></span>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="TypeId" class="form-label">Event Type</label>
-                        <select asp-for="TypeId" class="form-select" required>
-                            <option value="">Select Event Type</option>
-                            @foreach (var type in (List<GlobalFests.EFModels.EventType>)ViewBag.EventTypes)
-                            {
-                                <option value="@type.Id">@type.Type</option>
-                            }
-                        </select>
-                        <span asp-validation-for="TypeId" class="text-danger"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="CountryId" class="form-label">Country</label>
-                        <select asp-for="CountryId" class="form-select" required>
-                            <option value="">Select Country</option>
-                            @foreach (var country in (List<GlobalFests.EFModels.Country>)ViewBag.Countries)
-                            {
-                                <option value="@country.Id">@country.CountryName</option>
-                            }
-                        </select>
-                        <span asp-validation-for="CountryId" class="text-danger"></span>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="TypeId" class="form-label"><strong>Event Type *</strong></label>
+                            <select asp-for="TypeId" class="form-select" required>
+                                <option value="">-- Select Event Type --</option>
+                                @if (ViewBag.EventTypes != null)
+                                {
+                                    @foreach (var type in (List<GlobalFests.EFModels.EventType>)ViewBag.EventTypes)
+                                    {
+                                        <option value="@type.Id">@type.Type</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="TypeId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="CountryId" class="form-label"><strong>Country *</strong></label>
+                            <select asp-for="CountryId" class="form-select" required>
+                                <option value="">-- Select Country --</option>
+                                @if (ViewBag.Countries != null)
+                                {
+                                    @foreach (var country in (List<GlobalFests.EFModels.Country>)ViewBag.Countries)
+                                    {
+                                        <option value="@country.Id">@country.CountryName</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="CountryId" class="text-danger"></span>
+                        </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label asp-for="City" class="form-label"></label>
-                            <input asp-for="City" class="form-control" />
+                            <label asp-for="City" class="form-label"><strong>City</strong></label>
+                            <input asp-for="City" class="form-control" placeholder="City name" />
                             <span asp-validation-for="City" class="text-danger"></span>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label asp-for="Address" class="form-label"></label>
-                            <input asp-for="Address" class="form-control" />
+                            <label asp-for="Address" class="form-label"><strong>Address</strong></label>
+                            <input asp-for="Address" class="form-control" placeholder="Street address" />
                             <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label asp-for="Latitude" class="form-label"></label>
-                            <input asp-for="Latitude" type="number" step="0.000001" class="form-control" required />
+                            <label asp-for="Latitude" class="form-label"><strong>Latitude *</strong></label>
+                            <input asp-for="Latitude" type="number" step="0.000001" class="form-control" placeholder="e.g. 40.7128" required />
                             <span asp-validation-for="Latitude" class="text-danger"></span>
+                            <small class="form-text text-muted">e.g. 40.7128 for New York</small>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label asp-for="Longitude" class="form-label"></label>
-                            <input asp-for="Longitude" type="number" step="0.000001" class="form-control" required />
+                            <label asp-for="Longitude" class="form-label"><strong>Longitude *</strong></label>
+                            <input asp-for="Longitude" type="number" step="0.000001" class="form-control" placeholder="e.g. -74.0060" required />
                             <span asp-validation-for="Longitude" class="text-danger"></span>
+                            <small class="form-text text-muted">e.g. -74.0060 for New York</small>
                         </div>
                     </div>
 
+                    <hr />
+
+                    <h6 class="mb-3"><i class="fas fa-ticket-alt"></i> Ticket Information</h6>
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label asp-for="TicketPrice" class="form-label"></label>
-                            <input asp-for="TicketPrice" type="number" step="0.01" class="form-control" />
+                            <label asp-for="TicketPrice" class="form-label"><strong>Ticket Price ($)</strong></label>
+                            <input asp-for="TicketPrice" type="number" step="0.01" min="0" class="form-control" placeholder="0.00" />
                             <span asp-validation-for="TicketPrice" class="text-danger"></span>
-                            <small class="form-text text-muted">Leave empty for free events</small>
+                            <small class="form-text text-muted">Leave empty or 0 for free events</small>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label asp-for="TicketAmount" class="form-label"></label>
-                            <input asp-for="TicketAmount" type="number" class="form-control" required />
+                            <label asp-for="TicketAmount" class="form-label"><strong>Number of Tickets *</strong></label>
+                            <input asp-for="TicketAmount" type="number" min="1" class="form-control" placeholder="100" required />
                             <span asp-validation-for="TicketAmount" class="text-danger"></span>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Poster" class="form-label">Poster URL</label>
-                        <input asp-for="Poster" class="form-control" />
+                        <label asp-for="Poster" class="form-label"><strong>Poster URL</strong></label>
+                        <input asp-for="Poster" class="form-control" placeholder="https://example.com/poster.jpg" />
                         <span asp-validation-for="Poster" class="text-danger"></span>
+                        <small class="form-text text-muted">Full URL to event poster image</small>
                     </div>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a asp-action="Index" class="btn btn-secondary">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
                             <i class="fas fa-times"></i> Cancel
                         </a>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary btn-lg">
                             <i class="fas fa-save"></i> Create Event
                         </button>
                     </div>
@@ -121,16 +140,23 @@
     </div>
 
     <div class="col-md-4">
-        <div class="card bg-light">
+        <div class="card bg-light shadow">
             <div class="card-body">
-                <h5 class="card-title"><i class="fas fa-info-circle"></i> Tips</h5>
-                <ul class="small">
-                    <li>Provide a clear and descriptive title</li>
-                    <li>Include all relevant details in the description</li>
-                    <li>Make sure dates and times are correct</li>
-                    <li>Set accurate ticket pricing</li>
-                    <li>Your event will be reviewed before approval</li>
+                <h5 class="card-title"><i class="fas fa-info-circle"></i> Guidelines</h5>
+                <ul class="small mb-0">
+                    <li><strong>Title:</strong> Make it clear and catchy</li>
+                    <li><strong>Dates:</strong> Ensure start is before end date</li>
+                    <li><strong>Location:</strong> Provide accurate coordinates</li>
+                    <li><strong>Tickets:</strong> Set available quantity and price</li>
+                    <li><strong>Approval:</strong> Events are reviewed before going live</li>
                 </ul>
+            </div>
+        </div>
+        <div class="card mt-3 bg-warning bg-opacity-10">
+            <div class="card-body">
+                <p class="small mb-0">
+                    <i class="fas fa-flag"></i> Your event will need approval before it appears publicly.
+                </p>
             </div>
         </div>
     </div>

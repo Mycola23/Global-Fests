@@ -4,7 +4,6 @@ using GlobalFests.Repositories;
 
 namespace GlobalFests.Services
 {
-
     public interface IEventService
     {
         Task<EventDto?> GetEventByIdAsync(int id);
@@ -20,6 +19,7 @@ namespace GlobalFests.Services
         Task<Event> UpdateEventAsync(Event eventEntity);
         Task<bool> DeleteEventAsync(int id);
     }
+
     public class EventService : IEventService
     {
         private readonly IEventRepository _eventRepository;
@@ -65,10 +65,6 @@ namespace GlobalFests.Services
         {
             if (eventEntity == null)
                 throw new ArgumentNullException(nameof(eventEntity));
-
-            eventEntity.CreatedAt = DateTime.Now;
-            eventEntity.Approved = false;
-
             return await _eventRepository.CreateAsync(eventEntity);
         }
 

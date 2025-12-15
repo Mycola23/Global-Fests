@@ -6,14 +6,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GlobalFests.EFModels;
 
+[Table("Events")]
 public partial class Event
 {
     [Key]
     public int Id { get; set; }
 
     public int OrganizerId { get; set; }
-
     public int TypeId { get; set; }
+    public int CountryId { get; set; }
 
     [StringLength(2000)]
     public string Title { get; set; } = null!;
@@ -31,8 +32,6 @@ public partial class Event
 
     [StringLength(1000)]
     public string? City { get; set; }
-
-    public int CountryId { get; set; }
 
     public string? Poster { get; set; }
 
@@ -52,26 +51,17 @@ public partial class Event
     [Column(TypeName = "datetime")]
     public DateTime CreatedAt { get; set; }
 
-    [ForeignKey("CountryId")]
-    [InverseProperty("Events")]
+    // Навігаційні властивості
     public virtual Country Country { get; set; } = null!;
-
-    [ForeignKey("OrganizerId")]
-    [InverseProperty("Events")]
     public virtual User Organizer { get; set; } = null!;
+    public virtual EventType Type { get; set; } = null!;
 
     [InverseProperty("Event")]
     public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 
-    [ForeignKey("TypeId")]
-    [InverseProperty("Events")]
-    public virtual EventType Type { get; set; } = null!;
-
-    [ForeignKey("EventId")]
     [InverseProperty("Events")]
     public virtual ICollection<Genre> Genres { get; set; } = new List<Genre>();
 
-    [ForeignKey("EventId")]
     [InverseProperty("Events")]
     public virtual ICollection<Performer> Performers { get; set; } = new List<Performer>();
 

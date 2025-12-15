@@ -193,11 +193,7 @@ public partial class GlobalFestsContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Users__RoleId__34C8D9D1");
 
-            entity.HasMany(d => d.WishList).WithOne(p => p.User)
-            .HasForeignKey(p => p.UserId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("FK__WishList__UserId__534D60F1");
-            });
+        });
 
         modelBuilder.Entity<WishList>(entity =>
         {
