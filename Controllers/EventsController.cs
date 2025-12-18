@@ -158,14 +158,7 @@ namespace GlobalFests.Controllers
                 return BadRequest();
 
            
-            ModelState.Remove("Country");
-            ModelState.Remove("Type");
-            ModelState.Remove("Organizer");
-            ModelState.Remove("Tickets");
-            ModelState.Remove("Genres");
-            ModelState.Remove("Performers");
-            ModelState.Remove("WishList");
-
+           
             if (!ModelState.IsValid)
             {
                 ViewBag.Countries = await _lookupService.GetAllCountriesAsync();

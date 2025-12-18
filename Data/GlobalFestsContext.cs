@@ -119,6 +119,16 @@ public partial class GlobalFestsContext : DbContext
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
 
             entity.HasOne(d => d.Country).WithMany(p => p.Performers).HasConstraintName("FK__Performer__Avata__37A5467C");
+
+            entity.Property(e => e.Approved)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+            entity.HasOne(d => d.Creator)
+             .WithMany() 
+             .HasForeignKey(d => d.CreatedBy)
+             .OnDelete(DeleteBehavior.SetNull) 
+             .HasConstraintName("FK_Performers_CreatedBy");
         });
 
         modelBuilder.Entity<Permission>(entity =>

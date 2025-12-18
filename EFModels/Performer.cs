@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
 
 namespace GlobalFests.EFModels;
@@ -34,4 +35,13 @@ public partial class Performer
     [ForeignKey("PerformerId")]
     [InverseProperty("Performers")]
     public virtual ICollection<Event> Events { get; set; } = new List<Event>();
+
+    public bool Approved { get; set; }
+
+    public int? CreatedBy { get; set; }
+
+   
+    [ForeignKey("CreatedBy")]
+    [ValidateNever]
+    public virtual User? Creator { get; set; }
 }
