@@ -1,5 +1,6 @@
 ﻿using GlobalFests.EFModels;
 using GlobalFests.Repositories;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace GlobalFests.Services
 {
@@ -17,12 +18,13 @@ namespace GlobalFests.Services
 
     public class LookupService : ILookupService
     {
+        private readonly IMemoryCache _cache;
         private readonly ICRUD<Country> _countryRepository;
         private readonly ICRUD<EventType> _eventTypeRepository;
         private readonly ICRUD<Genre> _genreRepository;
         private readonly ICRUD<Role> _roleRepository;
 
-        public LookupService(
+        public LookupService(IMemoryCache cache,
             ICRUD<Country> countryRepository,
             ICRUD<EventType> eventTypeRepository,
             ICRUD<Genre> genreRepository,
@@ -32,26 +34,45 @@ namespace GlobalFests.Services
             _eventTypeRepository = eventTypeRepository;
             _genreRepository = genreRepository;
             _roleRepository = roleRepository;
+            _cache = cache;
         }
 
         public async Task<List<Country>> GetAllCountriesAsync()
         {
-            return await _countryRepository.GetAllAsync();
+            return await _cache.GetOrCreateAsync("all_countries", async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+                return await _countryRepository.GetAllAsync();
+            }) ?? new List<Country>();
+          ;
         }
 
         public async Task<List<EventType>> GetAllEventTypesAsync()
         {
-            return await _eventTypeRepository.GetAllAsync();
+            return await _cache.GetOrCreateAsync("all_event_types", async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+                return await _eventTypeRepository.GetAllAsync();
+            }) ?? new List<EventType>();
         }
 
         public async Task<List<Genre>> GetAllGenresAsync()
         {
-            return await _genreRepository.GetAllAsync();
+            return await _cache.GetOrCreateAsync("all_genres", async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+                return await _genreRepository.GetAllAsync();
+            }) ?? new List<Genre>();
+            
         }
 
         public async Task<List<Role>> GetAllRolesAsync()
         {
-            return await _roleRepository.GetAllAsync();
+            return await _cache.GetOrCreateAsync("all_roles", async entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+                return await _roleRepository.GetAllAsync();
+            }) ?? new List<Role>();
         }
 
         public async Task<Country?> GetCountryByIdAsync(int id)

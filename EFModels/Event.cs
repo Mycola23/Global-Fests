@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
 
 namespace GlobalFests.EFModels;
@@ -52,8 +53,11 @@ public partial class Event
     public DateTime CreatedAt { get; set; }
 
     // Навігаційні властивості
+    [ValidateNever]
     public virtual Country Country { get; set; } = null!;
+    [ValidateNever]
     public virtual User Organizer { get; set; } = null!;
+    [ValidateNever]
     public virtual EventType Type { get; set; } = null!;
 
     [InverseProperty("Event")]

@@ -2,6 +2,7 @@
 using GlobalFests.EFModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using GlobalFests.ViewModels;
 
 namespace GlobalFests.Controllers
 {
@@ -20,46 +21,38 @@ namespace GlobalFests.Controllers
 
         // GET: Events
         public async Task<IActionResult> Index(
-            string? title,
-            string? city,
-            int? countryId,
-            int? typeId,
-            decimal? minPrice,
-            decimal? maxPrice,
-            DateTime? startDateFrom,
-            DateTime? startDateTo,
-            DateTime? cursorDate,
-            int? cursorId,
-            int pageSize = 15)
+            EventsViewModel model, DateTime? cursorDate, int? cursorId)
         {
-            ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
-            ViewBag.EventTypes = await _lookupService.GetAllEventTypesAsync();
+            if (model.Search == null)
+            {
+                model.Search = new EventsSearchModel();
+            }
+            
+            
+            model.EventTypes = await _lookupService.GetAllEventTypesAsync();
+            model.Countries = await _lookupService.GetAllCountriesAsync();
+            model.Genres = await _lookupService.GetAllGenresAsync();
 
-            var result = await _eventService.SearchEventsAsync(
-                title,
-                city,
-                countryId,
-                typeId,
-                minPrice,
-                maxPrice,
-                startDateFrom,
-                startDateTo,
-                true, // approved = true для публічного перегляду
+            
+            var searchResult = await _eventService.SearchEventsAsync(
+                model.Search.Title,
+                model.Search.City,
+                model.Search.CountryId,
+                model.Search.TypeId,
+                model.Search.MinPrice,
+                model.Search.MaxPrice,
+                model.Search.StartDateFrom,
+                model.Search.StartDateTo,
+                true, // approved = true
                 cursorDate,
                 cursorId,
-                pageSize);
+                15 // pageSize
+            );
 
-            // Зберігаємо параметри фільтрації для ViewBag
-            ViewBag.Title = title;
-            ViewBag.City = city;
-            ViewBag.CountryId = countryId;
-            ViewBag.TypeId = typeId;
-            ViewBag.MinPrice = minPrice;
-            ViewBag.MaxPrice = maxPrice;
-            ViewBag.StartDateFrom = startDateFrom;
-            ViewBag.StartDateTo = startDateTo;
+            // Assign result back to ViewModel
+            model.Events = searchResult;
 
-            return View(result);
+            return View(model);
         }
 
         // GET: Events/Details/5
@@ -76,34 +69,45 @@ namespace GlobalFests.Controllers
         // GET: Events/Create
         public async Task<IActionResult> Create()
         {
+
+            var now = DateTime.Now;
+            var startDateClean = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0);
+            var model = new CreateViewModel
+            {
+                NewEvent = new Event
+                {
+                    StartDate = startDateClean,
+                    EndDate = startDateClean.AddHours(2),
+                },
+                Countries = await _lookupService.GetAllCountriesAsync(),
+                EventTypes = await _lookupService.GetAllEventTypesAsync(),
+                Genres = await _lookupService.GetAllGenresAsync(),
+            };
+            
+
             if (!User.Identity?.IsAuthenticated ?? true)
                 return RedirectToAction("Login", "Account", new { returnUrl = "/Events/Create" });
 
-            ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
-            ViewBag.EventTypes = await _lookupService.GetAllEventTypesAsync();
-            ViewBag.Genres = await _lookupService.GetAllGenresAsync();
-
-            return View();
+            return View(model);
         }
 
         // POST: Events/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Event eventEntity)
+        public async Task<IActionResult> Create(CreateViewModel model)
         {
             if (!User.Identity?.IsAuthenticated ?? true)
                 return RedirectToAction("Login", "Account");
 
-            // Отримуємо UserId з поточного користувача
+            
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
                 return RedirectToAction("Login", "Account");
 
             int userId = int.Parse(userIdClaim.Value);
-            eventEntity.OrganizerId = userId;
+            model.NewEvent.OrganizerId = userId;
 
-            // Видаляємо помилки валідації для навігаційних властивостей
-            // Вони приходять з форми як ID, а не як об'єкти
+            
             ModelState.Remove("Country");
             ModelState.Remove("Type");
             ModelState.Remove("Organizer");
@@ -120,28 +124,28 @@ namespace GlobalFests.Controllers
                     Console.WriteLine($"Validation Error: {error.ErrorMessage}");
                 }
 
-                ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
-                ViewBag.EventTypes = await _lookupService.GetAllEventTypesAsync();
-                ViewBag.Genres = await _lookupService.GetAllGenresAsync();
-                return View(eventEntity);
+                model.Countries = await _lookupService.GetAllCountriesAsync();
+                model.EventTypes = await _lookupService.GetAllEventTypesAsync();
+                model.Genres = await _lookupService.GetAllGenresAsync();
+                return View(model);
             }
 
             try
             {
-                await _eventService.CreateEventAsync(eventEntity);
+                await _eventService.CreateEventAsync(model.NewEvent);
                 TempData["SuccessMessage"] = "Event created successfully! It will be visible after approval.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", $"Error creating event: {ex.Message}");
-                ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
-                ViewBag.EventTypes = await _lookupService.GetAllEventTypesAsync();
-                ViewBag.Genres = await _lookupService.GetAllGenresAsync();
-                return View(eventEntity);
+                model.Countries = await _lookupService.GetAllCountriesAsync();
+                model.EventTypes = await _lookupService.GetAllEventTypesAsync();
+                model.Genres = await _lookupService.GetAllGenresAsync();
+                return View(model);
             }
         }
-
+        //fix all viewbag remove completely
         // POST: Events/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -153,7 +157,7 @@ namespace GlobalFests.Controllers
             if (id != eventEntity.Id)
                 return BadRequest();
 
-            // Видаляємо помилки валідації для навігаційних властивостей
+           
             ModelState.Remove("Country");
             ModelState.Remove("Type");
             ModelState.Remove("Organizer");
@@ -276,7 +280,6 @@ namespace GlobalFests.Controllers
 
             var userId = int.Parse(userIdClaim.Value);
 
-            // Отримуємо всі події користувача (включаючи неопубліковані)
             var result = await _eventService.SearchEventsAsync(
                 title: null,
                 city: null,
@@ -286,7 +289,7 @@ namespace GlobalFests.Controllers
                 maxPrice: null,
                 startDateFrom: null,
                 startDateTo: null,
-                approved: null, // Показуємо всі події (approved і не approved)
+                approved: null, 
                 cursorDate: null,
                 cursorId: null,
                 pageSize: 100);

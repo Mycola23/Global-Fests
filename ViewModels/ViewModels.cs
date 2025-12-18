@@ -1,14 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using GlobalFests.DTOs;
+using GlobalFests.EFModels;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace GlobalFests.ViewModels
 {
-    public class RegisterViewModel
+    public class RegisterUserModel
     {
         [Required(ErrorMessage = "Username is required")]
         [StringLength(100, ErrorMessage = "Username cannot exceed 100 characters")]
         public string Username { get; set; } = null!;
 
         [Required(ErrorMessage = "Email is required")]
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Invalid email address format")]
         [EmailAddress(ErrorMessage = "Invalid email address")]
         public string Email { get; set; } = null!;
 
@@ -22,12 +26,22 @@ namespace GlobalFests.ViewModels
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; } = null!;
 
+        
         public int? CountryId { get; set; }
+    }
+
+    public class RegisterViewModel
+    {
+        public RegisterUserModel User { get; set; } = new RegisterUserModel();
+
+        [ValidateNever]
+        public List<Country>? Countries { get; set; }
     }
 
     public class LoginViewModel
     {
         [Required(ErrorMessage = "Email is required")]
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Invalid email address format")]
         [EmailAddress(ErrorMessage = "Invalid email address")]
         public string Email { get; set; } = null!;
 
@@ -39,12 +53,18 @@ namespace GlobalFests.ViewModels
         public bool RememberMe { get; set; }
     }
 
-    public class EventSearchViewModel
+    public class EventsSearchModel
     {
         public string? Title { get; set; }
         public string? City { get; set; }
         public int? CountryId { get; set; }
         public int? TypeId { get; set; }
+
+        public int? GenreId { get; set; }
+
+        public int? PriceSortingId { get; set; }
+
+        public int? PopularityId { get; set; }
 
         [Display(Name = "Min Price")]
         public decimal? MinPrice { get; set; }
@@ -59,5 +79,32 @@ namespace GlobalFests.ViewModels
         [Display(Name = "Start Date To")]
         [DataType(DataType.Date)]
         public DateTime? StartDateTo { get; set; }
+    }
+
+    public class EventsViewModel
+    {
+        public EventsSearchModel? Search { get; set; }
+
+        public CursorResult<EventDto> Events { get; set; }
+
+        [ValidateNever]
+        public List<Country>? Countries { get; set; }
+        [ValidateNever]
+        public List<EventType>? EventTypes { get; set; }
+
+        [ValidateNever]
+        public List<Genre>? Genres { get; set; }
+    }
+
+    public class CreateViewModel
+    {
+        public Event NewEvent { get; set; } = new Event();
+        
+        public List<Country>? Countries { get; set; }
+        [ValidateNever]
+        public List<EventType>? EventTypes { get; set; }
+
+        [ValidateNever]
+        public List<Genre>? Genres { get; set; }
     }
 }

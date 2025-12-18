@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using GlobalFests.Helpers;
 
 namespace GlobalFests.Controllers
 {
@@ -19,11 +20,15 @@ namespace GlobalFests.Controllers
             _lookupService = lookupService;
         }
 
-        // GET: Account/Register
+        [HttpGet]
         public async Task<IActionResult> Register()
         {
-            ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
-            return View();
+            var model = new RegisterViewModel
+            {
+                User = new RegisterUserModel(),
+                Countries = await _lookupService.GetAllCountriesAsync()
+            };
+            return View(model);
         }
 
         // POST: Account/Register
@@ -31,44 +36,39 @@ namespace GlobalFests.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
+            
             if (!ModelState.IsValid)
             {
-                ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
+                model.Countries = await _lookupService.GetAllCountriesAsync();
                 return View(model);
             }
 
             try
             {
-                // Перевірка чи користувач з такою поштою вже існує
-                var existingUser = await _userService.GetUserByEmailAsync(model.Email);
+                
+                var existingUser = await _userService.GetUserByEmailAsync(model.User.Email);
                 if (existingUser != null)
                 {
-                    ModelState.AddModelError("Email", "A user with this email already exists");
-                    ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
+                    ModelState.AddModelError("User.Email", "A user with this email already exists");
+                    model.Countries = await _lookupService.GetAllCountriesAsync();
                     return View(model);
                 }
 
-                // RoleId = 2 для звичайного користувача (припускаємо, що 1 = Admin, 2 = User, 3 = Organizer)
+               
                 var user = await _userService.RegisterUserAsync(
-                    model.Username,
-                    model.Email,
-                    model.Password,
+                    model.User.Username,
+                    model.User.Email,
+                    model.User.Password,
                     roleId: 2,
-                    countryId: model.CountryId);
+                    countryId: model.User.CountryId);
 
                 TempData["SuccessMessage"] = "Registration successful! Please login.";
                 return RedirectToAction("Login");
             }
-            catch (InvalidOperationException ex)
-            {
-                ModelState.AddModelError("", ex.Message);
-                ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
-                return View(model);
-            }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", "An error occurred during registration. Please try again.");
-                ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
+                ModelState.AddModelError("", ex.Message);
+                model.Countries = await _lookupService.GetAllCountriesAsync();
                 return View(model);
             }
         }

@@ -1,1 +1,826 @@
 ﻿
+/* --- CSS Reset & Variables --- */
+:root {
+    --bg-dark: #0b0c15;
+    --bg-card: #151621;
+    --text-white: #ffffff;
+    --text-muted: #8b8d9b;
+    --accent-cyan: #b4f8c8; /* The search button color */
+    --accent-blue: #3d5af1;
+    --nav-bg: rgba(220, 226, 230, 0.85); /* The whitish nav background */
+    --input-bg: #23242f;
+    --border-color: #2e303e;
+    --font-main: 'Inter', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-white);
+    font-family: var(--font-main);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: 0.3s;
+}
+
+ul {
+    list-style: none;
+}
+
+/* --- Layout Wrappers --- */
+.container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* --- Header & Nav --- */
+.gf-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    padding-top: 0;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px 40px;
+}
+
+/* Logo */
+.gf-brand {
+    font-size: 24px;
+    font-weight: 600;
+    color: white;
+    margin-top: 15px; /* Alignment with curved nav */
+}
+
+.brand-sub {
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+}
+
+/* Center Curved Nav - The "Wave" Look */
+.gf-nav-center {
+    background: var(--nav-bg);
+    backdrop-filter: blur(10px);
+    /* Create the curved shape */
+    border-bottom-left-radius: 40px;
+    border-bottom-right-radius: 40px;
+    padding: 15px 50px 20px 50px;
+    margin-top: -20px; /* Pull up to stick to top */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.nav-list {
+    display: flex;
+    gap: 40px;
+}
+
+.nav-link {
+    color: #333; /* Dark text on white nav */
+    font-weight: 500;
+    font-size: 15px;
+    position: relative;
+}
+
+    .nav-link.active {
+        font-weight: 700;
+        color: #000;
+    }
+
+/* User Action / Guest Button */
+.gf-user-actions {
+    margin-top: 10px;
+}
+
+.guest-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 30px;
+    color: white;
+    font-size: 14px;
+}
+
+    .guest-btn:hover {
+        background: rgba(255,255,255,0.1);
+    }
+
+/* User Dropdown */
+.user-dropdown-container {
+    position: relative;
+}
+
+.user-btn {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    min-width: 150px;
+    padding: 10px 0;
+    margin-top: 10px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+}
+
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    .dropdown-menu a, .dropdown-menu button {
+        display: block;
+        width: 100%;
+        padding: 8px 20px;
+        color: var(--text-muted);
+        text-align: left;
+        background: none;
+        border: none;
+    }
+
+        .dropdown-menu a:hover, .dropdown-menu button:hover {
+            color: white;
+            background: rgba(255,255,255,0.05);
+        }
+
+/* --- Hero Section --- */
+.hero-section {
+    position: relative;
+    width: 100%;
+    min-height: 90vh; /* Covers most of screen */
+    /* Use a placeholder image or a gradient if no image */
+    background: url('https://images.unsplash.com/photo-1533174072545-e8d4aa97edf9?q=80&w=2070&auto=format&fit=crop') no-repeat center center/cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Gradient Overlay to match design */
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(11,12,21,0.6) 0%, rgba(20,40,60,0.7) 100%);
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    margin-top: 80px; /* Offset for nav */
+}
+
+.hero-title {
+    font-size: 64px;
+    line-height: 1.1;
+    font-weight: 500;
+    color: white;
+    margin-bottom: 40px;
+    max-width: 600px;
+}
+
+/* --- Search Panel Design --- */
+.search-panel {
+    background: #1c1d25; /* Dark container */
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.search-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.secondary-row {
+    margin-bottom: 0;
+}
+
+/* Input Groups */
+.input-group {
+    background: var(--input-bg);
+    border-radius: 8px;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    height: 50px;
+    border: 1px solid transparent;
+    transition: 0.2s;
+    flex: 1;
+    color: #777;
+}
+
+    .input-group:hover {
+        border-color: #444;
+    }
+
+    .input-group i {
+        margin-right: 10px;
+        font-size: 14px;
+    }
+
+    .input-group .arrow {
+        margin-left: auto;
+        margin-right: 0;
+        font-size: 10px;
+    }
+
+    .input-group input,
+    .input-group select {
+        background: transparent;
+        border: none;
+        color: var(--text-white);
+        font-family: var(--font-main);
+        width: 100%;
+        font-size: 14px;
+        outline: none;
+    }
+
+        .input-group input::placeholder {
+            color: #777;
+        }
+    /* Hide default select arrow to use custom icon */
+    .input-group select {
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+    }
+
+/* Specific Widths based on image */
+.search-text {
+    flex: 2;
+}
+
+.date-group {
+    flex: 1.5;
+}
+
+    .date-group input {
+        width: 40%;
+        text-align: center;
+    }
+
+.separator {
+    width: 1px;
+    height: 20px;
+    background: #444;
+    margin: 0 5px;
+}
+
+/* Search Button */
+.search-btn {
+    background: var(--accent-cyan);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 0 30px;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+    .search-btn:hover {
+        opacity: 0.9;
+    }
+
+/* Secondary Row inputs are smaller/simpler */
+.secondary-row .input-group {
+    background: #23242f;
+    height: 45px;
+}
+
+.price-group {
+    gap: 5px;
+}
+
+    .price-group input {
+        text-align: center;
+    }
+
+/* --- Events Grid Section --- */
+.events-section {
+    padding: 60px 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.section-header h2 {
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: var(--text-white);
+}
+
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+}
+
+.event-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.3s;
+    border: 1px solid var(--border-color);
+}
+
+    .event-card:hover {
+        transform: translateY(-5px);
+        border-color: #444;
+    }
+
+.card-image-header {
+    height: 160px;
+    background: linear-gradient(45deg, #232535, #3d5af1);
+    /* In a real app, use <img src="..." style="object-fit:cover; width:100%; height:100%"> */
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-date {
+    color: var(--accent-cyan);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-location {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.card-tags {
+    margin-bottom: 20px;
+}
+
+.tag {
+    background: rgba(255,255,255,0.1);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #ccc;
+}
+
+.card-footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 15px;
+}
+
+.price {
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+}
+
+    .price .free {
+        color: var(--accent-cyan);
+    }
+
+.details-btn {
+    font-size: 13px;
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    padding: 6px 15px;
+    border-radius: 6px;
+}
+
+    .details-btn:hover {
+        border-color: white;
+        color: white;
+    }
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) {
+    .search-panel {
+        padding: 15px;
+    }
+
+    .search-row {
+        flex-wrap: wrap;
+    }
+
+    .input-group {
+        min-width: 45%;
+    }
+
+    .hero-title {
+        font-size: 40px;
+    }
+
+    .gf-nav-center {
+        display: none; /* Hide complex nav on mobile for now */
+    }
+}
+
+
+/* --- Змінні (Оновлено під фото) --- */
+:root {
+    --bg-dark: #0b0c15;
+    --nav-glass-bg: rgba(225, 240, 245, 0.85); /* Світло-блакитний скляний колір як на фото */
+    --nav-text: #1a1a1a; /* Темний текст */
+    --font-main: 'Inter', sans-serif;
+}
+
+/* --- Header Layout --- */
+.gf-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    padding-top: 0; /* Важливо: притиснути до верху */
+}
+
+.header-container {
+    display: flex;
+    justify-content: center; /* Центруємо навбар */
+    width: 100%;
+}
+
+/* --- 100% Точність Навбару (Curved Tab) --- */
+.gf-nav-center {
+    position: relative;
+    background: var(--nav-glass-bg);
+    backdrop-filter: blur(12px); /* Ефект розмиття фону */
+    -webkit-backdrop-filter: blur(12px);
+    /* Основна форма: закруглення знизу */
+    border-bottom-left-radius: 40px;
+    border-bottom-right-radius: 40px;
+    padding: 0 60px; /* Відступи збоку всередині "вкладки" */
+    height: 70px; /* Фіксована висота як на фото */
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Тінь для об'єму */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+    /* --- Магія кривих (Вуха з боків) --- */
+    /* Це створює плавний перехід від стелі до навбару */
+    .gf-nav-center::before,
+    .gf-nav-center::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        width: 40px;
+        height: 40px;
+        background: transparent;
+        z-index: 1;
+    }
+
+    /* Лівий вигин */
+    .gf-nav-center::before {
+        left: -40px;
+        border-top-right-radius: 50%;
+        /* Тінь "малює" колір праворуч від прозорого кола, створюючи увігнутий кут */
+        box-shadow: 15px 0 0 0 var(--nav-glass-bg);
+    }
+
+    /* Правий вигин */
+    .gf-nav-center::after {
+        right: -40px;
+        border-top-left-radius: 50%;
+        box-shadow: -15px 0 0 0 var(--nav-glass-bg);
+    }
+
+/* --- Список посилань --- */
+.nav-list {
+    display: flex;
+    gap: 50px; /* Відстань між словами як на фото */
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+/* --- Стиль посилань --- */
+.nav-link {
+    color: var(--nav-text);
+    font-family: var(--font-main);
+    font-size: 18px; /* Більший шрифт як на фото */
+    font-weight: 500;
+    text-decoration: none;
+    letter-spacing: 0.3px;
+    transition: color 0.2s ease;
+    opacity: 0.9;
+}
+
+    .nav-link:hover {
+        color: #000;
+        opacity: 1;
+    }
+
+    /* Активне посилання (Home) трохи жирніше/темніше */
+    .nav-link.active {
+        font-weight: 600;
+        color: #000;
+        opacity: 1;
+    }
+
+/* Адаптивність */
+@media (max-width: 768px) {
+    .gf-nav-center {
+        padding: 0 30px;
+        height: 60px;
+    }
+
+    .nav-list {
+        gap: 25px;
+    }
+
+    .nav-link {
+        font-size: 15px;
+    }
+}
+
+
+
+/* --- Internal Pages Layout (Add to site.css) --- */
+
+/* Wrapper to push content below the fixed header */
+.page-container {
+    padding-top: 120px; /* Clears the wave nav */
+    padding-bottom: 50px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    min-height: 100vh;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+/* Centered Auth Pages (Login/Register) */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh; /* Centers vertically */
+}
+
+/* Glass Panel (Replaces Bootstrap Card) */
+.glass-panel {
+    background: rgba(30, 32, 40, 0.9);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    width: 100%;
+}
+
+.auth-box {
+    max-width: 500px;
+}
+/* Specific width for login */
+
+/* Form Elements */
+.form-title {
+    color: white;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 30px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    color: #ccc;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Custom Input Styling (Matches Home Search) */
+.custom-input-group {
+    display: flex;
+    align-items: center;
+    background: #292a30;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 0 15px;
+    height: 50px;
+    transition: 0.3s;
+}
+
+    .custom-input-group:hover, .custom-input-group:focus-within {
+        border-color: #555;
+        background: #32333a;
+    }
+
+.input-icon {
+    color: #888;
+    margin-right: 12px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.form-control-custom {
+    background: transparent;
+    border: none;
+    color: white;
+    width: 100%;
+    height: 100%;
+    outline: none;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+}
+
+    .form-control-custom::placeholder {
+        color: #666;
+    }
+/* Fix for Select dropdowns */
+select.form-control-custom {
+    background: #292a30;
+}
+
+/* Textarea specific */
+textarea.form-control-custom {
+    height: auto;
+    padding: 15px 0;
+    resize: vertical;
+}
+
+.textarea-wrapper {
+    height: auto;
+    align-items: flex-start;
+}
+
+    .textarea-wrapper .input-icon {
+        margin-top: 15px;
+    }
+
+/* Buttons */
+.btn-main {
+    background: var(--accent-cyan);
+    color: #0b0c15;
+    border: none;
+    width: 100%;
+    height: 50px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+    .btn-main:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+
+.btn-secondary-custom {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+}
+
+    .btn-secondary-custom:hover {
+        border-color: white;
+        background: rgba(255,255,255,0.05);
+    }
+
+/* Links */
+.auth-links {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 14px;
+    color: #888;
+}
+
+    .auth-links a {
+        color: var(--accent-cyan);
+        font-weight: 500;
+    }
+
+/* --- Layout for "Create Event" (Grid) --- */
+.create-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+}
+
+.guidelines-card {
+    background: rgba(255,255,255,0.03);
+    border-radius: 16px;
+    padding: 25px;
+    border: 1px dashed rgba(255,255,255,0.2);
+}
+
+.guidelines-list li {
+    margin-bottom: 12px;
+    color: #aaa;
+    font-size: 14px;
+    display: flex;
+    gap: 10px;
+}
+
+/* --- Layout for "Events Index" (Filter Bar) --- */
+.filter-bar {
+    background: #1c1d25;
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 40px;
+    border: 1px solid #2e303e;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.action-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.text-danger {
+    color: #ff6b6b;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+}
+
+.checkbox-custom {
+    width: 20px;
+    height: 20px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .create-grid {
+        grid-template-columns: 1fr;
+    }
+}
