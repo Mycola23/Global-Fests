@@ -96,7 +96,7 @@ namespace GlobalFests.ViewModels
         public List<Genre>? Genres { get; set; }
     }
 
-    public class CreateViewModel
+    public class CreateEventsViewModel
     {
         public Event NewEvent { get; set; } = new Event();
         
@@ -106,5 +106,61 @@ namespace GlobalFests.ViewModels
 
         [ValidateNever]
         public List<Genre>? Genres { get; set; }
+
+        public List<int> SelectedGenreIds { get; set; } = new List<int>();
+    }
+
+    // maybe later combine these two in one
+    public class EditEventsViewModel
+    {
+        public Event Event { get; set; } = new Event();
+
+        public List<Country>? Countries { get; set; }
+        [ValidateNever]
+        public List<EventType>? EventTypes { get; set; }
+
+        [ValidateNever]
+        public List<Genre>? Genres { get; set; }
+
+        public List<int> SelectedGenreIds { get; set; } = new List<int>();
+    }
+
+
+
+
+    public class CreatePerformerViewModel
+    {
+        
+        public Performer NewPerformer { get; set; } = new Performer();
+        [ValidateNever]
+        public List<Country>? Countries { get; set; }
+
+        [ValidateNever]
+        public List<Genre>? Genres { get; set; } 
+
+        public List<int> SelectedGenreIds { get; set; } = new List<int>();
+    }
+
+    public class EditPerformerViewModel
+    {
+
+        public Performer Performer { get; set; } = new Performer();
+        [ValidateNever]
+        public List<Country>? Countries { get; set; }
+
+        [ValidateNever]
+        public List<Genre>? Genres { get; set; }
+
+        public List<int> SelectedGenreIds { get; set; } = new List<int>();
+
+        public List<int> CurrentGenreIds { get; set; } = new List<int>();
+
+    }
+
+    public class OrganizerPanelViewModel
+    {
+        public CursorResult<PerformerDto>? Performers { get; set; }
+
+        public CursorResult<EventOrganizerDto>? Events { get; set; }
     }
 }

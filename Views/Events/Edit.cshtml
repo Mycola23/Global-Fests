@@ -1,0 +1,152 @@
+﻿@model GlobalFests.ViewModels.EditEventsViewModel
+
+<div class="page-container">
+    <div class="create-grid">
+        <div class="glass-panel">
+            <h2 class="form-title" style="justify-content: flex-start;">
+                <i class="fas fa-edit" style="color: var(--accent-cyan);"></i> Edit Event: @Model.Event.Title
+            </h2>
+
+            <form asp-action="Edit" method="post">
+                <div asp-validation-summary="All" class="text-danger" style="margin-bottom: 20px;"></div>
+
+                
+                <input type="hidden" asp-for="Event.Id" />
+                <input type="hidden" asp-for="Event.OrganizerId" />
+
+                <div class="form-group">
+                    <label asp-for="Event.Title" class="form-label">Event Title *</label>
+                    <div class="custom-input-group">
+                        <input asp-for="Event.Title" class="form-control-custom" required />
+                    </div>
+                    <span asp-validation-for="Event.Title" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Event.Description" class="form-label">Description</label>
+                    <div class="custom-input-group textarea-wrapper">
+                        <i class="fas fa-align-left input-icon"></i>
+                        <textarea asp-for="Event.Description" class="form-control-custom" rows="4"></textarea>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label asp-for="Event.StartDate" class="form-label">Start Date *</label>
+                        <div class="custom-input-group">
+                            <input asp-for="Event.StartDate" type="datetime-local" class="form-control-custom" required />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Event.EndDate" class="form-label">End Date *</label>
+                        <div class="custom-input-group">
+                            <input asp-for="Event.EndDate" type="datetime-local" class="form-control-custom" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label asp-for="Event.TypeId" class="form-label">Event Type *</label>
+                        <div class="custom-input-group">
+                            <select asp-for="Event.TypeId" class="form-control-custom" required>
+                                @foreach (var type in Model.EventTypes)
+                                {
+                                    <option value="@type.Id">@type.Type</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Event.CountryId" class="form-label">Country *</label>
+                        <div class="custom-input-group">
+                            <select asp-for="Event.CountryId" class="form-control-custom" required>
+                                @foreach (var country in Model.Countries)
+                                {
+                                    <option value="@country.Id">@country.CountryName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label asp-for="Event.City" class="form-label">City</label>
+                        <div class="custom-input-group">
+                            <input asp-for="Event.City" class="form-control-custom" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Event.Address" class="form-label">Address</label>
+                        <div class="custom-input-group">
+                            <input asp-for="Event.Address" class="form-control-custom" />
+                        </div>
+                    </div>
+                </div>
+
+                <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;" />
+
+                <h3 style="color:white; font-size:18px; margin-bottom:15px;">Ticketing & Media</h3>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label asp-for="Event.TicketPrice" class="form-label">Price ($)</label>
+                        <div class="custom-input-group">
+                            <input asp-for="Event.TicketPrice" type="number" step="0.01" class="form-control-custom" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Event.TicketAmount" class="form-label">Total Tickets *</label>
+                        <div class="custom-input-group">
+                            <input asp-for="Event.TicketAmount" type="number" class="form-control-custom" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Event.Poster" class="form-label">Poster URL</label>
+                    <div class="custom-input-group">
+                        <i class="fas fa-image input-icon"></i>
+                        <input asp-for="Event.Poster" class="form-control-custom" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Genres</label>
+                    <div class="custom-input-group select-multiple-wrapper">
+                        <i class="fas fa-music input-icon" style="margin-top: 12px;"></i>
+                        <select asp-for="SelectedGenreIds" class="select-multiple" multiple="multiple">
+                            @foreach (var genre in Model.Genres)
+                            {
+                                <option value="@genre.Id">@genre.Genre1</option>
+                            }
+                        </select>
+                    </div>
+                    <span class="select-hint"><i class="fas fa-info-circle"></i> Hold Ctrl/Cmd to reselect genres.</span>
+                </div>
+
+                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                    <a asp-controller="Organizer" asp-action="Index" class="btn-main btn-secondary-custom">Cancel</a>
+                    <button type="submit" class="btn-main">Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Side -->
+        <div>
+            <a asp-controller="Organizer" asp-action="Index" class="btn-dash btn-cyan" style="margin-bottom: 20px;">Back to panel</a>
+            <div class="guidelines-card">
+                <h3 style="color:var(--accent-cyan); margin-bottom:15px;"><i class="fas fa-info-circle"></i> Editing Tips</h3>
+                <ul class="guidelines-list">
+                    <li><i class="fas fa-history"></i> <span>Changing the date might affect already sold tickets.</span></li>
+                    <li><i class="fas fa-eye"></i> <span>Your event will stay approved unless you change key info.</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

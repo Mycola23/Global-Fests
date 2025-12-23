@@ -1,5 +1,5 @@
 ﻿<!-- GlobalFests.EFModels.Event -->
-@model GlobalFests.ViewModels.CreateViewModel;
+@model GlobalFests.ViewModels.CreateEventsViewModel;
 
 
 <div class="page-container">
@@ -135,9 +135,28 @@
                         <input asp-for="NewEvent.Poster" class="form-control-custom" placeholder="https://example.com/image.jpg" />
                     </div>
                 </div>
-
+                <div class="form-group">
+                    <label class="form-label">Genres (Select one or more)</label>
+                    <div class="custom-input-group select-multiple-wrapper">
+                        <i class="fas fa-music input-icon" style="margin-top: 12px;"></i>
+                        <select asp-for="SelectedGenreIds" class="select-multiple"
+                                multiple="multiple">
+                            @if (Model.Genres != null)
+                            {
+                                @foreach (var genre in Model.Genres)
+                                {
+                                    <option value="@genre.Id">@genre.Genre1</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <span class="select-hint">
+                        <i class="fas fa-info-circle"></i> Hold <b>Ctrl</b> (Win) or <b>Cmd</b> (Mac) to select multiple genres.
+                    </span>
+                    <span asp-validation-for="SelectedGenreIds" class="text-danger"></span>
+                </div>
                 <div style="display: flex; gap: 15px; margin-top: 30px;">
-                    <a asp-action="Index" class="btn-main btn-secondary-custom">Cancel</a>
+                    <a asp-controller="Organizer" asp-action="Index" class="btn-main btn-secondary-custom">Cancel</a>
                     <button type="submit" class="btn-main">Create Event</button>
                 </div>
             </form>
@@ -145,6 +164,7 @@
 
         <!-- Right Column: Guidelines -->
         <div style="margin-top: 20px;">
+            <a asp-controller="Organizer" asp-action="Index" class="btn-dash btn-cyan" style="margin-bottom: 20px;">Back to panel</a>
             <div class="guidelines-card">
                 <h3 style="color:var(--accent-cyan); margin-bottom:15px;"><i class="fas fa-info-circle"></i> Guidelines</h3>
                 <ul class="guidelines-list">

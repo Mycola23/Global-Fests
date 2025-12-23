@@ -26,6 +26,8 @@ public partial class GlobalFestsContext : DbContext
 
     public virtual DbSet<Performer> Performers { get; set; }
 
+    
+
     public virtual DbSet<Permission> Permissions { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
@@ -107,6 +109,8 @@ public partial class GlobalFestsContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK__EventTyp__3214EC07C69597A1");
         });
 
+       
+
         modelBuilder.Entity<Genre>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Genres__3214EC072F6FDFBE");
@@ -129,7 +133,27 @@ public partial class GlobalFestsContext : DbContext
              .HasForeignKey(d => d.CreatedBy)
              .OnDelete(DeleteBehavior.SetNull) 
              .HasConstraintName("FK_Performers_CreatedBy");
+
+            entity.HasMany(d => d.Genres).WithMany(p => p.Performers)
+            .UsingEntity<Dictionary<string, object>>(
+             "PerformerGenre", // name in EF
+             r => r.HasOne<Genre>().WithMany()
+                 .HasForeignKey("GenreId")
+                 .OnDelete(DeleteBehavior.ClientSetNull)
+                 .HasConstraintName("FK__Performer__Genre__7B264821"),
+             l => l.HasOne<Performer>().WithMany()
+                 .HasForeignKey("PerformerId")
+                 .OnDelete(DeleteBehavior.ClientSetNull)
+                 .HasConstraintName("FK__Performer__Perfo__7A3223E8"),
+             j =>
+             {
+                 j.HasKey("PerformerId", "GenreId").HasName("PK__PerformerGen__UniqueID");
+                 j.ToTable("PerformerGenres"); 
+             });
+
         });
+
+       
 
         modelBuilder.Entity<Permission>(entity =>
         {

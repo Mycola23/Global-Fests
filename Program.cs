@@ -18,7 +18,7 @@ builder.Services.AddScoped<DbContext>(provider => provider.GetRequiredService<Gl
 builder.Services.AddScoped<ICRUD<Country>, CountryRepository>();
 builder.Services.AddScoped<ICRUD<EventType>, EventTypeRepository>();
 builder.Services.AddScoped<ICRUD<Genre>, GenreRepository>();
-builder.Services.AddScoped<ICRUD<Performer>, PerformerRepository>();
+builder.Services.AddScoped<IPerformerRepository, PerformerRepository>();
 builder.Services.AddScoped<ICRUD<Permission>, PermissionRepository>();
 builder.Services.AddScoped<ICRUD<Role>, RoleRepository>();
 builder.Services.AddScoped<ICRUD<Ticket>, TicketRepository>();

@@ -824,3 +824,341 @@ textarea.form-control-custom {
         grid-template-columns: 1fr;
     }
 }
+
+
+
+
+/*====================    Organizer Panel   ===========================*/
+
+
+
+
+.organizer__container {
+    padding-top: 120px; 
+    padding-bottom: 50px;
+    max-width: 90vw;
+    margin: 0 auto;
+    width: 100%;
+    min-height: 100vh;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.organizer-dashboard {
+    background: radial-gradient(circle at top right, rgba(61, 90, 241, 0.05), transparent), radial-gradient(circle at bottom left, rgba(180, 248, 200, 0.05), transparent);
+}
+
+/*  */
+.dashboard-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.btn-dash {
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.3s;
+    border: none;
+    cursor: pointer;
+}
+
+    .btn-dash.btn-cyan {
+        background: rgba(180, 248, 200, 0.15);
+        color: var(--accent-cyan);
+        border: 1px solid var(--accent-cyan);
+    }
+
+    .btn-dash.btn-purple {
+        background: linear-gradient(45deg, #3d5af1, #a855f7);
+        color: white;
+    }
+
+/* Сітка Dashboard */
+.dashboard-main-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 25px;
+}
+
+/* Скляні картки (Glassmorphism) */
+.organizer-dashboard .dash-glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 16px;
+    margin-bottom: 25px;
+}
+
+.dash-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--text-white);
+}
+
+.grid-column-left{
+    display:flex;
+    flex-direction:column;
+
+}
+
+/* performer-list */
+
+.performer-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    gap:15px
+}
+
+.performer-item {
+    
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 16px;
+    /* margin-bottom: 12px;*/
+}
+
+    .performer-item img {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        margin-right: 15px;
+        object-fit: cover;
+    }
+.performer-info {
+    margin-right:15px;
+    display:flex;
+    flex-direction:column;
+}
+.p-name {
+    display: block;
+    font-weight: 500;
+    font-size: 16px;
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.p-genre {
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.p-status {
+    font-size: 14px;
+    color: #b4f8c8;
+}
+.p-status.review{
+    color:#ffd800;
+}
+.btn-edit-performer {
+
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-white);
+    padding: 18px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* Міні-сітка подій */
+    .events-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.event-mini-thumb {
+    height: 100px;
+    border-radius: 12px;
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 10px;
+}
+
+.event-mini-name {
+    font-size: 14px;
+    display: block;
+    max-width:176px;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn-mini-edit {
+    background: rgba(180, 248, 200, 0.1);
+    color: var(--accent-cyan);
+    border: 1px solid var(--accent-cyan);
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    width: 100%;
+}
+
+/* Права колонка: Статистика */
+.stat-visual-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chart-mockup {
+    font-size: 40px;
+    color: var(--accent-cyan);
+    opacity: 0.5;
+}
+
+.circle-chart {
+    width: 80px;
+    height: 80px;
+    border: 4px solid var(--accent-cyan);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+    .circle-chart.small {
+        width: 60px;
+        height: 60px;
+        font-size: 12px;
+    }
+
+.stat-double-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+/* Підсумки (Totals) */
+.totals-grid {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.total-value {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    margin: 5px 0;
+}
+
+.total-label {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.btn-link-text {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* adaptive */
+@media (max-width: 1100px) {
+    .dashboard-main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .events-mini-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* for select genre in createPerformer form  */
+.custom-input-group.select-multiple-wrapper {
+    height: auto; /* Дозволяємо контейнеру розтягуватися */
+    padding: 10px 15px;
+    align-items: flex-start; /* Іконка залишається зверху */
+}
+
+.select-multiple {
+    background: transparent;
+    border: none;
+    color: white;
+    width: 100%;
+    outline: none;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    min-height: 120px; /* Висота вікна вибору */
+    cursor: pointer;
+    padding-top: 5px;
+}
+
+    /* Стилізація окремих опцій */
+    .select-multiple option {
+        background-color: var(--input-bg);
+        color: var(--text-muted);
+        padding: 10px 12px;
+        border-radius: 8px;
+        margin-bottom: 5px;
+        transition: 0.2s ease;
+        border: 1px solid transparent;
+    }
+
+        /* Стан при наведенні */
+        .select-multiple option:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        /* Стан вибраної опції (Акцентний колір) */
+        /* Примітка: у багатьох браузерах для native select це працює обмежено, 
+   але цей код забезпечує найкращий вигляд */
+        .select-multiple option:checked {
+            background: var(--accent-cyan) !important;
+            color: var(--bg-dark) !important; /* Темний текст на світлому фоні */
+            font-weight: 600;
+            box-shadow: 0 0 10px rgba(180, 248, 200, 0.3);
+        }
+
+    /* --- Кастомний скролбар для списку жанрів --- */
+    .select-multiple::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .select-multiple::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 10px;
+    }
+
+    .select-multiple::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 10px;
+    }
+
+        .select-multiple::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+/* Додатковий підпис під селектором */
+.select-hint {
+    display: block;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+}

@@ -19,4 +19,6 @@ public partial class Genre
     [ForeignKey("GenreId")]
     [InverseProperty("Genres")]
     public virtual ICollection<Event> Events { get; set; } = new List<Event>();
+
+    public virtual ICollection<Performer> Performers { get; set; } = new List<Performer>();
 }

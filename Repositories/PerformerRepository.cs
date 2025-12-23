@@ -1,9 +1,10 @@
-﻿using GlobalFests.EFModels;
+﻿using GlobalFests.DTOs;
+using GlobalFests.EFModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace GlobalFests.Repositories
 {
-    public class PerformerRepository : ICRUD<Performer>
+    public class PerformerRepository : IPerformerRepository
     {
         private readonly DbContext _context;
 
@@ -24,6 +25,7 @@ namespace GlobalFests.Repositories
             return await _context.Set<Performer>()
                 .Include(p => p.Country)
                 .Include(p => p.Events)
+                .Include(p => p.Genres)
                 .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         }
 
@@ -54,6 +56,73 @@ namespace GlobalFests.Repositories
             _context.Set<Performer>().Remove(entity);
             await _context.SaveChangesAsync(cancellationToken);
             return true;
+        }
+
+
+        public async Task<CursorResult<PerformerDto>> GetAllPerformersByOrganizerAsync(
+           int organizerId,
+           DateTime? cursorDate = null,
+           int? cursorId = null,
+           int pageSize = 10,
+           CancellationToken cancellationToken = default)
+        {
+            var query = _context.Set<Performer>()
+                .Include(e => e.Genres)
+                .Include(e => e.Creator)
+                .Where(e => e.CreatedBy == organizerId)
+                .AsNoTracking()
+                .AsQueryable();
+
+            // 2. cursor logic
+            if (cursorDate.HasValue && cursorId.HasValue)
+            {
+                query = query.Where(e => e.CreatedAt < cursorDate.Value
+                                      || (e.CreatedAt == cursorDate.Value && e.Id < cursorId.Value));
+            }
+            var sql = query.ToQueryString();
+            Console.WriteLine(sql);
+            // 3. sorting limit
+            var performers = await query
+                .OrderByDescending(e => e.CreatedAt)
+                .ThenByDescending(e => e.Id)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return CreateCursorOrganizerResult(performers, pageSize);
+        }
+
+        private CursorResult<PerformerDto> CreateCursorOrganizerResult(List<Performer> performers, int pageSize)
+        {
+            var dtos = performers.Select(e => new PerformerDto
+            {
+                Id = e.Id,
+                Name = e.Name,
+                Avatar = e.Avatar,
+                CreatedAt = e.CreatedAt,
+                Approved = e.Approved,
+                Genres = e.Genres.Select(g => new Genre
+                {
+                    Id = g.Id,
+                    Genre1 = g.Genre1
+                }).ToList()
+
+
+            }).ToList();
+
+            var result = new CursorResult<PerformerDto>
+            {
+                Items = dtos,
+                HasNextPage = dtos.Count == pageSize
+            };
+
+            if (dtos.Any())
+            {
+                var lastItem = dtos.Last();
+                result.NextCursorDate = lastItem.CreatedAt;
+                result.NextCursorId = lastItem.Id;
+            }
+
+            return result;
         }
     }
 }

@@ -30,6 +30,8 @@ namespace GlobalFests.Repositories
                 .Include(e => e.Organizer)
                 .Include(e => e.Country)
                 .Include(e => e.Type)
+                .Include(e=> e.Genres)
+                .Include(e => e.Performers)
                 .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
         }
 
@@ -39,6 +41,7 @@ namespace GlobalFests.Repositories
                 .Include(e => e.Organizer)
                 .Include(e => e.Country)
                 .Include(e => e.Type);
+                
 
             if (!trackChanges)
             {
@@ -112,7 +115,7 @@ namespace GlobalFests.Repositories
 
 
 
-       
+
 
         //   DTO - get only necessary fields (auto AsNoTracking)
         public async Task<EventDto?> GetEventDtoByIdAsync(int id, CancellationToken cancellationToken = default)
@@ -179,18 +182,13 @@ namespace GlobalFests.Repositories
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-
-
-
-
         public async Task<CursorResult<EventDto>> GetEventsByCursorAsync(
            DateTime? cursorDate,
            int? cursorId,
            int pageSize,
            CancellationToken cancellationToken = default)
         {
-            // Використовуємо Raw SQL, як ви і хотіли
-            // MSSQL синтаксис: TOP замість LIMIT, розгорнута логіка OR
+
             var query = _context.Events
                 .FromSqlInterpolated($@"
                     SELECT TOP({pageSize}) *
@@ -207,12 +205,12 @@ namespace GlobalFests.Repositories
 
             var events = await query.ToListAsync(cancellationToken);
 
-            // Мапимо в DTO та формуємо результат курсора
+
             return CreateCursorResult(events, pageSize);
         }
 
         // ==========================================
-        // РЕАЛІЗАЦІЯ ПОШУКУ З КУРСОРОМ (LINQ Seek Method)
+        // search cursor
         // ==========================================
         public async Task<CursorResult<EventDto>> SearchEventsAsync(
             string? title = null,
@@ -236,7 +234,7 @@ namespace GlobalFests.Repositories
                 .AsNoTracking()
                 .AsQueryable();
 
-            // 1. Застосовуємо фільтри
+            // 1. search filter
             if (!string.IsNullOrWhiteSpace(title)) query = query.Where(e => e.Title.Contains(title));
             if (!string.IsNullOrWhiteSpace(city)) query = query.Where(e => e.City != null && e.City.Contains(city));
             if (countryId.HasValue) query = query.Where(e => e.CountryId == countryId.Value);
@@ -247,15 +245,15 @@ namespace GlobalFests.Repositories
             if (startDateTo.HasValue) query = query.Where(e => e.StartDate <= startDateTo.Value);
             if (approved.HasValue) query = query.Where(e => e.Approved == approved.Value);
 
-            // 2. Застосовуємо логіку курсора (Seek Pagination) через LINQ
-            // Це компілюється в такий самий ефективний SQL, як і Raw SQL вище
+            // 2. cursor logic
             if (cursorDate.HasValue && cursorId.HasValue)
             {
                 query = query.Where(e => e.StartDate < cursorDate.Value
                                       || (e.StartDate == cursorDate.Value && e.Id < cursorId.Value));
             }
-
-            // 3. Сортування та ліміт
+            var sql = query.ToQueryString();
+            Console.WriteLine(sql);
+            // 3. sorting limit
             var events = await query
                 .OrderByDescending(e => e.StartDate)
                 .ThenByDescending(e => e.Id)
@@ -264,8 +262,41 @@ namespace GlobalFests.Repositories
 
             return CreateCursorResult(events, pageSize);
         }
+        // getallEventsByOrganizer
 
-        // Допоміжний метод для створення відповіді
+        public async Task<CursorResult<EventOrganizerDto>> GetAllEventsByOrganizerAsync(
+            int organizerId,
+            DateTime? cursorDate = null,
+            int? cursorId = null,
+            int pageSize = 10,
+            CancellationToken cancellationToken = default)
+        {
+            var query = _context.Set<Event>()
+                .Include(e => e.Genres)
+                .Include(e => e.Organizer)
+                .Where(e => e.OrganizerId == organizerId)
+                .AsNoTracking()
+                .AsQueryable();
+
+            // 2. cursor logic
+            if (cursorDate.HasValue && cursorId.HasValue)
+            {
+                query = query.Where(e => e.CreatedAt < cursorDate.Value
+                                      || (e.CreatedAt == cursorDate.Value && e.Id < cursorId.Value));
+            }
+            var sql = query.ToQueryString();
+            Console.WriteLine(sql);
+            // 3. sorting limit
+            var events = await query
+                .OrderByDescending(e => e.CreatedAt)
+                .ThenByDescending(e => e.Id)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return CreateCursorOrganizerResult(events, pageSize);
+        }
+
+        // helper method
         private CursorResult<EventDto> CreateCursorResult(List<Event> events, int pageSize)
         {
             var dtos = events.Select(e => new EventDto
@@ -297,5 +328,49 @@ namespace GlobalFests.Repositories
 
             return result;
         }
+    
+        private CursorResult<EventOrganizerDto> CreateCursorOrganizerResult(List<Event> events, int pageSize)
+        {
+            var dtos = events.Select( e => new EventOrganizerDto
+            {
+                Id = e.Id,
+                Title = e.Title,
+                Poster = e.Poster,
+                CreatedAt = e.CreatedAt,
+                Approved = e.Approved,
+                Genres = e.Genres.Select(g => new Genre
+                {
+                    Id = g.Id,
+                    Genre1 = g.Genre1
+                }).ToList()
+
+
+            }).ToList();
+
+            var result = new CursorResult<EventOrganizerDto>
+            {
+                Items = dtos,
+                HasNextPage = dtos.Count == pageSize
+            };
+
+            if (dtos.Any())
+            {
+                var lastItem = dtos.Last();
+                result.NextCursorDate = lastItem.CreatedAt;
+                result.NextCursorId = lastItem.Id;
+            }
+
+            return result;
+        }
     }
+
+
+    // think about rewrite two methods in one 
+    /*public enum CursorResult
+    {
+        defaultMethod = 1,
+        Organizer = 2
+
+    }*/
 }
+

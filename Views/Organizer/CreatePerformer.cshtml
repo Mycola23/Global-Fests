@@ -1,0 +1,115 @@
+﻿@model GlobalFests.ViewModels.CreatePerformerViewModel
+
+<div class="page-container">
+    <div class="create-grid">
+        <!-- Left Column: Form -->
+        <div class="glass-panel">
+            <div class="form-header-row">
+                <h2 class="form-title-left">
+                    <i class="fas fa-user-plus icon-cyan"></i> Request New Performer
+                </h2>
+            </div>
+
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="All" class="text-danger validation-summary"></div>
+
+               
+                <div class="form-row-header">
+                    <div class="form-group">
+                        <label asp-for="NewPerformer.Name" class="form-label">Stage Name *</label>
+                        <div class="custom-input-group">
+                            <i class="fas fa-microphone input-icon"></i>
+                            <input asp-for="NewPerformer.Name" class="form-control-custom" placeholder="e.g. The Midnight Beats" required />
+                        </div>
+                        <span asp-validation-for="NewPerformer.Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Genres (Select one or more)</label>
+                        <div class="custom-input-group select-multiple-wrapper">
+                            <i class="fas fa-music input-icon" style="margin-top: 12px;"></i>
+                            <select asp-for="SelectedGenreIds" class="select-multiple"
+                                    multiple="multiple">
+                                @if (Model.Genres != null)
+                                {
+                                    @foreach (var genre in Model.Genres)
+                                    {
+                                        <option value="@genre.Id">@genre.Genre1</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <span class="select-hint">
+                            <i class="fas fa-info-circle"></i> Hold <b>Ctrl</b> (Win) or <b>Cmd</b> (Mac) to select multiple genres.
+                        </span>
+                        <span asp-validation-for="SelectedGenreIds" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="NewPerformer.Description" class="form-label">Biography / Description *</label>
+                    <div class="custom-input-group textarea-wrapper">
+                        <i class="fas fa-align-left input-icon"></i>
+                        <textarea asp-for="NewPerformer.Description" class="form-control-custom" rows="5" placeholder="Tell us about the performer's style and history" required></textarea>
+                    </div>
+                    <span asp-validation-for="NewPerformer.Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-row-equal">
+                    <div class="form-group">
+                        <label asp-for="NewPerformer.CountryId" class="form-label">Origin Country</label>
+                        <div class="custom-input-group">
+                            <i class="fas fa-globe input-icon"></i>
+                            <select asp-for="NewPerformer.CountryId" class="form-control-custom">
+                                <option value="">-- Select Country --</option>
+                                @if (Model.Countries != null)
+                                {
+                                    @foreach (var country in Model.Countries)
+                                    {
+                                        <option value="@country.Id">@country.CountryName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="NewPerformer.Avatar" class="form-label">Avatar / Photo URL</label>
+                        <div class="custom-input-group">
+                            <i class="fas fa-camera input-icon"></i>
+                            <input asp-for="NewPerformer.Avatar" class="form-control-custom" placeholder="https://example.com/photo.jpg" />
+                        </div>
+                        <span asp-validation-for="NewPerformer.Avatar" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-actions-group">
+                    <a asp-controller="Organizer" asp-action="Index" class="btn-main btn-secondary-custom">Cancel</a>
+                    <button type="submit" class="btn-main">Submit Request</button>
+                </div>
+            </form>
+        </div>
+
+       
+        <div class="side-panel">
+            <a asp-controller="Organizer" asp-action="Index" class="btn-dash btn-cyan btn-back-panel">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+
+            <div class="guidelines-card">
+                <h3 class="guidelines-title"><i class="fas fa-info-circle"></i> Submission Tips</h3>
+                <ul class="guidelines-list">
+                    <li><i class="fas fa-check"></i> <span>Use high-quality square images for avatars.</span></li>
+                    <li><i class="fas fa-check"></i> <span>Double-check the genre for better filtering.</span></li>
+                    <li><i class="fas fa-check"></i> <span>Provide social media links in the description.</span></li>
+                </ul>
+            </div>
+
+            <div class="guidelines-card alert-card">
+                <p class="alert-text">
+                    <i class="fas fa-clock"></i> New performers must be approved by an administrator before they can be added to events.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

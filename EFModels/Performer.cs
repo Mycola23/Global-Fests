@@ -17,9 +17,6 @@ public partial class Performer
 
     public string Description { get; set; } = null!;
 
-    [StringLength(4000)]
-    public string Genre { get; set; } = null!;
-
     public int? CountryId { get; set; }
 
     [StringLength(4000)]
@@ -44,4 +41,6 @@ public partial class Performer
     [ForeignKey("CreatedBy")]
     [ValidateNever]
     public virtual User? Creator { get; set; }
+
+    public virtual ICollection<Genre> Genres { get; set; } = new List<Genre>();
 }

@@ -3,6 +3,7 @@ using GlobalFests.EFModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using GlobalFests.ViewModels;
+using GlobalFests.Repositories;
 
 namespace GlobalFests.Controllers
 {
@@ -10,13 +11,15 @@ namespace GlobalFests.Controllers
     {
         private readonly IEventService _eventService;
         private readonly ILookupService _lookupService;
+        private readonly IEventRepository _eventRepo;
 
         public EventsController(
             IEventService eventService,
-            ILookupService lookupService)
+            ILookupService lookupService, IEventRepository eventRepo)
         {
             _eventService = eventService;
             _lookupService = lookupService;
+            _eventRepo = eventRepo;
         }
 
         // GET: Events
@@ -72,7 +75,7 @@ namespace GlobalFests.Controllers
 
             var now = DateTime.Now;
             var startDateClean = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0);
-            var model = new CreateViewModel
+            var model = new CreateEventsViewModel
             {
                 NewEvent = new Event
                 {
@@ -94,7 +97,7 @@ namespace GlobalFests.Controllers
         // POST: Events/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateViewModel model)
+        public async Task<IActionResult> Create(CreateEventsViewModel model)
         {
             if (!User.Identity?.IsAuthenticated ?? true)
                 return RedirectToAction("Login", "Account");
@@ -112,7 +115,7 @@ namespace GlobalFests.Controllers
             ModelState.Remove("Type");
             ModelState.Remove("Organizer");
             ModelState.Remove("Tickets");
-            ModelState.Remove("Genres");
+           
             ModelState.Remove("Performers");
             ModelState.Remove("WishList");
 
@@ -132,6 +135,20 @@ namespace GlobalFests.Controllers
 
             try
             {
+
+                if (model.SelectedGenreIds != null && model.SelectedGenreIds.Any())
+                {
+                    foreach (var genreId in model.SelectedGenreIds)
+                    {
+
+                        var genre = await _lookupService.GetGenreByIdAsync(genreId);
+                        if (genre != null)
+                        {
+                            model.NewEvent.Genres.Add(genre);
+                        }
+                    }
+                }
+
                 await _eventService.CreateEventAsync(model.NewEvent);
                 TempData["SuccessMessage"] = "Event created successfully! It will be visible after approval.";
                 return RedirectToAction(nameof(Index));
@@ -145,43 +162,105 @@ namespace GlobalFests.Controllers
                 return View(model);
             }
         }
-        //fix all viewbag remove completely
-        // POST: Events/Edit/5
+
+
+        public async Task<IActionResult> Edit(int id)
+        {
+            var eventEntity = await _eventRepo.GetByIdAsync(id);
+            
+
+            if (eventEntity == null)
+                return NotFound();
+
+           
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (eventEntity.OrganizerId != userId )
+                return Forbid();
+
+            var model = new EditEventsViewModel
+            {
+                Event = eventEntity,
+                Countries = await _lookupService.GetAllCountriesAsync(),
+                EventTypes = await _lookupService.GetAllEventTypesAsync(),
+                Genres = await _lookupService.GetAllGenresAsync(),
+
+                SelectedGenreIds = eventEntity.Genres.Select(g => g.Id).ToList()
+            };
+
+            return View(model);
+        }
+
+        // POST: Events/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Event eventEntity)
+        public async Task<IActionResult> Edit(int id, EditEventsViewModel model)
         {
-            if (!User.Identity?.IsAuthenticated ?? true)
-                return RedirectToAction("Login", "Account");
-
-            if (id != eventEntity.Id)
+            if (id != model.Event.Id)
                 return BadRequest();
 
-           
-           
+            
+            ModelState.Remove("Event.Country");
+            ModelState.Remove("Event.Type");
+            ModelState.Remove("Event.Organizer");
+            ModelState.Remove("Event.Genres");
+            ModelState.Remove("Event.Performers");
+
             if (!ModelState.IsValid)
             {
-                ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
-                ViewBag.EventTypes = await _lookupService.GetAllEventTypesAsync();
-                ViewBag.Genres = await _lookupService.GetAllGenresAsync();
-                return View(eventEntity);
+                model.Countries = await _lookupService.GetAllCountriesAsync();
+                model.EventTypes = await _lookupService.GetAllEventTypesAsync();
+                model.Genres = await _lookupService.GetAllGenresAsync();
+                return View(model);
             }
 
             try
             {
-                await _eventService.UpdateEventAsync(eventEntity);
+              
+                var existingEvent = await _eventRepo.GetByIdAsync(id);
+                if (existingEvent == null) return NotFound();
+
+                existingEvent.Title = model.Event.Title;
+                existingEvent.Description = model.Event.Description;
+                existingEvent.StartDate = model.Event.StartDate;
+                existingEvent.EndDate = model.Event.EndDate;
+                existingEvent.TypeId = model.Event.TypeId;
+                existingEvent.CountryId = model.Event.CountryId;
+                existingEvent.City = model.Event.City;
+                existingEvent.Address = model.Event.Address;
+                existingEvent.TicketPrice = model.Event.TicketPrice;
+                existingEvent.TicketAmount = model.Event.TicketAmount;
+                existingEvent.Poster = model.Event.Poster;
+                existingEvent.Latitude = model.Event.Latitude;
+                existingEvent.Longitude = model.Event.Longitude;
+
+               
+                existingEvent.Genres.Clear(); 
+                if (model.SelectedGenreIds != null && model.SelectedGenreIds.Any())
+                {
+                    foreach (var genreId in model.SelectedGenreIds)
+                    {
+                        var genre = await _lookupService.GetGenreByIdAsync(genreId);
+                        if (genre != null) existingEvent.Genres.Add(genre);
+                    }
+                }
+
+                
+                await _eventRepo.UpdateAsync(existingEvent);
+
                 TempData["SuccessMessage"] = "Event updated successfully!";
-                return RedirectToAction(nameof(Details), new { id });
+                return RedirectToAction("Index", "Organizer"); 
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", $"Error updating event: {ex.Message}");
-                ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
-                ViewBag.EventTypes = await _lookupService.GetAllEventTypesAsync();
-                ViewBag.Genres = await _lookupService.GetAllGenresAsync();
-                return View(eventEntity);
+                model.Countries = await _lookupService.GetAllCountriesAsync();
+                model.EventTypes = await _lookupService.GetAllEventTypesAsync();
+                model.Genres = await _lookupService.GetAllGenresAsync();
+                return View(model);
             }
         }
+    
+        
 
         //// POST: Events/Edit/5
         //[HttpPost]

@@ -1,0 +1,111 @@
+﻿@model GlobalFests.ViewModels.EditPerformerViewModel
+
+<div class="page-container">
+    <div class="create-grid">
+        <!-- Left Column: Form -->
+        <div class="glass-panel">
+            <div class="form-header-row">
+                <h2 class="form-title" style="justify-content: flex-start;">
+                    <i class="fas fa-user-edit icon-cyan" style="color: var(--accent-cyan); margin-right: 15px;"></i>
+                    Edit Performer: @Model.Performer.Name
+                </h2>
+            </div>
+
+            <form asp-action="EditPerformer" method="post">
+                <div asp-validation-summary="All" class="text-danger validation-summary"></div>
+
+                @* Приховані поля *@
+                <input type="hidden" asp-for="Performer.Id" />
+                <input type="hidden" asp-for="Performer.CreatedBy" />
+                <input type="hidden" asp-for="Performer.CreatedAt" />
+
+                <div class="form-row-header" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label asp-for="Performer.Name" class="form-label">Stage Name *</label>
+                        <div class="custom-input-group">
+                            <i class="fas fa-microphone input-icon"></i>
+                            <input asp-for="Performer.Name" class="form-control-custom" required />
+                        </div>
+                        <span asp-validation-for="Performer.Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Genres</label>
+                        <div class="custom-input-group select-multiple-wrapper">
+                            <i class="fas fa-music input-icon" style="margin-top: 12px;"></i>
+                            <select asp-for="SelectedGenreIds" class="select-multiple" multiple="multiple">
+                                @if (Model.Genres != null)
+                                {
+                                    @foreach (var genre in Model.Genres)
+                                    {
+                                        <option value="@genre.Id">@genre.Genre1</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label asp-for="Performer.Description" class="form-label">Biography / Description *</label>
+                    <div class="custom-input-group textarea-wrapper">
+                        <i class="fas fa-align-left input-icon"></i>
+                        <textarea asp-for="Performer.Description" class="form-control-custom" rows="6" required></textarea>
+                    </div>
+                    <span asp-validation-for="Performer.Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-row-equal" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+                    <div class="form-group">
+                        <label asp-for="Performer.CountryId" class="form-label">Origin Country</label>
+                        <div class="custom-input-group">
+                            <i class="fas fa-globe input-icon"></i>
+                            <select asp-for="Performer.CountryId" class="form-control-custom">
+                                <option value="">-- Select Country --</option>
+                                @foreach (var country in Model.Countries)
+                                {
+                                    <option value="@country.Id">@country.CountryName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Performer.Avatar" class="form-label">Avatar / Photo URL</label>
+                        <div class="custom-input-group">
+                            <i class="fas fa-camera input-icon"></i>
+                            <input asp-for="Performer.Avatar" class="form-control-custom" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions-group" style="display: flex; gap: 15px; margin-top: 35px;">
+                    <a asp-action="Index" class="btn-main btn-secondary-custom">Cancel</a>
+                    <button type="submit" class="btn-main">Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Column: Info -->
+        <div class="side-panel">
+            <a asp-action="Index" class="btn-dash btn-cyan btn-back-panel" style="margin-bottom: 20px;">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+
+            <div class="guidelines-card">
+                <h3 class="guidelines-title" style="color: var(--accent-cyan);"><i class="fas fa-info-circle"></i> Update Info</h3>
+                <p style="font-size: 14px; color: var(--text-muted); margin-top: 10px;">
+                    Keep the biography updated to provide fans and organizers with the latest information about the performer.
+                </p>
+                <ul class="guidelines-list" style="margin-top: 15px;">
+                    <li><i class="fas fa-check"></i> <span>Updating the avatar will refresh the profile immediately.</span></li>
+                    <li><i class="fas fa-check"></i> <span>Hold Ctrl to select multiple music genres.</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

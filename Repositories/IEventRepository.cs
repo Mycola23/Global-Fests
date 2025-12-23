@@ -20,6 +20,13 @@ namespace GlobalFests.Repositories
              int pageSize,
              CancellationToken cancellationToken = default);
 
+        Task<CursorResult<EventOrganizerDto>> GetAllEventsByOrganizerAsync(
+           int organizerId,
+           DateTime? cursorDate,
+           int? cursorId,
+           int pageSize,
+           CancellationToken cancellationToken = default);
+
         // grouping 
         //Task<List<EventsByCountryDto>> GetEventsByCountryAsync(CancellationToken cancellationToken = default);
         //Task<List<EventsByTypeDto>> GetEventsByTypeAsync(CancellationToken cancellationToken = default);

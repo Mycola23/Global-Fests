@@ -21,6 +21,7 @@ namespace GlobalFests.Repositories
 
         public async Task<Genre?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
         {
+            //! think about make two separate methods one that will include events else not be only get genres
             return await _context.Set<Genre>()
                 .Include(g => g.Events)
                 .FirstOrDefaultAsync(g => g.Id == id, cancellationToken);
