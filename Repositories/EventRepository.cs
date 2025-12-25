@@ -117,7 +117,7 @@ namespace GlobalFests.Repositories
 
 
 
-        //   DTO - get only necessary fields (auto AsNoTracking)
+       
         public async Task<EventDto?> GetEventDtoByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _context.Set<Event>()
@@ -234,7 +234,7 @@ namespace GlobalFests.Repositories
                 .AsNoTracking()
                 .AsQueryable();
 
-            // 1. search filter
+            //  search filters
             if (!string.IsNullOrWhiteSpace(title)) query = query.Where(e => e.Title.Contains(title));
             if (!string.IsNullOrWhiteSpace(city)) query = query.Where(e => e.City != null && e.City.Contains(city));
             if (countryId.HasValue) query = query.Where(e => e.CountryId == countryId.Value);
@@ -245,7 +245,7 @@ namespace GlobalFests.Repositories
             if (startDateTo.HasValue) query = query.Where(e => e.StartDate <= startDateTo.Value);
             if (approved.HasValue) query = query.Where(e => e.Approved == approved.Value);
 
-            // 2. cursor logic
+            // cursor logic
             if (cursorDate.HasValue && cursorId.HasValue)
             {
                 query = query.Where(e => e.StartDate < cursorDate.Value
@@ -253,7 +253,7 @@ namespace GlobalFests.Repositories
             }
             var sql = query.ToQueryString();
             Console.WriteLine(sql);
-            // 3. sorting limit
+            // sorting limit
             var events = await query
                 .OrderByDescending(e => e.StartDate)
                 .ThenByDescending(e => e.Id)
@@ -262,7 +262,9 @@ namespace GlobalFests.Repositories
 
             return CreateCursorResult(events, pageSize);
         }
-        // getallEventsByOrganizer
+
+
+        // ======= Get All Events By Organizer =======================
 
         public async Task<CursorResult<EventOrganizerDto>> GetAllEventsByOrganizerAsync(
             int organizerId,
@@ -278,7 +280,7 @@ namespace GlobalFests.Repositories
                 .AsNoTracking()
                 .AsQueryable();
 
-            // 2. cursor logic
+            //  cursor logic
             if (cursorDate.HasValue && cursorId.HasValue)
             {
                 query = query.Where(e => e.CreatedAt < cursorDate.Value
@@ -286,7 +288,7 @@ namespace GlobalFests.Repositories
             }
             var sql = query.ToQueryString();
             Console.WriteLine(sql);
-            // 3. sorting limit
+            //  sorting limit
             var events = await query
                 .OrderByDescending(e => e.CreatedAt)
                 .ThenByDescending(e => e.Id)
@@ -296,7 +298,7 @@ namespace GlobalFests.Repositories
             return CreateCursorOrganizerResult(events, pageSize);
         }
 
-        // helper method
+        // helper methods
         private CursorResult<EventDto> CreateCursorResult(List<Event> events, int pageSize)
         {
             var dtos = events.Select(e => new EventDto

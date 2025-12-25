@@ -1,7 +1,5 @@
 ﻿@model GlobalFests.ViewModels.EventsViewModel;
-@{
-   // ViewData["Title"] = "Browse Events";
-}
+
 
 <div class="page-container">
     <div class="action-row">
@@ -14,7 +12,7 @@
         }
     </div>
 
-    <!-- Filter Section (Dark Bar) -->
+    <!-- search bar  -->
     <div class="filter-bar">
         <form asp-action="Index" method="get">
             <div class="filter-grid">
@@ -68,7 +66,7 @@
                     <input type="date" asp-for="Search.StartDateTo"  class="form-control-custom" />
                 </div>
 
-                <!-- Buttons -->
+
                 <div style="display:flex; gap:10px;">
                     <button type="submit" class="btn-main" style="flex:2;">Search</button>
                     <a asp-action="Index" class="btn-main btn-secondary-custom" style="flex:1; justify-content:center; margin-top:10px; display:flex;">
@@ -79,7 +77,7 @@
         </form>
     </div>
 
-    <!-- Events Grid -->
+    <!-- events  -->
     @if (Model.Events?.Items?.Any() == true)
     {
         <p style="color: #888; margin-bottom: 20px;">Found @Model.Events.Items.Count event(s)</p>

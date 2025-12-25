@@ -1,7 +1,7 @@
 ﻿@model GlobalFests.ViewModels.OrganizerPanelViewModel;
 
 <div class="organizer__container organizer-dashboard">
-    <!-- Верхні кнопки дій -->
+    <!-- actions -->
     <div class="dashboard-actions">
         <a asp-controller="Events" asp-action="Create" class="btn-dash btn-cyan">
             <i class="fas fa-check-circle"></i> Create Event
@@ -12,10 +12,10 @@
     </div>
 
     <div class="dashboard-main-grid">
-        <!-- ЛІВА КОЛОНКА -->
+        <!-- Left side -->
         <div class="grid-column-left">
 
-            <!-- Запити виконавців -->
+            <!-- performer requests -->
             <div class="dash-glass-card">
                 <h3 class="dash-card-title">Performer Requests</h3>
                 <div class="performer-list">
@@ -24,16 +24,15 @@
                         @foreach (var item in Model.Performers.Items)
                         {
                             <div class="performer-item">
-                                @* Якщо аватара немає, використовуємо сервіс плейсхолдерів *@
+                                @* no avatar => load placeholder *@
                                 <img src="@(string.IsNullOrEmpty(item.Avatar) ? $"https://ui-avatars.com/api/?name={item.Name}&background=random" : item.Avatar)" alt="Avatar">
 
                                 <div class="performer-info">
                                     <span class="p-name">@item.Name</span>
                                     <span class="p-genre">
-                                        @* Виводимо назви жанрів через кому *@
                                         @(item.Genres != null && item.Genres.Any()
-                                            ? string.Join(", ", item.Genres.Select(g => g.Genre1))
-                                            : "No genres")
+                                                            ? string.Join(", ", item.Genres.Select(g => g.Genre1))
+                                                            : "No genres")
                                     </span>
                                     <span class="p-status @(item.Approved ? "" : "review")">
                                         @(item.Approved ? "Approved" : "Pending")
@@ -41,10 +40,10 @@
                                 </div>
 
                                 <a asp-controller="Organizer"
-                                   asp-action="EditPerformer"
-                                   asp-route-id="@item.Id"
-                                   class="btn-edit-performer"
-                                   style="text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                                asp-action="EditPerformer"
+                                asp-route-id="@item.Id"
+                                class="btn-edit-performer"
+                                style="text-decoration: none; display: flex; align-items: center; justify-content: center;">
                                     Edit
                                 </a>
                             </div>
@@ -57,7 +56,7 @@
                 </div>
             </div>
 
-            <!-- Мої створені події -->
+            <!-- Events section-->
             <div class="dash-glass-card">
                 <h3 class="dash-card-title">My Created Events</h3>
                 <div class="events-mini-grid">
@@ -72,10 +71,10 @@
                                     @(ev.Approved == true ? "Approved" : "Pending")
                                 </span>
                                 <a asp-controller="Events"
-                                   asp-action="Edit"
-                                   asp-route-id="@ev.Id"
-                                   class="btn-mini-edit"
-                                   style="text-align: center; text-decoration: none; display: block;">
+                                asp-action="Edit"
+                                asp-route-id="@ev.Id"
+                                class="btn-mini-edit"
+                                style="text-align: center; text-decoration: none; display: block;">
                                     Edit Event
                                 </a>
                             </div>
@@ -89,62 +88,317 @@
             </div>
         </div>
 
-        <!-- ПРАВА КОЛОНКА -->
+        <!-- Right side -->
         <div class="grid-column-right">
-
-            <!-- Статистика продажів -->
+            @* lines graphics sales by country *@
             <div class="dash-glass-card">
                 <div class="stat-header">
-                    <h3 class="dash-card-title">Event Statistics</h3>
-                    <span class="stat-sub">Ticket Sales Trend</span>
+                    <h3 class="dash-card-title">Ticket Sales Trend</h3>
+                    <span class="stat-sub">Monthly Overview</span>
                 </div>
                 <div class="stat-visual-row">
-                    <div class="chart-mockup">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="circle-progress-wrapper">
-                        <div class="circle-chart">20%</div>
-                        <span>Overall Sales</span>
+                    <div class="chart-container" style="width: 100%; height: 200px;">
+                        @if (Model.Stats?.MonthlySales?.Any() == true)
+                        {
+                            <canvas id="monthlySalesChart"></canvas>
+                        }
+                        else
+                        {
+                            <span>No monthly sales data </span>
+                        }
                     </div>
                 </div>
             </div>
 
-            <!-- Рівень доходу та Вік -->
-            <div class="stat-double-row">
-                <div class="dash-glass-card">
-                    <h3 class="dash-card-title">Revenue per Event</h3>
-                    <div class="bar-chart-mock">
-                        <div class="bar" style="height: 40%"></div>
-                        <div class="bar" style="height: 80%"></div>
-                        <div class="bar" style="height: 60%"></div>
-                    </div>
-                </div>
-                <div class="dash-glass-card">
-                    <h3 class="dash-card-title">Attendance</h3>
-                    <div class="circle-chart small">30%</div>
+            @* vertical graphics sales by country *@
+            <div class="dash-glass-card">
+                <h3 class="dash-card-title">Revenue by Event Type</h3>
+                <div class="chart-container" style="width: 100%; height: 200px;">
+
+                    @if (Model.Stats?.EventTypeSales?.Any() == true)
+                    {
+                        <canvas id="eventTypeSalesChart"></canvas>
+                    }
+                    else
+                    {
+                        <span>No sales data by eventType yet </span>
+                    }
                 </div>
             </div>
+            @* doughnut sales by country *@
+            <div class="dash-glass-card">
+                <h3 class="dash-card-title">Sales by Country</h3>
+                <div class="chart-container" style="width: 100%; ">
 
-            <!-- Підсумки -->
+                    @if (Model.Stats?.EventCountrySales?.Any() == true)
+                    {
+                        <canvas id="countrySalesChart"></canvas>
+                    }
+                    else
+                    {
+                        <span>No sales data by country yet</span>
+                    }
+                </div>
+            </div>
+            @* not nessessary part of stats *@
+            @* <div class="stat-double-row">
+                <div class="dash-glass-card">
+                    <h3 class="dash-card-title">Average Ticket Price</h3>
+                    <div class="circle-chart">
+                        @if (Model.Stats?.GeneralStats != null)
+                        {
+                            <span>@Model.Stats.GeneralStats.AverageTicketPrice.ToString("C0")</span> 
+                        }
+                        else
+                        {
+                            <span>N/A</span>
+                        }
+                    </div>
+                </div> 
+                
+            </div>*@
+
+            <!-- summary -->
             <div class="dash-glass-card totals-card">
                 <div class="totals-header">
-                    <h3 class="dash-card-title">Total Events Created</h3>
-                    <button class="btn-link-text">Edit Details</button>
+                    <h3 class="dash-card-title">Overall Totals</h3>
+                    <button class="btn-link-text">Export Data</button>
                 </div>
-                <div class="totals-grid">
-                    <div class="total-item">
-                        <span class="total-label">Total Emails</span>
-                        <span class="total-value">1159</span>
-                        <button class="btn-link-text">Edit Details</button>
+                @if (Model.Stats?.GeneralStats != null)
+                {
+                    <div class="totals-grid">
+                        <div class="total-item">
+                            <span class="total-label">Total Tickets Sold</span>
+                            <span class="total-value"> @Model.Stats.GeneralStats.TotalTicketsSold</span>
+                        </div>
+                        <div class="total-item">
+                            <span class="total-label">Total Revenue</span>
+                            <span class="total-value"> @Model.Stats.GeneralStats.TotalRevenue.ToString("C2")</span> >
+                        </div>
                     </div>
-                    <div class="total-item">
-                        <span class="total-label">Revenue Events</span>
-                        <span class="total-value">23591</span>
-                        <button class="btn-link-text">Export Data</button>
-                    </div>
-                </div>
+                }
+                else
+                {
+                    <p class="text-muted">No overall statistics available.</p>
+                }
             </div>
 
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0"></script>
+
+    <script>
+        
+        var organizerData = @Html.Raw(Json.Serialize(Model.Stats));
+
+        // color pallete
+        function getChartColors(index, alpha = 1) {
+            const colors = [
+                'rgba(180, 248, 200, ' + alpha + ')', // --accent-cyan
+                'rgba(61, 90, 241, ' + alpha + ')',   // --accent-blue 
+                'rgba(168, 85, 247, ' + alpha + ')',  // --accent-purple line-gradient
+                'rgba(255, 206, 86, ' + alpha + ')',  // additional
+                'rgba(75, 192, 192, ' + alpha + ')',
+                'rgba(153, 102, 255, ' + alpha + ')',
+                'rgba(255, 159, 64, ' + alpha + ')'
+            ];
+            return colors[index % colors.length];
+        }
+
+        //  Graphics  Monthly Sales ---
+        var monthlySalesCtx = document.getElementById('monthlySalesChart').getContext('2d');
+        if (organizerData && organizerData.monthlySales && organizerData.monthlySales.length > 0) {
+            new Chart(monthlySalesCtx, {
+                type: 'line',
+                data: {
+                    labels: organizerData.monthlySales.map(item => item.month),
+                    datasets: [{
+                        label: 'Tickets Sold',
+                        data: organizerData.monthlySales.map(item => item.ticketsSold),
+                        borderColor: getChartColors(0), // Accent Cyan
+                        backgroundColor: getChartColors(0, 0.2), // light fill
+                        fill: true,
+                        tension: 0.3, // border-radious for lines
+                        pointBackgroundColor: getChartColors(0),
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }, {
+                        label: 'Revenue',
+                        data: organizerData.monthlySales.map(item => item.revenue),
+                        borderColor: getChartColors(1), // Accent Blue
+                        backgroundColor: getChartColors(1, 0.2), // Light fill
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: getChartColors(1),
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(255,255,255,0.5)'
+                            },
+                            ticks: {
+                                color: '#fff'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255,255,255,0.5)'
+                            },
+                            ticks: {
+                                color: '#fff'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#fff'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Monthly Sales & Revenue Trend',
+                            color: '#fff',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        //  Graphics Revenue  Event Type
+        var eventTypeSalesCtx = document.getElementById('eventTypeSalesChart').getContext('2d');
+        if (organizerData && organizerData.eventTypeSales && organizerData.eventTypeSales.length > 0) {
+            new Chart(eventTypeSalesCtx, {
+                type: 'bar',
+                data: {
+                    labels: organizerData.eventTypeSales.map(item => item.eventType),
+                    datasets: [{
+                        label: 'Revenue by Event Type',
+                        data: organizerData.eventTypeSales.map(item => item.revenue),
+                        backgroundColor: organizerData.eventTypeSales.map((item, index) => getChartColors(index)),
+                        borderColor: organizerData.eventTypeSales.map((item, index) => getChartColors(index, 0.8)),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(255,255,255,0.5)'
+                            },
+                            ticks: {
+                                color: '#fff'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255,255,255,0.5)'
+                            },
+                            ticks: {
+                                color: '#fff'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false,
+                            labels: {
+                                color: '#fff'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Revenue Distribution by Event Type',
+                            color: '#fff',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        var countrySalesCtx = document.getElementById('countrySalesChart').getContext('2d');
+
+        //checks data 
+        if (organizerData && organizerData.eventCountrySales && organizerData.eventCountrySales.length > 0) {
+
+            
+            const sortedCountryData = organizerData.eventCountrySales.sort((a, b) => b.ticketsSold - a.ticketsSold);
+
+            new Chart(countrySalesCtx, {
+                type: 'doughnut', 
+                data: {
+                    labels: sortedCountryData.map(item => item.countryName),
+                    datasets: [{
+                        label: 'Tickets Sold',
+                        data: sortedCountryData.map(item => item.ticketsSold),
+                        backgroundColor: sortedCountryData.map((_, index) => getChartColors(index, 0.7)),
+                        borderColor: '#ffffff', 
+                        borderWidth: 1,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'right', 
+                            labels: {
+                                color: '#fff',
+                                boxWidth: 12,
+                                padding: 10,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        title: {
+                            display: false /
+                        },
+                        tooltip: {
+                            callbacks: {
+                                //add revenue for labels
+                                label: function(context) {
+                                    let index = context.dataIndex;
+                                    let item = sortedCountryData[index];
+                                    let revenueFormatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(item.revenue);
+                                    return `${item.countryName}: ${item.ticketsSold} tickets (${revenueFormatted})`;
+                                }
+                            }
+                        }
+                    },
+                    layout: {
+                        padding: 10
+                    }
+                }
+            });
+        } else {
+                countrySalesCanvas.style.display = 'none';
+                countrySalesNoData.style.display = 'flex';
+        }
+    </script>
+}

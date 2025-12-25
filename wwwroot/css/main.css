@@ -1162,3 +1162,41 @@ textarea.form-control-custom {
     color: var(--text-muted);
     font-style: italic;
 }
+
+
+/* ================================================= */
+
+
+.chart-container {
+    position: relative;
+    margin: auto;
+    width: 100%;
+   
+}
+
+/* Перевизначення кольорів Chart.js за замовчуванням для відповідності темі */
+canvas {
+    color: #fff; /* Для тексту на осях та легенди */
+}
+
+/* Стиль для круглого графіка (якщо будете робити) */
+.circle-chart {
+    /* Зберігаємо ваші стилі */
+    width: 80px;
+    height: 80px;
+    border: 4px solid var(--accent-cyan);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-bottom: 5px;
+    font-size: 16px; /* Збільшимо трохи шрифт */
+    color: var(--accent-cyan); /* Колір тексту всередині кола */
+}
+
+    .circle-chart.small {
+        width: 60px;
+        height: 60px;
+        font-size: 12px;
+    }

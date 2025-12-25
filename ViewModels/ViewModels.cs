@@ -162,5 +162,7 @@ namespace GlobalFests.ViewModels
         public CursorResult<PerformerDto>? Performers { get; set; }
 
         public CursorResult<EventOrganizerDto>? Events { get; set; }
+
+        public OrganizerPanelStats? Stats { get; set; }
     }
 }

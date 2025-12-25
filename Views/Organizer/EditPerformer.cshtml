@@ -2,7 +2,7 @@
 
 <div class="page-container">
     <div class="create-grid">
-        <!-- Left Column: Form -->
+        @*Left  form *@ 
         <div class="glass-panel">
             <div class="form-header-row">
                 <h2 class="form-title" style="justify-content: flex-start;">
@@ -13,8 +13,6 @@
 
             <form asp-action="EditPerformer" method="post">
                 <div asp-validation-summary="All" class="text-danger validation-summary"></div>
-
-                @* Приховані поля *@
                 <input type="hidden" asp-for="Performer.Id" />
                 <input type="hidden" asp-for="Performer.CreatedBy" />
                 <input type="hidden" asp-for="Performer.CreatedAt" />
@@ -85,8 +83,7 @@
                 </div>
             </form>
         </div>
-
-        <!-- Right Column: Info -->
+        @*Right  info *@
         <div class="side-panel">
             <a asp-action="Index" class="btn-dash btn-cyan btn-back-panel" style="margin-bottom: 20px;">
                 <i class="fas fa-arrow-left"></i> Back to Dashboard

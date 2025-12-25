@@ -15,12 +15,14 @@ namespace GlobalFests.Controllers
         private readonly ILookupService _lookupService;
         private readonly IPerformerRepository _performerRepo;
         private readonly IEventRepository _eventsRepo;
-        public OrganizerController(IUserService userService, ILookupService lookupService, IPerformerRepository performerRepo,IEventRepository eventsRepo)
+        private readonly IOrganizerStatsService _organizerStats;
+        public OrganizerController(IUserService userService, ILookupService lookupService, IPerformerRepository performerRepo,IEventRepository eventsRepo, IOrganizerStatsService organizerStats)
         {
             _userService = userService;
             _lookupService = lookupService;
             _performerRepo = performerRepo;
             _eventsRepo = eventsRepo;
+            _organizerStats = organizerStats;
         }
         public async Task<IActionResult> Index()
         {
@@ -33,9 +35,11 @@ namespace GlobalFests.Controllers
                 return RedirectToAction("Login", "Account");
 
             int userId = int.Parse(userIdClaim.Value);
-            var model = new OrganizerPanelViewModel {
-                Performers = await _performerRepo.GetAllPerformersByOrganizerAsync(userId,null,null,10),
-                Events = await _eventsRepo.GetAllEventsByOrganizerAsync(userId,null,null,10),
+            var model = new OrganizerPanelViewModel
+            {
+                Performers = await _performerRepo.GetAllPerformersByOrganizerAsync(userId, null, null, 10),
+                Events = await _eventsRepo.GetAllEventsByOrganizerAsync(userId, null, null, 10),
+                Stats = await _organizerStats.GetOrganizerAllStats(userId)
             };
             
 
@@ -117,13 +121,12 @@ namespace GlobalFests.Controllers
         // GET: Organizer/EditPerformer/5
         public async Task<IActionResult> EditPerformer(int id)
         {
-            // Отримуємо перформера з усіма зв'язками
+           
             var performer = await _performerRepo.GetByIdAsync(id);
 
             if (performer == null)
                 return NotFound();
 
-            // Перевірка прав доступу (тільки власник або адмін)
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             if (performer.CreatedBy != userId && !User.IsInRole("Admin"))
                 return Forbid();
@@ -147,7 +150,6 @@ namespace GlobalFests.Controllers
             if (id != model.Performer.Id)
                 return BadRequest();
 
-            // Видаляємо навігаційні властивості з валідації
             ModelState.Remove("Performer.Country");
             ModelState.Remove("Performer.Creator");
             ModelState.Remove("Performer.Genres");
@@ -162,18 +164,18 @@ namespace GlobalFests.Controllers
 
             try
             {
-                // Отримуємо існуючий об'єкт з бази (з відстеженням для оновлення зв'язків)
+               
                 var existingPerformer = await _performerRepo.GetByIdAsync(id);
                 if (existingPerformer == null) return NotFound();
 
-                // Оновлюємо основні поля
+               
                 existingPerformer.Name = model.Performer.Name;
                 existingPerformer.Description = model.Performer.Description;
                 existingPerformer.CountryId = model.Performer.CountryId;
                 existingPerformer.Avatar = model.Performer.Avatar;
-                // existingPerformer.Genre = ... (старе текстове поле можна залишити пустим або оновлювати)
+                
 
-                // Оновлюємо жанри (Many-to-Many)
+                // think about else method of checking gow to update genreses,performers... like for events as for performers
                 existingPerformer.Genres.Clear();
                 if (model.SelectedGenreIds != null && model.SelectedGenreIds.Any())
                 {

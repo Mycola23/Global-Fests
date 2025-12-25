@@ -73,7 +73,7 @@ namespace GlobalFests.Repositories
                 .AsNoTracking()
                 .AsQueryable();
 
-            // 2. cursor logic
+            //  cursor logic
             if (cursorDate.HasValue && cursorId.HasValue)
             {
                 query = query.Where(e => e.CreatedAt < cursorDate.Value
@@ -81,7 +81,7 @@ namespace GlobalFests.Repositories
             }
             var sql = query.ToQueryString();
             Console.WriteLine(sql);
-            // 3. sorting limit
+            //  sorting limit
             var performers = await query
                 .OrderByDescending(e => e.CreatedAt)
                 .ThenByDescending(e => e.Id)

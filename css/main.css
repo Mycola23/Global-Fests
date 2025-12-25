@@ -1,4 +1,4 @@
-/** {
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -573,4 +573,4 @@ img {
   .row {
     gap: 1.5rem;
   }
-}*/
+}

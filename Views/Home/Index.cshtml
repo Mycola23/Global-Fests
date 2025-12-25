@@ -2,8 +2,6 @@
 @{
     ViewData["Title"] = "Home";
 }
-
-<!-- Hero Section with Background -->
 <section class="hero-section">
     <div class="hero-overlay"></div>
     <div class="hero-content container">
@@ -11,11 +9,11 @@
         <h1 class="hero-title">
             Explore your place<br>to enjoy
         </h1>
-        <!-- Search Bar Container -->
+        <!-- search bar container -->
         <div class="search-panel">
             <form asp-controller="Events" asp-action="Index" method="get">
 
-                <!-- Row 1: Main Search inputs -->
+                <!-- row  search inputs -->
                 <div class="search-row primary-row">
                     <div class="input-group search-text">
                         <i class="fas fa-search"></i>
@@ -52,7 +50,7 @@
                     <button type="submit" class="search-btn">SEARCH</button>
                 </div>
 
-                <!-- Row 2: Filters -->
+                <!-- row  filters -->
                 <div class="search-row secondary-row">
                     <div class="input-group price-group">
                         <i class="fas fa-dollar-sign"></i>
@@ -97,7 +95,7 @@
     </div>
 </section>
 
-<!-- Events Listing Section (Dark Theme) -->
+<!-- events  section  -->
 <section class="events-section container">
     <div class="section-header">
         <h2>Featured Events</h2>
@@ -109,7 +107,7 @@
             @foreach (var eventItem in Model.Items)
             {
                 <div class="event-card">
-                    <!-- Placeholder for image if you have one, otherwise a gradient header -->
+                    
                     <div class="card-image-header"></div>
                     <div class="card-body">
                         <div class="card-date">

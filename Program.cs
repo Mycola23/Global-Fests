@@ -30,7 +30,7 @@ builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILookupService, LookupService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
-
+builder.Services.AddScoped<IOrganizerStatsService, OrganizerStatsService>();
 // Configure Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
