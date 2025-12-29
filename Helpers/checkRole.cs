@@ -16,4 +16,13 @@ namespace GlobalFests.Helpers
             return user.IsInRole(((int)role).ToString());
         }
     }
+
+    public enum Status
+    {
+        Draft = 0,          // draft only org can view
+        Pending = 1,        // on moderation
+        Approved = 2,       // 
+        Rejected = 3,       // need to be rewrited
+        Archived = 4        // 
+    }
 }

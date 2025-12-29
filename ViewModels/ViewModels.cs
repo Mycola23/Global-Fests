@@ -125,6 +125,12 @@ namespace GlobalFests.ViewModels
         public List<int> SelectedGenreIds { get; set; } = new List<int>();
     }
 
+    public class EventDetailsViewModel
+    {
+        public EventWithDetailsDto Event { get; set; } = new EventWithDetailsDto();
+        
+    }
+
 
 
 
@@ -157,6 +163,11 @@ namespace GlobalFests.ViewModels
 
     }
 
+    public class PerformerDetailsViewModel
+    {
+        public PerformerWithDetailsDto Performer { get; set; } = new();
+    }
+
     public class OrganizerPanelViewModel
     {
         public CursorResult<PerformerDto>? Performers { get; set; }
@@ -164,5 +175,38 @@ namespace GlobalFests.ViewModels
         public CursorResult<EventOrganizerDto>? Events { get; set; }
 
         public OrganizerPanelStats? Stats { get; set; }
+    }
+
+    public class AdminDashboardViewModel
+    {
+        // general stats
+        public int TotalUsers { get; set; }
+        public int TotalEvents { get; set; }
+        public int TotalPerformers { get; set; }
+        public decimal TotalRevenue { get; set; } 
+
+        // queue on moderation for approve
+        public List<Event> PendingEvents { get; set; } = new();
+        public List<Performer> PendingPerformers { get; set; } = new();
+
+        public AdminChartStats ChartStats { get; set; }
+    }
+
+    public class AdminChartStats
+    {
+        public List<MonthlyMetric> UserRegistrations { get; set; } = new();
+        public List<CategoryMetric> EventsByType { get; set; } = new();
+    }
+
+    public class MonthlyMetric
+    {
+        public string Month { get; set; }
+        public int Count { get; set; }
+    }
+
+    public class CategoryMetric
+    {
+        public string Name { get; set; }
+        public int Count { get; set; }
     }
 }

@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using GlobalFests.ViewModels;
 using GlobalFests.Repositories;
+using Microsoft.EntityFrameworkCore;
+using GlobalFests.Helpers;
 
 namespace GlobalFests.Controllers
 {
@@ -46,13 +48,14 @@ namespace GlobalFests.Controllers
                 model.Search.MaxPrice,
                 model.Search.StartDateFrom,
                 model.Search.StartDateTo,
-                true, // approved = true
+            //      true, // approved = true
+                (int)Status.Approved,
                 cursorDate,
                 cursorId,
                 15 // pageSize
             );
 
-            // Assign result back to ViewModel
+            
             model.Events = searchResult;
 
             return View(model);
@@ -65,8 +68,12 @@ namespace GlobalFests.Controllers
 
             if (eventDetails == null)
                 return NotFound();
+            var model = new EventDetailsViewModel
+            {
+                Event = eventDetails
+            };
 
-            return View(eventDetails);
+            return View(model);
         }
 
         // GET: Events/Create
@@ -361,7 +368,7 @@ namespace GlobalFests.Controllers
                 maxPrice: null,
                 startDateFrom: null,
                 startDateTo: null,
-                approved: null, 
+                status: (int)Status.Approved, 
                 cursorDate: null,
                 cursorId: null,
                 pageSize: 100);

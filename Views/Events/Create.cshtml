@@ -1,10 +1,10 @@
-﻿<!-- GlobalFests.EFModels.Event -->
+﻿
 @model GlobalFests.ViewModels.CreateEventsViewModel;
 
 
 <div class="page-container">
     <div class="create-grid">
-        <!-- Left Column: Form -->
+        @*left form*@
         <div class="glass-panel">
             <h2 class="form-title" style="justify-content: flex-start;">
                 <i class="fas fa-calendar-plus" style="color: var(--accent-cyan);"></i> Create New Event
@@ -29,8 +29,7 @@
                     </div>
                     <span asp-validation-for="NewEvent.Description" class="text-danger"></span>
                 </div>
-
-                <!-- Two columns grid for date/location inside form -->
+                @*Two columns grid for date/location inside form*@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div class="form-group">
                         <label asp-for="NewEvent.StartDate" class="form-label">Start Date *</label>
@@ -162,7 +161,7 @@
             </form>
         </div>
 
-        <!-- Right Column: Guidelines -->
+        @*right info*@
         <div style="margin-top: 20px;">
             <a asp-controller="Organizer" asp-action="Index" class="btn-dash btn-cyan" style="margin-bottom: 20px;">Back to panel</a>
             <div class="guidelines-card">

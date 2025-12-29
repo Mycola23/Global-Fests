@@ -100,7 +100,7 @@ namespace GlobalFests.Controllers
                     return View(model);
                 }
 
-                // Перевірка ролі (наприклад, якщо роль не завантажена)
+                
                 if (user.Role == null)
                 {
                     ModelState.AddModelError("", "User role not found");

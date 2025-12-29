@@ -13,7 +13,7 @@ namespace GlobalFests.Services
         Task<CursorResult<EventDto>> SearchEventsAsync(
             string? title, string? city, int? countryId, int? typeId,
             decimal? minPrice, decimal? maxPrice, DateTime? startDateFrom,
-            DateTime? startDateTo, bool? approved, DateTime? cursorDate,
+            DateTime? startDateTo, int? status, DateTime? cursorDate,
             int? cursorId, int pageSize = 15);
         Task<Event> CreateEventAsync(Event eventEntity);
         Task<Event> UpdateEventAsync(Event eventEntity);
@@ -53,12 +53,12 @@ namespace GlobalFests.Services
         public async Task<CursorResult<EventDto>> SearchEventsAsync(
             string? title, string? city, int? countryId, int? typeId,
             decimal? minPrice, decimal? maxPrice, DateTime? startDateFrom,
-            DateTime? startDateTo, bool? approved, DateTime? cursorDate,
+            DateTime? startDateTo, int? status, DateTime? cursorDate,
             int? cursorId, int pageSize = 15)
         {
             return await _eventRepository.SearchEventsAsync(
                 title, city, countryId, typeId, minPrice, maxPrice,
-                startDateFrom, startDateTo, approved, cursorDate, cursorId, pageSize);
+                startDateFrom, startDateTo, status, cursorDate, cursorId, pageSize);
         }
 
         public async Task<Event> CreateEventAsync(Event eventEntity)

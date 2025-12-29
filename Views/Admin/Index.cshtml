@@ -1,0 +1,291 @@
+﻿@model GlobalFests.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+
+<div class="organizer__container organizer-dashboard admin-theme">
+
+    
+
+    <div class="dashboard-header" style="margin-bottom: 30px;">
+        <h1 style="color: white; font-size: 32px;">System Administration</h1>
+        <p style="color: var(--text-muted);">Global overview and moderation panel</p>
+    </div>
+
+    <!-- stats row -->
+    <div class="stats-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+        <div class="dash-glass-card" style="margin-bottom: 0; text-align: center;">
+            <span class="total-label">Total Users</span>
+            <span class="total-value" style="color: #a855f7;">@Model.TotalUsers</span>
+        </div>
+        <div class="dash-glass-card" style="margin-bottom: 0; text-align: center;">
+            <span class="total-label">Total Events</span>
+            <span class="total-value" style="color: #3d5af1;">@Model.TotalEvents</span>
+        </div>
+        <div class="dash-glass-card" style="margin-bottom: 0; text-align: center;">
+            <span class="total-label">Pending Reviews</span>
+            <span class="total-value" style="color: #ffd800;">@(Model.PendingEvents.Count + Model.PendingPerformers.Count)</span>
+        </div>
+        <div class="dash-glass-card" style="margin-bottom: 0; text-align: center;">
+            <span class="total-label">System Revenue</span>
+            <span class="total-value" style="color: #b4f8c8;">@Model.TotalRevenue.ToString("C0")</span>
+        </div>
+    </div>
+
+    <div class="dashboard-main-grid">
+        <!-- left  moderation  management -->
+        <div class="grid-column-left">
+
+            <!-- db CRUD -->
+            <div class="dash-glass-card">
+                <h3 class="dash-card-title">Database Management</h3>
+                <div class="crud-actions-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px;">
+                    
+                    <a asp-controller="Users" asp-action="Index" class="btn-dash btn-manage">
+                        <i class="fas fa-users"></i> Users
+                    </a>
+                    <a asp-controller="Countries" asp-action="Index" class="btn-dash btn-manage">
+                        <i class="fas fa-globe"></i> Countries
+                    </a>
+                    <a asp-controller="Genres" asp-action="Index" class="btn-dash btn-manage">
+                        <i class="fas fa-music"></i> Genres
+                    </a>
+                    <a asp-controller="EventTypes" asp-action="Index" class="btn-dash btn-manage">
+                        <i class="fas fa-calendar-alt"></i> Event Types
+                    </a>
+                    <a asp-controller="Roles" asp-action="Index" class="btn-dash btn-manage">
+                        <i class="fas fa-user-shield"></i> Roles
+                    </a>
+                    <a asp-controller="Permissions" asp-action="Index" class="btn-dash btn-manage">
+                        <i class="fas fa-key"></i> Permissions
+                    </a>
+                </div>
+            </div>
+
+            <!-- events moderations  -->
+            <div class="dash-glass-card">
+                <h3 class="dash-card-title">Events Pending Approval (@Model.PendingEvents.Count)</h3>
+                <div class="list-stack" style="display: flex; flex-direction: column; gap: 10px;">
+                    @if (Model.PendingEvents.Any())
+                    {
+                        foreach (var ev in Model.PendingEvents)
+                        {
+                            <div class="approval-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 12px;">
+                                <div class="info">
+                                    <strong style="display: block; color: white;">@ev.Title</strong>
+                                    <span style="font-size: 12px; color: var(--text-muted);">By @ev.Organizer.Username | @ev.Type.Type</span>
+                                </div>
+                                <div class="actions" style="display: flex; gap: 12px;">
+                                    <form asp-action="ApproveEvent" asp-route-id="@ev.Id" method="post" style="display:inline;">
+                                        <button type="submit" class="btn-icon-ok" title="Approve">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    <form asp-action="RejectEvent" asp-route-id="@ev.Id" method="post" style="display:inline;">
+                                        <button type="button" class="btn-icon-no" title="Reject" onclick="openRejectModal('Event', @ev.Id)">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                    <a asp-controller="Events" asp-action="Details" asp-route-id="@ev.Id" class="btn-icon-view" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No pending events.</p>
+                    }
+                </div>
+            </div>
+            <!--Reject modals -->
+            <div id="rejectModal" class="modal-overlay" style="display: none;position: absolute; width:100%; height:100vh;">
+                <div class="dash-glass-card modal-content" style="max-width: 500px;  position: relative; top:50%; left:50%; transform:translate(-67.5%,-50%); z-index: 1001;">
+                    <h3 class="dash-card-title" style="color: #ff6b6b;">Reject Item</h3>
+                    <p style="color: #ccc; margin-bottom: 15px;">Please provide a reason for rejection. This will be visible to the organizer.</p>
+
+                    <form id="rejectForm" method="post">
+                        <input type="hidden" name="id" id="rejectIdInput" />
+
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <textarea name="reason" class="form-control-custom" rows="4" placeholder="e.g. Offensive content, Low quality image..." required style="background: rgba(0,0,0,0.2); border: 1px solid #444; color: white; width: 100%; padding: 10px; border-radius: 8px;"></textarea>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                            <button type="button" onclick="closeRejectModal()" class="btn-dash" style="background: transparent; border: 1px solid #666; color: #ccc;">Cancel</button>
+                            <button type="submit" class="btn-dash" style="background: rgba(255, 107, 107, 0.2); border: 1px solid #ff6b6b; color: #ff6b6b;">Confirm Rejection</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- Dark backdrop -->
+                <div onclick="closeRejectModal()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000;"></div>
+            </div>
+
+            <!-- performers moderations  -->
+            <div class="dash-glass-card">
+                <h3 class="dash-card-title">Performers Pending Approval (@Model.PendingPerformers.Count)</h3>
+                <div class="list-stack" style="display: flex; flex-direction: column; gap: 10px;">
+                    @if (Model.PendingPerformers.Any())
+                    {
+                        foreach (var perf in Model.PendingPerformers)
+                        {
+                            <div class="approval-item" style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 10px 15px; border-radius: 12px;">
+                                <div class="info" style="display: flex; align-items: center; gap: 10px;">
+                                    <img src="@(string.IsNullOrEmpty(perf.Avatar) ? $"https://ui-avatars.com/api/?name={perf.Name}" : perf.Avatar)" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
+                                    <div>
+                                        <strong style="display: block; color: white;">@perf.Name</strong>
+                                        <span style="font-size: 12px; color: var(--text-muted);">
+                                            @(perf.Genres.Any() ? string.Join(", ", perf.Genres.Take(2).Select(g => g.Genre1)) : "No Genre")
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="actions" style="display: flex; gap: 12px;">
+                                    <form asp-action="ApprovePerformer" asp-route-id="@perf.Id" method="post" style="display:inline;">
+                                        <button type="submit" class="btn-icon-ok" title="Approve">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    <button type="button" class="btn-icon-no" onclick="openRejectModal('Performer', @perf.Id)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <a asp-controller="Organizer" asp-action="DetailsPerformer" asp-route-id="@perf.Id" class="btn-icon-view" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">No pending performers.</p>
+                    }
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right stats -->
+        <div class="grid-column-right">
+
+          
+            <div class="dash-glass-card">
+                <h3 class="dash-card-title">User Growth (Last 6 Months)</h3>
+                <div class="chart-container" style="height: 200px;">
+                    <canvas id="userGrowthChart"></canvas>
+                </div>
+            </div>
+
+           
+            <div class="dash-glass-card">
+                <h3 class="dash-card-title">Events Distribution</h3>
+                <div class="chart-container" style="height: 200px;">
+                    <canvas id="eventTypesChart"></canvas>
+                </div>
+            </div>
+
+           
+            <div class="dash-glass-card">
+                <h3 class="dash-card-title">System Health</h3>
+                <div class="totals-grid">
+                    <div class="total-item">
+                        <span class="total-label">DB Connection</span>
+                        <span class="total-value" style="font-size: 18px; color: #b4f8c8;">Active</span>
+                    </div>
+                    <div class="total-item">
+                        <span class="total-label">Server Time</span>
+                        <span class="total-value" style="font-size: 18px; color: white;">@DateTime.Now.ToString("HH:mm")</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+
+        function openRejectModal(type, id) {
+            var form = document.getElementById('rejectForm');
+            var input = document.getElementById('rejectIdInput');
+            var modal = document.getElementById('rejectModal');
+
+
+            input.value = id
+            if (type === 'Event') {
+                form.action = '/Admin/RejectEvent';
+            } else {
+                form.action = '/Admin/RejectPerformer';
+            }
+
+            modal.style.display = 'block';
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+        }
+
+
+        var chartData = @Html.Raw(Json.Serialize(Model.ChartStats));
+
+        //  users growth graphic lines
+        var userCtx = document.getElementById('userGrowthChart').getContext('2d');
+        new Chart(userCtx, {
+            type: 'line',
+            data: {
+                labels: chartData.userRegistrations.map(x => x.month),
+                datasets: [{
+                    label: 'New Users',
+                    data: chartData.userRegistrations.map(x => x.count),
+                    borderColor: '#a855f7', // Purple
+                    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { ticks: { color: '#ccc' }, grid: { display: false } },
+                    y: { ticks: { color: '#ccc' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                }
+            }
+        });
+
+        // event types graphic doughnut
+        var typeCtx = document.getElementById('eventTypesChart').getContext('2d');
+        new Chart(typeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: chartData.eventsByType.map(x => x.name),
+                datasets: [{
+                    data: chartData.eventsByType.map(x => x.count),
+                    backgroundColor: [
+                        'rgba(61, 90, 241, 0.7)',
+                        'rgba(180, 248, 200, 0.7)',
+                        'rgba(168, 85, 247, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(255, 99, 132, 0.7)'
+                    ],
+                    borderColor: '#151621',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { color: '#fff', font: {size: 11} } }
+                }
+            }
+        });
+    </script>
+}

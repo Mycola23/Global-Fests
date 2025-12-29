@@ -41,7 +41,7 @@ namespace GlobalFests.Repositories
             decimal? maxPrice = null,
             DateTime? startDateFrom = null,
             DateTime? startDateTo = null,
-            bool? approved = null,
+            int? status = null,
             DateTime? cursorDate = null, 
             int? cursorId = null,       
             int pageSize = 15,           

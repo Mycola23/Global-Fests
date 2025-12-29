@@ -1,0 +1,185 @@
+﻿@using GlobalFests.EFModels
+@using GlobalFests.Helpers
+@model GlobalFests.ViewModels.PerformerDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.Performer.Name;
+    var avatarUrl = string.IsNullOrEmpty(Model.Performer.Avatar)
+        ? $"https://ui-avatars.com/api/?name={Model.Performer.Name}&background=random&size=256"
+        : Model.Performer.Avatar;
+}
+
+<!-- Hero Section (Artist Style) -->
+<div class="performer-hero" style="background-image: url('@avatarUrl');">
+    <div class="hero-overlay-gradient"></div>
+    <div class="container hero-container" style="display: flex; align-items: flex-end; gap: 30px;">
+
+        <!-- Main Avatar Circle -->
+        <div class="hero-avatar-circle">
+            <img src="@avatarUrl" alt="@Model.Performer.Name" />
+        </div>
+
+        <div class="hero-text" style="padding-bottom: 20px;">
+            <!-- Genres Badge Row -->
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                @foreach (var g in Model.Performer.Genres)
+                {
+                    <span class="event-type-badge" style="background: var(--accent-blue); color: white;">@g.Genre1</span>
+                }
+            </div>
+
+            <h1 class="event-title-large">@Model.Performer.Name</h1>
+
+            <div class="hero-meta">
+                <span><i class="fas fa-globe-americas"></i> @Model.Performer.CountryName</span>
+                @if (Model.Performer.Status == (int)Status.Approved)
+                {
+                    <span style="color: #b4f8c8;"><i class="fas fa-check-circle"></i> Verified Artist</span>
+                }
+                else if (Model.Performer.Status == (int)Status.Pending)
+                {
+                    <span style="color: #ffd800;"><i class="fas fa-clock"></i> Pending Review</span>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container page-container" style="margin-top: -60px; position: relative; z-index: 2;">
+
+    <!-- ADMIN PANEL -->
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="admin-actions-bar" style="background: rgba(20, 20, 30, 0.95); padding: 20px; border-radius: 16px; margin-top: 40px; margin-bottom: 30px; border: 1px solid var(--accent-blue); display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <i class="fas fa-user-shield" style="font-size: 24px; color: var(--accent-cyan);"></i>
+                <div>
+                    <h4 style="color: white; margin-bottom: 2px;">Admin Control</h4>
+                    <p style="color: #aaa; font-size: 12px; margin: 0;">Created by: @Model.Performer.CreatorName</p>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 15px;">
+                <button type="button" class="btn-dash" title="Reject"
+                        style="background: rgba(255, 107, 107, 0.15); border: 1px solid #ff6b6b; color: #ff6b6b;"
+                        onclick="openRejectModal(@Model.Performer.Id)">
+                    <i class="fas fa-times"></i> Reject
+                </button>
+
+                <form asp-controller="Admin" asp-action="ApprovePerformer" method="post" style="margin:0;">
+                    <input type="hidden" name="id" value="@Model.Performer.Id" />
+                    <button type="submit" class="btn-dash" style="background: rgba(180, 248, 200, 0.15); border: 1px solid #b4f8c8; color: #b4f8c8;">
+                        <i class="fas fa-check"></i> Approve
+                    </button>
+                </form>
+            </div>
+            <a asp-controller="Admin" asp-action="Index" class="btn-dash" style="border: 1px solid #555; color: #ccc;">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+        </div>
+    }
+
+    <!-- MAIN GRID -->
+    <div class="details-grid">
+
+        <!-- LEFT: Biography -->
+        <div class="details-left">
+            <div class="dash-glass-card">
+                <h3 class="section-title">Biography</h3>
+                <div class="event-description">
+                    @if (!string.IsNullOrEmpty(Model.Performer.Description))
+                    {
+                        @Html.Raw(Model.Performer.Description.Replace("\n", "<br>"))
+                    }
+                    else
+                    {
+                        <p class="text-muted">No biography available.</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Rejection Reason (Visible only if rejected) -->
+            @if (Model.Performer.Status == (int)Status.Rejected && !string.IsNullOrEmpty(Model.Performer.RejectionReason))
+            {
+                <div class="dash-glass-card" style="border-color: #ff6b6b;">
+                    <h3 class="section-title" style="color: #ff6b6b;">Rejection Notice</h3>
+                    <p class="text-white">@Model.Performer.RejectionReason</p>
+                </div>
+            }
+        </div>
+
+        <!-- RIGHT: Upcoming Events -->
+        <div class="details-right">
+            <div class="dash-glass-card sticky-card">
+                <h3 class="section-title-small">Upcoming Events</h3>
+
+                @if (Model.Performer.Events.Any())
+                {
+                    <div class="upcoming-list" style="display: flex; flex-direction: column; gap: 15px;">
+                        @foreach (var ev in Model.Performer.Events)
+                        {
+                            <a asp-controller="Events" asp-action="Details" asp-route-id="@ev.Id" class="upcoming-card" style="display: flex; gap: 15px; text-decoration: none; padding: 10px; border-radius: 12px; transition: 0.2s; background: rgba(255,255,255,0.03);">
+                                <div class="upcoming-thumb" style="width: 60px; height: 60px; border-radius: 8px; background: url('@(string.IsNullOrEmpty(ev.Poster) ? "https://picsum.photos/200" : ev.Poster)') center/cover;"></div>
+                                <div class="upcoming-info" style="display: flex; flex-direction: column; justify-content: center;">
+                                    <strong style="color: white; font-size: 14px; line-height: 1.2;">@ev.Title</strong>
+                                    <span style="color: var(--accent-cyan); font-size: 12px; margin-top: 4px;">@ev.StartDate.ToString("MMM dd, HH:mm")</span>
+                                    <span style="color: #777; font-size: 11px;">@ev.City</span>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div style="text-align: center; padding: 30px 0;">
+                        <i class="far fa-calendar-times" style="font-size: 30px; color: #444; margin-bottom: 10px;"></i>
+                        <p class="text-muted">No upcoming events found for this artist.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal (Unified Floating Panel) -->
+<div id="rejectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; pointer-events: none; justify-content: center; align-items: center;">
+    <div class="dash-glass-card modal-content" style="width: 500px; max-width: 90%; pointer-events: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 1px solid #ff6b6b;">
+
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+            <div>
+                <h3 class="dash-card-title" style="color: #ff6b6b; margin: 0;">Reject Performer</h3>
+                <p style="color: #ccc; margin: 0; font-size: 12px;">This won't block the page. You can scroll.</p>
+            </div>
+            <button onclick="closeRejectModal()" style="color: #aaa; font-size: 20px; padding: 0 5px;"><i class="fas fa-times"></i></button>
+        </div>
+
+        <form id="rejectForm" asp-controller="Admin" asp-action="RejectPerformer" method="post">
+            <input type="hidden" name="id" id="rejectIdInput" />
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <textarea name="reason" class="form-control-custom" rows="4"
+                          placeholder="e.g. Bad image quality, duplicate artist..." required
+                          style="background: rgba(0,0,0,0.3); border: 1px solid #555; color: white; width: 100%; padding: 10px; border-radius: 8px; resize: vertical;"></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="closeRejectModal()" class="btn-dash" style="background: transparent; border: 1px solid #666; color: #ccc;">Cancel</button>
+                <button type="submit" class="btn-dash" style="background: rgba(255, 107, 107, 0.2); border: 1px solid #ff6b6b; color: #ff6b6b;">Confirm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openRejectModal(id) {
+            document.getElementById('rejectIdInput').value = id;
+            var modal = document.getElementById('rejectModal');
+            modal.style.display = 'flex';
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+        }
+    </script>
+}

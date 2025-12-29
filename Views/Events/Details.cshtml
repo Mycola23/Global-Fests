@@ -1,0 +1,259 @@
+﻿@using System.Globalization
+@model GlobalFests.ViewModels.EventDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.Event.Title;
+
+    // Логіка для постера (заглушка, якщо немає)
+    var posterUrl = string.IsNullOrEmpty(Model.Event.Poster)
+        ? "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80"
+        : Model.Event.Poster;
+
+    // Форматування координат для URL (щоб була крапка: 50.45 замість 50,45)
+    var lat = Model.Event.Latitude.ToString(CultureInfo.InvariantCulture);
+    var lng = Model.Event.Longitude.ToString(CultureInfo.InvariantCulture);
+}
+
+<!-- Hero Section -->
+<div class="event-hero" style="background-image: url('@posterUrl');">
+    <div class="hero-overlay-gradient"></div>
+    <div class="container hero-container">
+        <div class="hero-text">
+            <span class="event-type-badge">@Model.Event.EventType</span>
+            <h1 class="event-title-large">@Model.Event.Title</h1>
+            <div class="hero-meta">
+                <span><i class="far fa-calendar-alt"></i> @Model.Event.StartDate.ToString("f")</span>
+                <span><i class="fas fa-map-marker-alt"></i> @Model.Event.City, @Model.Event.CountryName</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container page-container" style="margin-top: -60px; position: relative; z-index: 2;">
+
+    <!-- ADMIN PANEL (Відображається тільки для Адміна) -->
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="admin-actions-bar" style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 16px; margin-top: 40px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h4 style="color: white; margin-bottom: 5px;">Admin Control</h4>
+                <p style="color: #aaa; font-size: 13px;">Review content carefully before approving.</p>
+            </div>
+
+            <div style="display: flex; gap: 15px;">
+                <form asp-action="RejectEvent" asp-route-id="@Model.Event.Id" method="post" style="display:inline;">
+                    <button type="button" class="btn-dash" title="Reject" style="background: rgba(255, 107, 107, 0.2); border: 1px solid #ff6b6b; color: #ff6b6b;" onclick="openRejectModal('Event', @Model.Event.Id)">
+                        <i class="fas fa-times"></i>
+                        Reject
+                    </button>
+                </form>
+
+                <form asp-controller="Admin" asp-action="ApproveEvent" method="post">
+                    <input type="hidden" name="id" value="@Model.Event.Id" />
+                    <button type="submit" class="btn-dash" style="background: rgba(180, 248, 200, 0.2); border: 1px solid #b4f8c8; color: #b4f8c8;">
+                        Approve & Publish
+                    </button>
+                </form>
+            </div>
+            <a asp-controller="Admin" asp-action="Index" class="btn-dash btn-cyan btn-back-panel">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        
+        <!-- Reject Modal  -->
+        <div id="rejectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; pointer-events: none; justify-content: center; align-items: center;">
+
+            <!-- Сама картка -->
+            <div class="dash-glass-card modal-content" style="width: 500px; max-width: 90%; pointer-events: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 1px solid #ff6b6b;">
+
+                <!-- Заголовок з кнопкою закриття -->
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                    <div>
+                        <h3 class="dash-card-title" style="color: #ff6b6b; margin: 0;">Reject Event</h3>
+                        <p style="color: #ccc; margin: 0; font-size: 14px;">Please provide a reason for rejection. This will be visible to the organizer</p>
+                    </div>
+                    <button onclick="closeRejectModal()" style="color: #aaa; font-size: 20px; padding: 0 5px;"><i class="fas fa-times"></i></button>
+                </div>
+
+                <form id="rejectForm" method="post">
+                    <input type="hidden" name="id" id="rejectIdInput" />
+
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <textarea name="reason" class="form-control-custom" rows="4"
+                                  placeholder="Please check the description or location..." required
+                                  style="background: rgba(0,0,0,0.3); border: 1px solid #555; color: white; width: 100%; padding: 10px; border-radius: 8px; resize: vertical;"></textarea>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" onclick="closeRejectModal()" class="btn-dash" style="background: transparent; border: 1px solid #666; color: #ccc;">Cancel</button>
+                        <button type="submit" class="btn-dash" style="background: rgba(255, 107, 107, 0.2); border: 1px solid #ff6b6b; color: #ff6b6b;">Confirm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+
+    <!-- MAIN GRID -->
+    <div class="details-grid">
+
+        <!-- left -->
+        <div class="details-left">
+
+            <!-- Description Card -->
+            <div class="dash-glass-card mb-4">
+                <h3 class="section-title">About Event</h3>
+                <div class="event-description">
+                    @if (!string.IsNullOrEmpty(Model.Event.Description))
+                    {
+                        @Html.Raw(Model.Event.Description.Replace("\n", "<br>"))
+                    }
+                    else
+                    {
+                        <p class="text-muted">No description provided by organizer.</p>
+                    }
+                </div>
+
+                <!-- Genres Tags -->
+                @if (Model.Event.Genres.Any())
+                {
+                    <div class="genres-wrapper">
+                        @foreach (var g in Model.Event.Genres)
+                        {
+                            <span class="genre-tag">#@g.Genre1</span>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Performers Section -->
+            <div class="dash-glass-card">
+                <h3 class="section-title">Performers & Lineup</h3>
+                @if (Model.Event.Performers.Any())
+                {
+                    <div class="performers-grid">
+                        @foreach (var p in Model.Event.Performers)
+                        {
+                            <div class="performer-card-mini">
+                                <img src="@(string.IsNullOrEmpty(p.Avatar) ? $"https://ui-avatars.com/api/?name={p.Name}&background=random" : p.Avatar)" alt="@p.Name">
+                                <div class="perf-info">
+                                    <h5>@p.Name</h5>
+                                    <span style="font-size: 11px; color: #888;">@(p.Genres.Any() ? p.Genres.First().Genre1 : "Artist")</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">Lineup to be announced.</p>
+                }
+            </div>
+        </div>
+
+        <!-- right -->
+        <div class="details-right">
+
+            <!-- ticket -->
+            <div class="dash-glass-card ">
+                <div class="price-header">
+                    <span class="price-label">Tickets starting at</span>
+                    <span class="price-value">
+                        @(Model.Event.TicketPrice.HasValue ? Model.Event.TicketPrice.Value.ToString("C0") : "Free")
+                    </span>
+                </div>
+
+                @if (Model.Event.TicketAmount > 0)
+                {
+                    <button class="btn-main w-100">Get Tickets</button>
+                    <span class="stock-info"><i class="fas fa-ticket-alt"></i> @Model.Event.TicketAmount tickets left</span>
+                }
+                else
+                {
+                    <button class="btn-main w-100" disabled style="background: #444; color: #888; cursor: not-allowed;">Sold Out</button>
+                }
+
+                <hr class="divider" />
+
+                <div class="mini-info-row">
+                    <i class="far fa-clock"></i>
+                    <div>
+                        <strong>Date & Time</strong>
+                        <span>@Model.Event.StartDate.ToString("MMMM dd, yyyy")</span>
+                        <span style="font-size: 12px; color: #888;">@Model.Event.StartDate.ToString("HH:mm") - @Model.Event.EndDate.ToString("HH:mm")</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- location -->
+            <div class="dash-glass-card">
+                <h3 class="section-title-small">Location</h3>
+                <div class="location-box">
+                    <strong>@Model.Event.City, @Model.Event.CountryName</strong>
+                    <p style="color: #aaa; font-size: 13px; margin-bottom: 10px;">
+                        @(string.IsNullOrEmpty(Model.Event.Address) ? "Address TBA" : Model.Event.Address)
+                    </p>
+
+                   
+                    <div class="map-container" style="border-radius: 12px; overflow: hidden; margin-top: 15px; border: 1px solid #333;">
+                        <iframe width="100%"
+                                height="250"
+                                frameborder="0"
+                                scrolling="no"
+                                marginheight="0"
+                                marginwidth="0"
+                                src="https://maps.google.com/maps?q=@lat,@lng&hl=en&z=15&output=embed"
+                                style="filter: grayscale(0.2) contrast(1.1);">
+                        </iframe>
+                    </div>
+
+                    <a href="https://www.google.com/maps/search/?api=1&query=@lat,@lng" target="_blank" class="text-link" style="display: block; margin-top: 10px; text-align: right;">
+                        <i class="fas fa-external-link-alt"></i> Open in Google Maps
+                    </a>
+                </div>
+            </div>
+
+            <!-- organizer -->
+            <div class="dash-glass-card">
+                <h3 class="section-title-small">Organizer</h3>
+                <div class="organizer-row">
+                    <div class="org-avatar">
+                        @(string.IsNullOrEmpty(Model.Event.OrganizerName) ? "?" : Model.Event.OrganizerName.Substring(0, 1).ToUpper())
+                    </div>
+                    <div>
+                        <strong>@Model.Event.OrganizerName</strong>
+                        <a href="mailto:@Model.Event.OrganizerEmail" class="text-link" style="font-size: 12px; display: block;">Contact Organizer</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    
+</div>
+
+
+
+@section Scripts {
+    <script>
+            function openRejectModal(type, id) {
+            var form = document.getElementById('rejectForm');
+            var input = document.getElementById('rejectIdInput');
+            var modal = document.getElementById('rejectModal');
+            input.value = id;
+            if (type === 'Event' || typeof type === 'number') {
+                form.action = '/Admin/RejectEvent';
+                if (typeof type === 'number') input.value = type;
+            } else {
+                form.action = '/Admin/RejectPerformer';
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+        }
+    </script>
+}

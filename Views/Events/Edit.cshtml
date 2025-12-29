@@ -2,6 +2,7 @@
 
 <div class="page-container">
     <div class="create-grid">
+        @*left form*@
         <div class="glass-panel">
             <h2 class="form-title" style="justify-content: flex-start;">
                 <i class="fas fa-edit" style="color: var(--accent-cyan);"></i> Edit Event: @Model.Event.Title
@@ -132,8 +133,7 @@
                 </div>
             </form>
         </div>
-
-        <!-- Right Side -->
+        @*right*@
         <div>
             <a asp-controller="Organizer" asp-action="Index" class="btn-dash btn-cyan" style="margin-bottom: 20px;">Back to panel</a>
             <div class="guidelines-card">

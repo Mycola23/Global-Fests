@@ -54,7 +54,10 @@ public partial class GlobalFestsContext : DbContext
             
             entity.ToTable(tb => tb.HasTrigger("ValidateEventDates"));
 
-            entity.Property(e => e.Approved).HasDefaultValue(false);
+            //entity.Property(e => e.Approved).HasDefaultValue(false);
+
+            entity.Property(e => e.Status).HasDefaultValue(0);
+
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
 
             entity.HasOne(d => d.Country).WithMany(p => p.Events)
@@ -124,9 +127,11 @@ public partial class GlobalFestsContext : DbContext
 
             entity.HasOne(d => d.Country).WithMany(p => p.Performers).HasConstraintName("FK__Performer__Avata__37A5467C");
 
-            entity.Property(e => e.Approved)
-            .IsRequired()
-            .HasDefaultValue(false);
+           /* entity.Property(e => e.Approved)
+            //.IsRequired()
+            //.HasDefaultValue(false);*/
+
+            entity.Property(e => e.Status).HasDefaultValue(0);
 
             entity.HasOne(d => d.Creator)
              .WithMany() 

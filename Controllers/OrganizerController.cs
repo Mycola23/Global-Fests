@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using GlobalFests.DTOs;
 using GlobalFests.EFModels;
+using GlobalFests.Helpers;
 using GlobalFests.Repositories;
 using GlobalFests.Services;
 using GlobalFests.ViewModels;
@@ -103,7 +104,7 @@ namespace GlobalFests.Controllers
                         }
                     }
                 }
-
+                model.NewPerformer.Status = (int)Status.Pending;
                 await _performerRepo.CreateAsync(model.NewPerformer);
         
                 TempData["SuccessMessage"] = "Event created successfully! It will be visible after approval.";
@@ -173,7 +174,7 @@ namespace GlobalFests.Controllers
                 existingPerformer.Description = model.Performer.Description;
                 existingPerformer.CountryId = model.Performer.CountryId;
                 existingPerformer.Avatar = model.Performer.Avatar;
-                
+                existingPerformer.Status = (int)Status.Pending;
 
                 // think about else method of checking gow to update genreses,performers... like for events as for performers
                 existingPerformer.Genres.Clear();
@@ -201,6 +202,21 @@ namespace GlobalFests.Controllers
                 model.Genres = await _lookupService.GetAllGenresAsync();
                 return View(model);
             }
+        }
+
+        public async Task<IActionResult> DetailsPerformer(int id)
+        {
+            var performerDto = await _performerRepo.GetPerformerWithDetailsAsync(id);
+
+            if (performerDto == null)
+                return NotFound();
+
+            var model = new PerformerDetailsViewModel
+            {
+                Performer = performerDto
+            };
+
+            return View(model);
         }
     }
 }

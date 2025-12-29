@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Optional: Add simple date picker logic if not using browser default
-    // The CSS handles the type='date' swap on focus
+   
+
+    
 });

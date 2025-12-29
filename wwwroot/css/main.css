@@ -1,4 +1,144 @@
-﻿
+﻿* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+nav,
+footer,
+header,
+aside {
+    display: block;
+}
+
+html,
+:has(:target) {
+    scroll-behavior: smooth;
+}
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+    font-size: 100%;
+    line-height: 1.5;
+    font-size: 14px;
+    -ms-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+    font-family: inherit;
+}
+
+input {
+    outline: none;
+}
+
+    input::-ms-clear {
+        display: none;
+    }
+
+button {
+    cursor: pointer;
+    background-color: transparent;
+    border:none;
+}
+
+    button::-moz-focus-inner {
+        padding: 0;
+        border: 0;
+    }
+
+a,
+a:visited {
+    text-decoration: none;
+}
+
+    a:hover {
+        text-decoration: none;
+    }
+
+ul li,
+ol li {
+    list-style: none;
+}
+
+img {
+    vertical-align: top;
+}
+
+img,
+video {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-size: inherit;
+    font-weight: 400;
+}
+
+:where(blockquote, figure):where([class]) {
+    margin: 0;
+}
+
+:where(dd[class]) {
+    margin-left: 0;
+}
+
+:where(fieldset[class]) {
+    margin-left: 0;
+    padding: 0;
+    border: none;
+}
+
+:where(address[class]) {
+    font-style: normal;
+}
+
+button,
+label {
+    cursor: pointer;
+}
+
+svg * {
+    transition-property: fill, stroke;
+}
+
+/* del all animatiaon if people don`t use it*/
+@media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+/*----------------*/
+
+
+
+
+
 /* --- CSS Reset & Variables --- */
 :root {
     --bg-dark: #0b0c15;
@@ -46,19 +186,21 @@ ul {
 
 /* --- Header & Nav --- */
 .gf-header {
-    position: absolute;
+   /* position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 100;
-    padding-top: 0;
+    padding-top: 0;*/
 }
 
 .header-container {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    padding: 20px 40px;
+    align-items: center;
+    padding: 11px 40px;
+    /*in future change it on my adaptive func for calc this*/
+    column-gap: 80px;
 }
 
 /* Logo */
@@ -66,7 +208,7 @@ ul {
     font-size: 24px;
     font-weight: 600;
     color: white;
-    margin-top: 15px; /* Alignment with curved nav */
+
 }
 
 .brand-sub {
@@ -76,14 +218,14 @@ ul {
 
 /* Center Curved Nav - The "Wave" Look */
 .gf-nav-center {
-    background: var(--nav-bg);
-    backdrop-filter: blur(10px);
+   /* background: var(--nav-bg);*/
+   /* backdrop-filter: blur(10px);*/
     /* Create the curved shape */
-    border-bottom-left-radius: 40px;
-    border-bottom-right-radius: 40px;
-    padding: 15px 50px 20px 50px;
-    margin-top: -20px; /* Pull up to stick to top */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+   /* border-bottom-left-radius: 40px;
+    border-bottom-right-radius: 40px;*/
+    /*padding: 15px 50px 20px 50px;
+    margin-top: -20px;*/ /* Pull up to stick to top */
+    /*box-shadow: 0 10px 30px rgba(0,0,0,0.1);*/
 }
 
 .nav-list {
@@ -94,7 +236,7 @@ ul {
 .nav-link {
     color: #333; /* Dark text on white nav */
     font-weight: 500;
-    font-size: 15px;
+    font-size: 16px;
     position: relative;
 }
 
@@ -489,25 +631,25 @@ ul {
 /* --- 100% Точність Навбару (Curved Tab) --- */
 .gf-nav-center {
     position: relative;
-    background: var(--nav-glass-bg);
-    backdrop-filter: blur(12px); /* Ефект розмиття фону */
-    -webkit-backdrop-filter: blur(12px);
+    /*background: var(--nav-glass-bg);
+    backdrop-filter: blur(12px);*/ /* Ефект розмиття фону */
+    /*-webkit-backdrop-filter: blur(12px);*/
     /* Основна форма: закруглення знизу */
-    border-bottom-left-radius: 40px;
-    border-bottom-right-radius: 40px;
-    padding: 0 60px; /* Відступи збоку всередині "вкладки" */
-    height: 70px; /* Фіксована висота як на фото */
+   /* border-bottom-left-radius: 40px;
+    border-bottom-right-radius: 40px;*/
+    /*padding: 0 60px;*/ /* Відступи збоку всередині "вкладки" */
+    /*height: 70px;*/ /* Фіксована висота як на фото */
 
     display: flex;
     align-items: center;
     justify-content: center;
     /* Тінь для об'єму */
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+   /* box-shadow: 0 10px 25px rgba(0,0,0,0.1);*/
 }
 
     /* --- Магія кривих (Вуха з боків) --- */
     /* Це створює плавний перехід від стелі до навбару */
-    .gf-nav-center::before,
+    /*.gf-nav-center::before,
     .gf-nav-center::after {
         content: '';
         position: absolute;
@@ -516,22 +658,22 @@ ul {
         height: 40px;
         background: transparent;
         z-index: 1;
-    }
+    }*/
 
     /* Лівий вигин */
-    .gf-nav-center::before {
+    /*.gf-nav-center::before {
         left: -40px;
-        border-top-right-radius: 50%;
+        border-top-right-radius: 50%;*/
         /* Тінь "малює" колір праворуч від прозорого кола, створюючи увігнутий кут */
-        box-shadow: 15px 0 0 0 var(--nav-glass-bg);
-    }
+        /*box-shadow: 15px 0 0 0 var(--nav-glass-bg);
+    }*/
 
     /* Правий вигин */
-    .gf-nav-center::after {
+    /*.gf-nav-center::after {
         right: -40px;
         border-top-left-radius: 50%;
         box-shadow: -15px 0 0 0 var(--nav-glass-bg);
-    }
+    }*/
 
 /* --- Список посилань --- */
 .nav-list {
@@ -597,6 +739,17 @@ ul {
     padding-left: 20px;
     padding-right: 20px;
 }
+
+
+    .page-container .dash-glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        padding: 16px;
+        margin-bottom: 25px;
+    }
 
 /* Centered Auth Pages (Login/Register) */
 .auth-wrapper {
@@ -1200,3 +1353,448 @@ canvas {
         height: 60px;
         font-size: 12px;
     }
+
+
+
+/* --- Admin  Styles --- */
+
+/* table btns */
+.btn-manage {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-white);
+    justify-content: center;
+    font-size: 13px;
+    padding: 15px 10px;
+    flex-direction: column;
+    text-align: center;
+}
+
+    .btn-manage:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--accent-cyan);
+        transform: translateY(-2px);
+    }
+
+    .btn-manage i {
+        font-size: 20px;
+        margin-bottom: 5px;
+        color: var(--accent-cyan);
+    }
+
+/* moderation btns */
+.btn-icon-ok, .btn-icon-no {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+    .btn-icon-ok:hover {
+        transform: scale(1.2);
+        text-shadow: 0 0 10px rgba(180, 248, 200, 0.5);
+    }
+
+    .btn-icon-no:hover {
+        transform: scale(1.2);
+        text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+    }
+
+/* theme */
+.organizer-dashboard.admin-theme .dash-glass-card {
+
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+
+/* Кнопки модерації (оновлено) */
+.btn-icon-ok, .btn-icon-no, .btn-icon-view {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%; /* Кругла форма при наведенні */
+}
+
+/* Approve (Зелена) */
+.btn-icon-ok {
+    color: #b4f8c8;
+}
+
+    .btn-icon-ok:hover {
+        background: rgba(180, 248, 200, 0.1);
+        transform: scale(1.1);
+        box-shadow: 0 0 10px rgba(180, 248, 200, 0.2);
+    }
+
+/* Reject (Червона) */
+.btn-icon-no {
+    color: #ff6b6b;
+}
+
+    .btn-icon-no:hover {
+        background: rgba(255, 107, 107, 0.1);
+        transform: scale(1.1);
+        box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+    }
+
+/* View (Біла/Синя) */
+.btn-icon-view {
+    color: var(--text-white);
+}
+
+    .btn-icon-view:hover {
+        color: var(--accent-blue);
+        background: rgba(61, 90, 241, 0.1);
+        transform: scale(1.1);
+    }
+
+
+
+/* --- Details Page Styles --- */
+
+/* Hero Banner */
+.event-hero {
+    width: 100%;
+    height: 60vh; /* Висота банера */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+}
+
+.hero-overlay-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(11,12,21,0.3) 0%, rgba(11,12,21,1) 100%);
+}
+
+.hero-container {
+    position: relative;
+    z-index: 2;
+    padding-bottom: 80px; /* Місце для контенту, щоб не налізав сильно */
+    width: 100%;
+}
+
+.event-type-badge {
+    background: var(--accent-cyan);
+    color: #000;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 12px;
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+.event-title-large {
+    font-size: 48px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 15px;
+    line-height: 1.1;
+}
+
+.hero-meta {
+    display: flex;
+    gap: 25px;
+    color: rgba(255,255,255,0.8);
+    font-size: 16px;
+}
+
+    .hero-meta i {
+        color: var(--accent-cyan);
+        margin-right: 8px;
+    }
+
+/* Layout Grid */
+.details-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; 
+    gap: 30px;
+    padding-top: 20px;
+}
+
+.mb-4 {
+    margin-bottom: 25px;
+}
+
+/* Text Content */
+.section-title {
+    font-size: 22px;
+    color: white;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.section-title-small {
+    font-size: 16px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+.event-description {
+    color: #ddd;
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+/* Genres */
+.genres-wrapper {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.genre-tag {
+    color: var(--accent-cyan);
+    background: rgba(180, 248, 200, 0.1);
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+/* Performers */
+.performers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.performer-card-mini {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.05);
+    padding: 10px;
+    border-radius: 12px;
+}
+
+    .performer-card-mini img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-right: 15px;
+        object-fit: cover;
+    }
+
+.perf-info h5 {
+    font-size: 15px;
+    color: white;
+    margin-bottom: 2px;
+}
+
+/* Right Sidebar Cards */
+.sticky-card {
+    position: sticky;
+    top: 100px; /* Щоб прилипав при скролі */
+}
+
+.price-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.price-label {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.price-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+}
+
+.stock-info {
+    display: block;
+    text-align: center;
+    font-size: 12px;
+    color: #ff6b6b; /* червоний якщо закінчуються */
+    margin-top: 10px;
+}
+
+.divider {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    margin: 20px 0;
+}
+
+.mini-info-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    color: #ccc;
+}
+
+    .mini-info-row i {
+        font-size: 18px;
+        color: var(--text-muted);
+        margin-top: 3px;
+    }
+
+    .mini-info-row div {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mini-info-row strong {
+        color: white;
+        margin-bottom: 2px;
+    }
+
+/* Organizer */
+.organizer-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.org-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--accent-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+}
+
+.text-link {
+    color: var(--accent-cyan);
+    font-size: 12px;
+}
+
+/* Admin Panel Specific */
+.admin-panel-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    background: rgba(20, 20, 30, 0.95);
+    margin-bottom: 30px;
+}
+
+.admin-label {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+    .admin-label i {
+        font-size: 24px;
+    }
+
+.admin-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-approve {
+    background: rgba(180, 248, 200, 0.15);
+    color: #b4f8c8;
+    border: 1px solid #b4f8c8;
+}
+
+.btn-reject {
+    background: rgba(255, 107, 107, 0.15);
+    color: #ff6b6b;
+    border: 1px solid #ff6b6b;
+}
+
+.btn-back {
+    border: 1px solid #666;
+    color: #ccc;
+}
+
+/* Responsive Grid */
+@media (max-width: 900px) {
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .event-title-large {
+        font-size: 32px;
+    }
+
+    .hero-meta {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .admin-panel-row {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+}
+
+/* Performer Details */
+
+/* Performer Specific Hero */
+.performer-hero {
+    width: 100%;
+    height: 50vh;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+}
+
+.hero-avatar-circle {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: 5px solid rgba(255,255,255,0.1);
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    background: #000;
+    margin-bottom: -40px; 
+    position: relative;
+    z-index: 3;
+}
+
+    .hero-avatar-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.upcoming-card:hover {
+    background: rgba(255,255,255,0.08) !important;
+    transform: translateX(5px);
+}
+
+@media (max-width: 768px) {
+    .hero-container {
+        flex-direction: column;
+        align-items: center !important;
+        text-align: center;
+    }
+
+    .hero-avatar-circle {
+        margin-bottom: 10px;
+        width: 120px;
+        height: 120px;
+    }
+}

@@ -5,6 +5,7 @@ namespace GlobalFests.Repositories
 {
     public interface IPerformerRepository :ICRUD<Performer>
     {
+        Task<PerformerWithDetailsDto?> GetPerformerWithDetailsAsync(int id);
         Task<CursorResult<PerformerDto>> GetAllPerformersByOrganizerAsync(
            int organizerId,
            DateTime? cursorDate,

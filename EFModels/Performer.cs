@@ -35,6 +35,11 @@ public partial class Performer
 
     public bool Approved { get; set; }
 
+    [ValidateNever]
+    public int Status { get; set; }
+    [ValidateNever]
+    public string? RejectionReason { get; set; }
+
     public int? CreatedBy { get; set; }
 
    

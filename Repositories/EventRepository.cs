@@ -166,18 +166,21 @@ namespace GlobalFests.Repositories
                     Id = e.Id,
                     Title = e.Title,
                     Description = e.Description,
+                    Poster = e.Poster,
                     StartDate = e.StartDate,
                     EndDate = e.EndDate,
                     TicketPrice = e.TicketPrice,
                     TicketAmount = e.TicketAmount,
+                    Longitude = e.Longitude,
+                    Latitude = e.Latitude,
                     City = e.City,
                     Address = e.Address,
                     CountryName = e.Country.CountryName,
                     EventType = e.Type.Type,
                     OrganizerName = e.Organizer.Username,
                     OrganizerEmail = e.Organizer.Email,
-                    Genres = e.Genres.Select(g => g.Genre1).ToList(),
-                    Performers = e.Performers.Select(p => p.Name).ToList()
+                    Genres = e.Genres.Select(g => g).ToList(),
+                    Performers = e.Performers.Select(p => p).ToList()
                 })
                 .FirstOrDefaultAsync(cancellationToken);
         }
@@ -221,7 +224,7 @@ namespace GlobalFests.Repositories
             decimal? maxPrice = null,
             DateTime? startDateFrom = null,
             DateTime? startDateTo = null,
-            bool? approved = null,
+            int? status = null,
             DateTime? cursorDate = null,
             int? cursorId = null,
             int pageSize = 10,
@@ -243,7 +246,7 @@ namespace GlobalFests.Repositories
             if (maxPrice.HasValue) query = query.Where(e => e.TicketPrice <= maxPrice.Value);
             if (startDateFrom.HasValue) query = query.Where(e => e.StartDate >= startDateFrom.Value);
             if (startDateTo.HasValue) query = query.Where(e => e.StartDate <= startDateTo.Value);
-            if (approved.HasValue) query = query.Where(e => e.Approved == approved.Value);
+            if (status.HasValue) query = query.Where(e => e.Status == status.Value);
 
             // cursor logic
             if (cursorDate.HasValue && cursorId.HasValue)
@@ -339,7 +342,8 @@ namespace GlobalFests.Repositories
                 Title = e.Title,
                 Poster = e.Poster,
                 CreatedAt = e.CreatedAt,
-                Approved = e.Approved,
+                Status = e.Status,
+                RejectionReason = e.RejectionReason,
                 Genres = e.Genres.Select(g => new Genre
                 {
                     Id = g.Id,

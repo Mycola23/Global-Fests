@@ -1,5 +1,6 @@
 ﻿using GlobalFests.DTOs;
 using GlobalFests.EFModels;
+using GlobalFests.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace GlobalFests.Repositories
@@ -99,7 +100,8 @@ namespace GlobalFests.Repositories
                 Name = e.Name,
                 Avatar = e.Avatar,
                 CreatedAt = e.CreatedAt,
-                Approved = e.Approved,
+                Status = e.Status,
+                RejectionReason = e.RejectionReason,
                 Genres = e.Genres.Select(g => new Genre
                 {
                     Id = g.Id,
@@ -123,6 +125,35 @@ namespace GlobalFests.Repositories
             }
 
             return result;
+        }
+
+        public async Task<PerformerWithDetailsDto?> GetPerformerWithDetailsAsync(int id)
+        {
+            return await _context.Set<Performer>()
+                .Where(p => p.Id == id)
+                .Select(p => new PerformerWithDetailsDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Avatar = p.Avatar,
+                    CountryName = p.Country != null ? p.Country.CountryName : "Unknown",
+                    CreatedAt = p.CreatedAt,
+                    Status = p.Status,
+                    RejectionReason = p.RejectionReason,
+                    CreatorName = p.Creator != null ? p.Creator.Username : "Unknown",
+                    Genres = p.Genres.ToList(),
+                    Events = p.Events.Where(e => e.Status == (int)Status.Approved) 
+                                   .Select(e => new PerformerEventDto
+                                   {
+                                       Id = e.Id,
+                                       Title = e.Title,
+                                       StartDate = e.StartDate,
+                                       City = e.City,
+                                       Poster = e.Poster
+                                   }).OrderBy(e => e.StartDate).ToList()
+                })
+                .FirstOrDefaultAsync();
         }
     }
 }

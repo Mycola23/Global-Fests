@@ -52,7 +52,11 @@ public partial class Event
     [Column(TypeName = "datetime")]
     public DateTime CreatedAt { get; set; }
 
-    // Навігаційні властивості
+    [ValidateNever]
+    public int Status { get; set; }
+    [ValidateNever]
+    public string? RejectionReason { get; set; }
+
     [ValidateNever]
     public virtual Country Country { get; set; } = null!;
     [ValidateNever]

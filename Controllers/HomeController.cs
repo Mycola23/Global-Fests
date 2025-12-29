@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using GlobalFests.Models;
 using GlobalFests.Services;
+using GlobalFests.Helpers;
 
 namespace GlobalFests.Controllers;
 
@@ -16,7 +17,7 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        // Показуємо останні затверджені події
+        
         var events = await _eventService.SearchEventsAsync(
             title: null,
             city: null,
@@ -26,7 +27,7 @@ public class HomeController : Controller
             maxPrice: null,
             startDateFrom: null,
             startDateTo: null,
-            approved: true,
+            status: (int)Status.Approved,
             cursorDate: null,
             cursorId: null,
             pageSize: 12);
