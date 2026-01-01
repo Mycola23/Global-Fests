@@ -12,6 +12,8 @@
         public string City { get; set; } = null!;
         public string CountryName { get; set; } = null!;
         public string EventType { get; set; } = null!;
+        public int Status { get; set; }
+        public int TicketAmount { get; set; }
         public string OrganizerName { get; set; } = null!;
     }
 }

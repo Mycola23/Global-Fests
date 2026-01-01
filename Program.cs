@@ -19,11 +19,11 @@ builder.Services.AddScoped<ICRUD<Country>, CountryRepository>();
 builder.Services.AddScoped<ICRUD<EventType>, EventTypeRepository>();
 builder.Services.AddScoped<ICRUD<Genre>, GenreRepository>();
 builder.Services.AddScoped<IPerformerRepository, PerformerRepository>();
-builder.Services.AddScoped<ICRUD<Permission>, PermissionRepository>();
 builder.Services.AddScoped<ICRUD<Role>, RoleRepository>();
 builder.Services.AddScoped<ICRUD<Ticket>, TicketRepository>();
 builder.Services.AddScoped<IUserRepo, UserRepository>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
+
 
 // Register Services
 builder.Services.AddScoped<IEventService, EventService>();
@@ -31,6 +31,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILookupService, LookupService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IOrganizerStatsService, OrganizerStatsService>();
+builder.Services.AddScoped<AdminManageItemsService>();
 // Configure Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

@@ -1,0 +1,86 @@
+﻿@model GlobalFests.ViewModels.MyTicketsViewModel
+@{
+    ViewData["Title"] = "My Tickets";
+}
+
+<div class="organizer__container">
+
+    <div class="dashboard-header" style="margin-bottom: 30px;">
+        <h1 style="color: white;">My Tickets</h1>
+        <p style="color: var(--text-muted);">Manage your upcoming events</p>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div style="background: rgba(180, 248, 200, 0.15); border: 1px solid #b4f8c8; color: #b4f8c8; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div style="background: rgba(255, 107, 107, 0.15); border: 1px solid #ff6b6b; color: #ff6b6b; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+            <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @if (Model.Tickets.Any())
+    {
+        <div class="my-tickets__grid">
+            @foreach (var ticket in Model.Tickets)
+            {
+                <div class="dash-glass-card my-tickets__card">
+
+                    <!-- Header -->
+                    <div class="my-tickets__header" style="background-image: url('@(string.IsNullOrEmpty(ticket.Event.Poster) ? "https://picsum.photos/500" : ticket.Event.Poster)')">
+                        <div class="my-tickets__id-badge">
+                            #TICKET-@ticket.Id
+                        </div>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="my-tickets__body">
+                        <h3 class="my-tickets__title" title="@ticket.Event.Title">@ticket.Event.Title</h3>
+                        <p class="my-tickets__date">
+                            <i class="far fa-calendar-alt"></i> @ticket.Event.StartDate.ToString("f")
+                        </p>
+
+                        <div class="my-tickets__price-row">
+                            <span>Price Paid:</span>
+                            <span style="color: white;">@ticket.Price.ToString("C2")</span>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="my-tickets__actions">
+                            <a asp-controller="Events" asp-action="Details" asp-route-id="@ticket.EventId" class="btn-dash my-tickets__btn-view">
+                                View Event
+                            </a>
+
+                            @if (ticket.Event.StartDate > DateTime.Now)
+                            {
+                                <form asp-action="Cancel" asp-route-id="@ticket.Id" method="post" onsubmit="return confirm('Are you sure you want to cancel this ticket?');" style="margin:0;">
+                                    <button type="submit" class="btn-dash my-tickets__btn-cancel">
+                                        Cancel
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <button class="btn-dash my-tickets__btn-disabled" disabled>Ended</button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="dash-glass-card my-tickets__empty">
+            <i class="fas fa-ticket-alt my-tickets__empty-icon"></i>
+            <h3 class="my-tickets__empty-title">No tickets found</h3>
+            <p class="my-tickets__empty-text">You haven't purchased any tickets yet.</p>
+            <a asp-controller="Events" asp-action="Index" class="btn-main" style="display: inline-block; width: auto; padding: 0 30px;">Browse Events</a>
+        </div>
+    }
+</div>

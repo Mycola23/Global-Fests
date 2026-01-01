@@ -1,0 +1,83 @@
+﻿@using GlobalFests.Helpers
+@model IEnumerable<GlobalFests.ViewModels.AdminManageItemViewModel>
+
+@{
+    
+    var type = (AdminManageItemType)ViewData["EntityType"];
+    ViewData["Title"] = $"Manage {type}";
+}
+
+<div class="organizer__container organizer-dashboard admin-theme">
+    
+    <div class="dashboard-header" style="margin-bottom: 30px;">
+        <h1 style="color: white; font-size: 32px;">Manage @type</h1>
+        <p style="color: var(--text-muted); margin-bottom:15px;">Manage supported types</p>
+        <a asp-controller="Admin" asp-action="Index" style="max-width:250px" class="btn-dash btn-cyan" style="margin-bottom: 20px;">Back to panel</a>
+    </div>
+
+    <partial name="_AdminDbNav" />
+
+    <div class="dash-glass-card">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <h3 class="dash-card-title">List of @type</h3>
+            <a asp-action="EditLookup" asp-route-type="@type" class="btn-dash" style="background: var(--accent-blue); color: white;">
+                <i class="fas fa-plus"></i> Add New
+            </a>
+        </div>
+
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Usage Stats</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td style="color: white;">@item.Name</td>
+                        <td>
+                            
+                            @if (item.EventsCount.HasValue && item.EventsCount > 0)
+                            {
+                                <span class="badge" style="background: rgba(180, 248, 200, 0.15); color: #b4f8c8; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 5px;">
+                                    Events: @item.EventsCount
+                                </span>
+                            }
+                            @if (item.PerformersCount.HasValue && item.PerformersCount > 0)
+                            {
+                                <span class="badge" style="background: rgba(61, 90, 241, 0.15); color: #a855f7; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-right: 5px;">
+                                    Performers: @item.PerformersCount
+                                </span>
+                            }
+                            @if (item.UsersCount.HasValue && item.UsersCount > 0)
+                            {
+                                <span class="badge" style="background: rgba(255, 206, 86, 0.15); color: #ffce56; padding: 2px 6px; border-radius: 4px; font-size: 11px;">
+                                    Users: @item.UsersCount
+                                </span>
+                            }
+
+                            @if ((item.EventsCount ?? 0) == 0 && (item.PerformersCount ?? 0) == 0 && (item.UsersCount ?? 0) == 0)
+                            {
+                                <span style="color: #666; font-size: 11px;">Unused</span>
+                            }
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 10px;">
+                                <a asp-action="EditLookup" asp-route-type="@type" asp-route-id="@item.Id" class="btn-icon-view"><i class="fas fa-pen"></i></a>
+
+                                <form asp-action="DeleteLookup" asp-route-type="@type" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Delete this item?');">
+                                    <button type="submit" class="btn-icon-no"><i class="fas fa-trash"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

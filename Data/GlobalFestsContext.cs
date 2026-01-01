@@ -26,10 +26,6 @@ public partial class GlobalFestsContext : DbContext
 
     public virtual DbSet<Performer> Performers { get; set; }
 
-    
-
-    public virtual DbSet<Permission> Permissions { get; set; }
-
     public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<SchemaVersion> SchemaVersions { get; set; }
@@ -158,33 +154,10 @@ public partial class GlobalFestsContext : DbContext
 
         });
 
-       
-
-        modelBuilder.Entity<Permission>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__Permissi__3214EC07112969C7");
-        });
-
+    
         modelBuilder.Entity<Role>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Roles__3214EC07E5AA7F24");
-
-            entity.HasMany(d => d.Permissions).WithMany(p => p.Roles)
-                .UsingEntity<Dictionary<string, object>>(
-                    "RolePermission",
-                    r => r.HasOne<Permission>().WithMany()
-                        .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__RolePermi__Permi__2B3F6F97"),
-                    l => l.HasOne<Role>().WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__RolePermi__RoleI__2A4B4B5E"),
-                    j =>
-                    {
-                        j.HasKey("RoleId", "PermissionId").HasName("PK__RolePerm__6400A1A814353298");
-                        j.ToTable("RolePermissions");
-                    });
         });
 
         modelBuilder.Entity<SchemaVersion>(entity =>

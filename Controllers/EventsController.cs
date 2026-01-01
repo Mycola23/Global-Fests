@@ -181,7 +181,8 @@ namespace GlobalFests.Controllers
 
            
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            if (eventEntity.OrganizerId != userId )
+            
+            if (eventEntity.OrganizerId != userId &&  !User.IsInRole("SuperAdmin") && !User.IsInRole("Admin"))
                 return Forbid();
 
             var model = new EditEventsViewModel

@@ -18,12 +18,6 @@
 <body>
     <header class="gf-header">
         <!-- svg for navbar -->
-        @* <svg style="position:absolute; top:-10%; left:45%;" width="423" height="80" viewBox="0 0 723 108" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M720.457 4.99983e-05C771.082 -5.50197e-05 0 3.80132e-05 0 3.80132e-05L0 107.964C0 107.964 480.304 107.964 561.402 107.964C642.5 107.964 616.229 0.000266212 720.457 4.99983e-05Z" fill="#D9D9D9" />
-        </svg> *@
-
-
-        <!-- svg for navbar -->
         <div class="header-container">
             <!-- Logo -->
             <a class="gf-brand" asp-area="" asp-controller="Home" asp-action="Index">
@@ -33,7 +27,7 @@
             <!-- Center Curved Nav -->
 
             <nav class="gf-nav-center">
-                <svg style="position:absolute; top:-16px; left:50%; transform:translate(-50%,0);" width="560" height="60" viewBox="0 0 560 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg  width="560" height="60" viewBox="0 0 560 60" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M559.075 2.7786e-05C578.685 -3.05767e-05 280 2.11254e-05 280 2.11254e-05V60C280 60 466.05 60 497.464 60C528.878 60 518.701 0.000147945 559.075 2.7786e-05Z" fill="#D9D9D9" />
                     <path d="M0.925015 2.7786e-05C-18.685 -3.05767e-05 280 2.11254e-05 280 2.11254e-05V60C280 60 93.9503 60 62.5363 60C31.1222 60 41.2985 0.000147945 0.925015 2.7786e-05Z" fill="#D9D9D9" />
                 </svg>
@@ -44,7 +38,6 @@
 
                     @if (User.Identity?.IsAuthenticated != true)
                     {
-                        <!-- Клас guest-btn змінено на nav-link, щоб відповідати стилю фото -->
                         <li><a class="nav-link" asp-controller="Account" asp-action="Login">Sign in</a></li>
                     }
                     else
@@ -61,7 +54,7 @@
 
             <!-- User / Guest Section -->
             <div class="gf-user-actions">
-                @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Organizer") || User.IsInRole("Admin")))
+                @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Organizer") || User.IsInRole("Admin") || User.IsInRole("SuperAdmin")))
                 {
                     <div class="user-dropdown-container">
                         <button class="user-btn" id="userDropdownBtn">
@@ -73,11 +66,11 @@
                             {
                                 <a asp-controller="Organizer" asp-action="Index">Organizer Panel</a>
                             }
-                            else if (User.IsInRole("Admin"))
+                            else if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
                             {
                                 <a asp-controller="Admin" asp-action="Index">Admin Panel</a>
                             }
-
+                            <a asp-controller="Tickets" asp-action="MyTickets">My tickets</a>
                             <hr>
                             <form asp-controller="Account" asp-action="Logout" method="post">
                                 <button type="submit" class="logout-btn">Logout</button>
@@ -98,11 +91,11 @@
         @RenderBody()
     </main>
 
-    <footer class="gf-footer">
+    @* <footer class="gf-footer">
         <div class="container">
             &copy; 2024 - GlobalFests - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </footer>
+    </footer> *@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

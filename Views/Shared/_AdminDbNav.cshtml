@@ -1,0 +1,29 @@
+﻿
+<div class="dash-glass-card">
+    <h3 class="dash-card-title">Database Management</h3>
+    <div class="crud-actions-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px;">
+
+        <!-- Helper function to add 'active' class style if needed, or just links -->
+        <a asp-controller="Admin" asp-action="Users" class="btn-dash btn-manage">
+            <i class="fas fa-users"></i> Users
+        </a>
+        <a asp-controller="Admin" asp-action="Events" class="btn-dash btn-manage">
+            <i class="fas fa-star"></i> Events
+        </a>
+        <a asp-controller="Admin" asp-action="Performers" class="btn-dash btn-manage">
+            <i class="fas fa-star"></i> Performers
+        </a>
+        <a asp-controller="Admin" asp-action="Countries" class="btn-dash btn-manage">
+            <i class="fas fa-globe"></i> Countries
+        </a>
+        <a asp-controller="Admin" asp-action="Manage" asp-route-type="@GlobalFests.Helpers.AdminManageItemType.Genres" class="btn-dash btn-manage">
+            <i class="fas fa-music"></i> Genres
+        </a>
+        <a asp-controller="Admin" asp-action="Manage" asp-route-type="@GlobalFests.Helpers.AdminManageItemType.EventTypes" class="btn-dash btn-manage">
+            <i class="fas fa-calendar-alt"></i> Event Types
+        </a>
+        <a asp-controller="Admin" asp-action="Manage" asp-route-type="@GlobalFests.Helpers.AdminManageItemType.Roles" class="btn-dash btn-manage">
+            <i class="fas fa-user-shield"></i> Roles
+        </a>
+    </div>
+</div>

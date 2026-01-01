@@ -1,0 +1,42 @@
+﻿@model GlobalFests.ViewModels.CountryFormViewModel
+@{
+    var isEdit = Model.Id != 0;
+    ViewData["Title"] = isEdit ? "Edit Country" : "Add Country";
+}
+
+<div class="organizer__container" style="max-width: 600px;">
+
+    <div class="dash-glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h2 class="dash-card-title">@ViewData["Title"]</h2>
+            <a asp-action="Countries" class="btn-dash" style="border: 1px solid #666; color: #ccc;">Cancel</a>
+        </div>
+
+        <form asp-action="SaveCountry" method="post">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group">
+                <label asp-for="CountryName" class="form-label"></label>
+                <div class="custom-input-group">
+                    <input asp-for="CountryName" class="form-control-custom" placeholder="e.g. Ukraine" />
+                </div>
+                <span asp-validation-for="CountryName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="CountryCode" class="form-label"></label>
+                <div class="custom-input-group">
+                    <input asp-for="CountryCode" class="form-control-custom" placeholder="e.g. UA" />
+                </div>
+                <span asp-validation-for="CountryCode" class="text-danger"></span>
+                <p class="select-hint">Use 2-letter or 3-letter ISO code.</p>
+            </div>
+
+            <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
+                <button type="submit" class="btn-dash" style="background: var(--accent-cyan); color: #000; border: none; font-weight: 700;">
+                    @(isEdit ? "Save Changes" : "Create Country")
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

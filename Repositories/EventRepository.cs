@@ -133,7 +133,8 @@ namespace GlobalFests.Repositories
                     City = e.City ?? "N/A",
                     CountryName = e.Country.CountryName,
                     EventType = e.Type.Type,
-                    OrganizerName = e.Organizer.Username
+                    OrganizerName = e.Organizer.Username,
+                    TicketAmount = e.TicketAmount,
                 })
                 .FirstOrDefaultAsync(cancellationToken);
         }
@@ -152,7 +153,8 @@ namespace GlobalFests.Repositories
                     City = e.City ?? "N/A",
                     CountryName = e.Country.CountryName,
                     EventType = e.Type.Type,
-                    OrganizerName = e.Organizer.Username
+                    OrganizerName = e.Organizer.Username,
+                    TicketAmount = e.TicketAmount,
                 })
                 .ToListAsync(cancellationToken);
         }
@@ -315,7 +317,10 @@ namespace GlobalFests.Repositories
                 City = e.City ?? "N/A",
                 CountryName = e.Country?.CountryName ?? "Unknown",
                 EventType = e.Type?.Type ?? "Unknown",
-                OrganizerName = e.Organizer?.Username ?? "Unknown"
+                Status = e.Status,
+                OrganizerName = e.Organizer?.Username ?? "Unknown",
+                TicketAmount = e.TicketAmount,
+
             }).ToList();
 
             var result = new CursorResult<EventDto>

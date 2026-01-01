@@ -1,7 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using GlobalFests.DTOs;
 using GlobalFests.EFModels;
+using GlobalFests.Helpers;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace GlobalFests.ViewModels
 {
@@ -209,4 +212,132 @@ namespace GlobalFests.ViewModels
         public string Name { get; set; }
         public int Count { get; set; }
     }
+
+
+    // for admin/table crud 
+
+    public class CountryDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public string Code { get; set; } = null!;
+
+  
+        public int EventsCount { get; set; }
+
+        public int PerformersCount { get; set; }
+        public int UsersCount { get; set; }
+    }
+
+    public class CountryFormViewModel
+    {
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "Country name is required")]
+        [StringLength(100)]
+        [Display(Name = "Country Name")]
+        public string CountryName { get; set; } = null!;
+
+        [Required(ErrorMessage = "ISO Code is required")]
+        [StringLength(5, ErrorMessage = "Code cannot be longer than 5 chars")]
+        [Display(Name = "ISO Code")]
+        public string CountryCode { get; set; } = null!;
+    }
+
+
+    // universal veiwModel for genres,eventtypes,roles
+    public class AdminManageItemViewModel
+    {
+        public int Id { get; set; }
+
+        [Required]
+        public string Name { get; set; } = null!;
+        public AdminManageItemType EntityType { get; set; } 
+        public int? EventsCount { get; set; }
+        public int? UsersCount { get; set; }
+        public int? PerformersCount { get; set; }
+    }
+
+
+    // for users  in admin panel
+    public class AdminUsersIndexViewModel
+    {
+        public CursorResult<UserDto> Users { get; set; }    
+        public string? SearchTerm { get; set; }
+    }
+    public class AdminUserFormViewModel
+    {
+      
+        public int Id { get; set; }
+        [Required] public string Username { get; set; } = null!;
+
+        [Required][EmailAddress][RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Invalid email address format")]
+        public string Email { get; set; } = null!;
+        public string? NewPassword { get; set; }
+        [Required] public int RoleId { get; set; }
+        public int? CountryId { get; set; }
+        public bool Verified { get; set; }
+        public List<SelectListItem> Roles { get; set; } = new();
+        public List<SelectListItem> Countries { get; set; } = new();
+    }
+
+    // for events in admin panel 
+
+    public class AdminEventsIndexViewModel
+    {
+        public CursorResult<EventDto> Events { get; set; }
+        // filters
+        public string? SearchTerm { get; set; }
+        public int? StatusFilter { get; set; } 
+        public List<SelectListItem> Statuses { get; set; } = new()
+        {
+            new SelectListItem("All Statuses", ""),
+            new SelectListItem("Draft", ((int)Status.Draft).ToString()),
+            new SelectListItem("Pending", ((int)Status.Pending).ToString()),
+            new SelectListItem("Approved", ((int)Status.Approved).ToString()),
+            new SelectListItem("Rejected", ((int)Status.Rejected).ToString()),
+            new SelectListItem("Archived", ((int)Status.Archived).ToString()),
+        };
+    }
+
+    public class AdminPerformersIndexViewModel
+    {
+        public CursorResult<PerformerDto> Performers { get; set; } = new ();
+        public string? SearchTerm { get; set; }
+
+        public int? StatusFilter { get; set; }
+        public List<SelectListItem> Statuses { get; set; } = new()
+        {
+            new SelectListItem("All Statuses", ""),
+            new SelectListItem("Draft", ((int)Status.Draft).ToString()),
+            new SelectListItem("Pending", ((int)Status.Pending).ToString()),
+            new SelectListItem("Approved", ((int)Status.Approved).ToString()),
+            new SelectListItem("Rejected", ((int)Status.Rejected).ToString()),
+            new SelectListItem("Archived", ((int)Status.Archived).ToString()),
+        };
+    }
+
+    // for cart and user history of buought tickets
+
+    public class CheckoutViewModel
+    {
+        public int EventId { get; set; }
+        public string EventTitle { get; set; } = null!;
+        public string EventPoster { get; set; } = null!;
+        public DateTime EventDate { get; set; }
+        public string Venue { get; set; } = null!;
+
+        public decimal PricePerTicket { get; set; }
+
+        [Range(1, 4, ErrorMessage = "You can only buy between 1 and 4 tickets")]
+        public int Quantity { get; set; } = 1;
+        public int ExistingTicketsCount { get; set; }
+        public int StockAvailable { get; set; }
+    }
+
+    public class MyTicketsViewModel
+    {
+        public List<GlobalFests.EFModels.Ticket> Tickets { get; set; } = new();
+    }
+
 }

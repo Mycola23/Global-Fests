@@ -16,6 +16,9 @@ namespace GlobalFests.Services
         Task<User> UpdateUserAsync(User user);
         Task<bool> DeleteUserAsync(int id);
         Task<bool> VerifyUserAsync(int userId);
+
+        public string GenerateSalt();
+        public string HashPassword(string password, string salt);
     }
 
     public class UserService : IUserService
@@ -100,7 +103,7 @@ namespace GlobalFests.Services
             return true;
         }
 
-        private string GenerateSalt()
+        public string GenerateSalt()
         {
             var saltBytes = new byte[32];
             using (var rng = RandomNumberGenerator.Create())
@@ -110,7 +113,7 @@ namespace GlobalFests.Services
             return Convert.ToBase64String(saltBytes);
         }
 
-        private string HashPassword(string password, string salt)
+        public string HashPassword(string password, string salt)
         {
             var saltBytes = Convert.FromBase64String(salt);
             var passwordBytes = Encoding.UTF8.GetBytes(password);

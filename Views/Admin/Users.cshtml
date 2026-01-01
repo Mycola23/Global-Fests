@@ -1,0 +1,132 @@
+﻿@model GlobalFests.ViewModels.AdminUsersIndexViewModel
+@{
+    ViewData["Title"] = "Manage Users";
+}
+
+<div class="organizer__container organizer-dashboard admin-theme">
+
+    <div class="dashboard-header" style="margin-bottom: 30px;">
+        <h1 style="color: white; font-size: 32px;">Users Management</h1>
+        <p style="color: var(--text-muted);">View, edit and manage system users</p>
+    </div>
+
+    
+    <partial name="_AdminDbNav" />
+
+    <!-- SEARCH & ACTIONS BAR -->
+    <div class="dash-glass-card" style="margin-bottom: 20px; padding: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap;">
+
+            <!-- Search Form -->
+            <form method="get" asp-action="Users" style="display: flex; gap: 10px; flex-grow: 1; ">
+                <div style="flex-grow: 1;">
+                    <label style="color: #aaa; font-size: 12px; margin-bottom: 5px; display: block;">Find User</label>
+                    <div class="custom-input-group" style="background: rgba(0,0,0,0.3); border: 1px solid #444;">
+                        <i class="fas fa-search input-icon"></i>
+                        <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control-custom" placeholder="Username or Email..." />
+                    </div>
+                </div>
+                <div style="display: flex; align-items: end;">
+                    <button type="submit" class="btn-dash" style="background: var(--accent-cyan); color: #000; height: 50px;">
+                        Search
+                    </button>
+                    @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                    {
+                        <a asp-action="Users" class="btn-dash" style="margin-left: 10px; border: 1px solid #666; color: #ccc; height: 50px; display: flex; align-items: center;">Reset</a>
+                    }
+                </div>
+            </form>
+
+            <!-- Create Button -->
+            <div style="display: flex; align-items: end;">
+                <a asp-action="CreateUser" class="btn-dash" style="background: var(--accent-blue); color: white; height: 50px;">
+                    <i class="fas fa-plus"></i> New User
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="dash-glass-card">
+        @if (Model.Users.Items.Any())
+        {
+            <div class="custom-table-container">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Country</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model.Users.Items)
+                        {
+                            <tr>
+                                <td style="color: #888;">#@user.Id</td>
+                                <td>
+                                    <strong style="display: block; color: white; font-size: 14px;">@user.Username</strong>
+                                    <span style="font-size: 12px; color: var(--text-muted);">@user.Email</span>
+                                </td>
+                                <td>
+                                    <span style="background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        @user.RoleName
+                                    </span>
+                                </td>
+                                <td>@user.CountryName</td>
+                                <td>
+                                    @if (user.Verified)
+                                    {
+                                        <span style="color: #b4f8c8; font-size: 12px;"><i class="fas fa-check-circle"></i> Verified</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color: #ff6b6b; font-size: 12px;"><i class="fas fa-times-circle"></i> Unverified</span>
+                                    }
+                                </td>
+                                <td style="font-size: 12px; color: #888;">@user.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <div style="display: flex; gap: 8px;">
+                                        <a asp-action="EditUser" asp-route-id="@user.Id" class="btn-icon-view" title="Edit">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                        <form asp-action="DeleteUser" asp-route-id="@user.Id" method="post" onsubmit="return confirm('Are you sure? This action cannot be undone.');">
+                                            <button type="submit" class="btn-icon-no" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PAGINATION BUTTON -->
+            @if (Model.Users.HasNextPage)
+            {
+                <div style="margin-top: 20px; display: flex; justify-content: center;">
+                    <a asp-action="Users"
+                       asp-route-searchTerm="@Model.SearchTerm"
+                       asp-route-cursorDate="@Model.Users.NextCursorDate?.ToString("o")"
+                       asp-route-cursorId="@Model.Users.NextCursorId"
+                       class="btn-dash" style="background: rgba(255,255,255,0.1); width: 200px; justify-content: center;">
+                        Next Page <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <div style="text-align: center; padding: 40px; color: #888;">
+                <i class="fas fa-users-slash" style="font-size: 40px; margin-bottom: 15px; opacity: 0.5;"></i>
+                <p>No users found.</p>
+            </div>
+        }
+    </div>
+</div>

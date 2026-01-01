@@ -1,0 +1,94 @@
+﻿@model IEnumerable<GlobalFests.ViewModels.CountryDto>
+@{
+    ViewData["Title"] = "Manage Countries";
+}
+
+
+
+
+
+<div class="organizer__container organizer-dashboard admin-theme">
+
+    <div class="dashboard-header" style="margin-bottom: 30px;">
+        <h1 style="color: white; font-size: 32px;">Countries</h1>
+        <p style="color: var(--text-muted); margin-bottom:15px;">Manage supported locations</p>
+         <a asp-controller="Admin" asp-action="Index" style="max-width:250px" class="btn-dash btn-cyan" style="margin-bottom: 20px;">Back to panel</a>
+    </div>
+
+    
+    <partial name="_AdminDbNav" />
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div style="background: rgba(255, 107, 107, 0.2); border: 1px solid #ff6b6b; color: #ff6b6b; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+            <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div style="background: rgba(180, 248, 200, 0.15); border: 1px solid #b4f8c8; color: #b4f8c8; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="dash-glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 class="dash-card-title" style="margin: 0;">All Countries</h3>
+            <a asp-action="EditCountry" class="btn-dash" style="background: var(--accent-blue); color: white;">
+                <i class="fas fa-plus"></i> Add Country
+            </a>
+        </div>
+
+        <div class="custom-table-container">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>ISO Code</th>
+                        <th>Stats</th> 
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td style="color: #888;">#@item.Id</td>
+                            <td style="font-weight: 500; color: white;">@item.Name</td>
+                            <td><span style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 12px;">@item.Code</span></td>
+                            <td>
+                               
+                                <span title="Events" style="color: var(--accent-cyan); margin-right: 10px;"><i class="fas fa-calendar-alt"></i> @item.EventsCount</span>
+                                <span title="Users" style="color: #a855f7; margin-right: 10px;"><i class="fas fa-user"></i> @item.UsersCount</span>
+                                <span title="Performers" style="color: #55f7c1ff;"><i class="fas fa-user"></i> @item.PerformersCount</span>
+                            </td>
+                            <td style="text-align: right;">
+                                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                    <a asp-action="EditCountry" asp-route-id="@item.Id" class="btn-icon-view" title="Edit">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                    @if (item.EventsCount > 0 || item.UsersCount > 0)
+                                    {
+                                        @* not active *@
+                                        <button type="button" class="btn-icon-no" style="opacity: 0.3; cursor: not-allowed;" title="Cannot delete: Item is in use">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        @*  active *@
+                                        <form asp-action="DeleteCountry" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Are you sure?');">
+                                            <button type="submit" class="btn-icon-no"><i class="fas fa-trash"></i></button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

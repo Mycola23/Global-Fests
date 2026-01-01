@@ -12,5 +12,12 @@ namespace GlobalFests.Repositories
            int? cursorId,
            int pageSize,
            CancellationToken cancellationToken = default);
+
+        Task<CursorResult<PerformerDto>> SearchPerformersAsync(
+            string? searchTerm,
+            int? status,
+            DateTime? cursorDate,
+            int? cursorId,
+            int pageSize);
     }
 }

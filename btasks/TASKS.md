@@ -1,21 +1,4 @@
-﻿
-
-## add possibility to choose genre of event in create event form -- completed
-## check efficient of cursor pagination realized by Raw-SQL and LINQ
-
-## made part of editing of events and performers
-*  added on delete cascade for all many-to-many tables beside perimisionId in rolePermission has no action  
-
-* add possibility to add performers in process of create new event,
-
-
-****** features
-add search in adding performers in create,edit form for events
-
-
-
-
-# GlobalFests - Project Tasks
+﻿# GlobalFests - Project Tasks
 
 ## ✅ Completed Tasks
 
@@ -38,14 +21,32 @@ add search in adding performers in create,edit form for events
 
 ## 🚧 In Progress
 
-### Event Creation - Performer Management
+### Plans
+- [ ] delete functionality for organizer panel (btn + method in controller with all checks)
+- [ ] make possibility by click in Events details on performer go to PerformerDetails page
+- [ ] make interactive World Map
 - [ ] Add performer selection interface in event creation form
-- [ ] Allow multiple performers per event
-- [ ] Display selected performers with preview cards
+- ✅ Allow multiple performers per event
+- ✅ Display selected performers with preview cards
+- ✅ fix when you on admin account and use edit Events or Performers = you must return to admin Events
+- ✅ add possibility to choose genre of event in create event form
+- [ ] where access has a admin - must have the same and more access SuperAdmin - in progress 🫡
+- [ ] fix troubles in redirections(create,edit performers&events) when you are admin ,
+- [ ] fix showing of events page (a lot of sliders , more beatiful readible),
+- [ ] replace all css code in cshtml on css classes (more professional with bem)
+- [ ] add adaptive to all pages 
+- [ ] add more stats for admin (especially for superadmin(God⚡))
+- [ ] make dropdown (guest- button) customazible to each of role
+- [ ] add travel back in cursor paginations where it has used
+- [ ] add all filters and sorting for search panel 
+- [ ] make profile page
+- [ ] make home page similar to start designs
 
 ---
 
 ## 📋 Backlog
+
+### check efficient of cursor pagination realized by Raw-SQL and LINQ
 
 ### Advanced Search Features
 - [ ] **Search performers during event creation**
@@ -61,7 +62,16 @@ add search in adding performers in create,edit form for events
 
 ---
 
-## 🎯 Future Enhancements
+## 🎯 Features
 - [ ] Bulk performer management
 - [ ] Performer availability calendar
 - [ ] Auto-suggest performers based on event genre
+- [ ] add search in adding performers in create,edit form for events
+- ✅ made part of editing of events and performers
+- 
+- [ ] added on delete cascade for all many-to-many tables beside perimisionId in rolePermission has no action  
+
+- [ ] add possibility to add performers in process of create new event,
+
+
+

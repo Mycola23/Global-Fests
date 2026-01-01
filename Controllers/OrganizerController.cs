@@ -218,5 +218,48 @@ namespace GlobalFests.Controllers
 
             return View(model);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeletePerformer(int id)
+        {
+            var performer = await _performerRepo.GetByIdAsync(id);
+
+            if (performer == null)
+            {
+                TempData["ErrorMessage"] = "Performer not found.";
+                return RedirectToAction(nameof(Index));
+            }
+
+           
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+          
+            if (performer.CreatedBy != userId && !User.IsInRole("Admin") && !User.IsInRole("SuperAdmin"))
+            {
+                return Forbid();
+            }
+
+           
+            try
+            {
+                bool isDeleted = await _performerRepo.DeleteAsync(id);
+
+                if (isDeleted)
+                {
+                    TempData["SuccessMessage"] = "Performer deleted successfully.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Could not delete performer. Database error.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Cannot delete performer because they are assigned to events.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

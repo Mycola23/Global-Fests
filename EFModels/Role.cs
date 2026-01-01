@@ -18,8 +18,4 @@ public partial class Role
 
     [InverseProperty("Role")]
     public virtual ICollection<User> Users { get; set; } = new List<User>();
-
-    [ForeignKey("RoleId")]
-    [InverseProperty("Roles")]
-    public virtual ICollection<Permission> Permissions { get; set; } = new List<Permission>();
 }

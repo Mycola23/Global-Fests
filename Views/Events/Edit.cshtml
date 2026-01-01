@@ -11,7 +11,7 @@
             <form asp-action="Edit" method="post">
                 <div asp-validation-summary="All" class="text-danger" style="margin-bottom: 20px;"></div>
 
-                
+
                 <input type="hidden" asp-for="Event.Id" />
                 <input type="hidden" asp-for="Event.OrganizerId" />
 
@@ -135,7 +135,14 @@
         </div>
         @*right*@
         <div>
-            <a asp-controller="Organizer" asp-action="Index" class="btn-dash btn-cyan" style="margin-bottom: 20px;">Back to panel</a>
+            @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+            {
+                <a asp-controller="Admin" asp-action="Events" class="btn-dash btn-cyan" style="margin-bottom: 20px;">Back to panel</a>
+            }
+            else
+            {
+                <a asp-controller="Organizer" asp-action="Index" class="btn-dash btn-cyan" style="margin-bottom: 20px;">Back to panel</a>
+            }
             <div class="guidelines-card">
                 <h3 style="color:var(--accent-cyan); margin-bottom:15px;"><i class="fas fa-info-circle"></i> Editing Tips</h3>
                 <ul class="guidelines-list">

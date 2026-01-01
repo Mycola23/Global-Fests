@@ -1,0 +1,138 @@
+﻿@using GlobalFests.EFModels
+@model GlobalFests.ViewModels.AdminEventsIndexViewModel
+@{
+    ViewData["Title"] = "Manage Events";
+}
+
+<div class="organizer__container organizer-dashboard admin-theme">
+
+    <div class="dashboard-header" style="margin-bottom: 30px;">
+        <h1 style="color: white; font-size: 32px;">Events Management</h1>
+        <p style="color: var(--text-muted);">View, edit and manage events</p>
+    </div>
+
+    
+    <partial name="_AdminDbNav" />
+    <div class="dash-glass-card" style="margin-bottom: 20px; padding: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap;">
+
+            <!-- Search Form -->
+            <form method="get" asp-action="Events" style="display: flex; gap: 10px; flex-grow: 1;">
+                <div style="flex-grow: 1;">
+                    <label style="color: #aaa; font-size: 12px; margin-bottom: 5px; display: block;">Search by Title</label>
+                    <div class="custom-input-group" style="background: rgba(0,0,0,0.3); border: 1px solid #444;">
+                        <i class="fas fa-search input-icon"></i>
+                        <input type="text" name="searchTitle" value="@Model.SearchTerm" class="form-control-custom" placeholder="Event title...." />
+                    </div>
+                </div>
+                 <div style="width: 200px; ">
+                    <label style="color: #aaa; font-size: 12px;  margin-bottom: 5px;">Status</label>
+                    <select name="status" asp-items="Model.Statuses" asp-for="StatusFilter" class="form-control-custom" style="background: #1c1d25;">
+                    </select>
+                </div>
+                <div style="display: flex; align-items: end;">
+                    <button type="submit" class="btn-dash" style="background: var(--accent-cyan); color: #000; height: 50px;">
+                        Search
+                    </button>
+                    @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                    {
+                        <a asp-action="Events" class="btn-dash" style="margin-left: 10px; border: 1px solid #666; color: #ccc; height: 50px; display: flex; align-items: center;">Reset</a>
+                    }
+                </div>
+            </form>
+
+            <!-- Create Button -->
+            <div style="display: flex; align-items: end;">
+                <a asp-controller="Events" asp-action="Create" class="btn-dash" style="background: var(--accent-blue); color: white; height: 50px;">
+                    <i class="fas fa-plus"></i> New Event
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+
+    
+    <div class="dash-glass-card">
+        <div class="custom-table-container">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Date</th>
+                        <th>Organizer</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Events.Items)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>
+                                <strong style="color: white;">@item.Title</strong>
+                                <br /><span style="font-size: 11px; color: #888;">@item.City, @item.CountryName</span>
+                            </td>
+                            <td>@item.StartDate.ToString("MMM dd, yyyy")</td>
+                            <td>@item.OrganizerName</td>
+                            <td>
+                            
+                                @{
+                                    
+                                    var statusLabel = "Unknown";
+                                    var statusColor = "#888";
+
+                                   
+                                    
+                                    switch(item.Status) {
+                                        case 1: statusLabel = "Pending"; statusColor = "#ffd800"; break;
+                                        case 2: statusLabel = "Approved"; statusColor = "#b4f8c8"; break;
+                                        case 3: statusLabel = "Rejected"; statusColor = "#ff6b6b"; break;
+                                        default: statusLabel = "Draft"; break;
+                                            }
+                                    
+                                                                           }
+                                                                           <span style="color: @statusColor; border: 1px solid @statusColor; padding: 2px 8px; border-radius: 12px; font-size: 11px;">
+                                                                               @statusLabel
+                                                                           </span>
+                                                                       </td>
+                                                                       <td>
+                                                                           <div style="display: flex; gap: 8px;">
+                                                                               <a asp-controller="Events" asp-action="Details" asp-route-id="@item.Id" class="btn-icon-view" title="View">
+                                                                                   <i class="fas fa-eye"></i>
+                                                                               </a>
+                                                                               
+                                                                               <a asp-controller="Events" asp-action="Edit" asp-route-id="@item.Id" class="btn-icon-view" style="color: var(--accent-cyan);" title="Edit">
+                                                                                   <i class="fas fa-pen"></i>
+                                                                               </a>
+
+                                                                               
+                                                                               <form asp-action="DeleteEvent" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Hard delete this event?');">
+                                                                                   <button type="submit" class="btn-icon-no"><i class="fas fa-trash"></i></button>
+                                                                               </form>
+                                                                           </div>
+                                                                       </td>
+                                                                   </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        
+        @if (Model.Events.HasNextPage)
+        {
+            <div style="margin-top: 20px; display: flex; justify-content: center;">
+                <a asp-action="Events"
+                   asp-route-searchTitle="@Model.SearchTerm"
+                   asp-route-status="@Model.StatusFilter"
+                   asp-route-cursorDate="@Model.Events.NextCursorDate?.ToString("o")"
+                   asp-route-cursorId="@Model.Events.NextCursorId"
+                   class="btn-dash" style="background: rgba(255,255,255,0.1); width: 200px; justify-content: center;">
+                    Next Page <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
+                </a>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,29 @@
+﻿@model GlobalFests.ViewModels.AdminManageItemViewModel
+@{
+    var isEdit = Model.Id != 0;
+    ViewData["Title"] = $"{(isEdit ? "Edit" : "Create")} {Model.EntityType}";
+}
+
+<div class="organizer__container" style="max-width: 600px;">
+    <div class="dash-glass-card">
+        <h2 class="dash-card-title" style="margin-bottom: 20px;">@ViewData["Title"]</h2>
+
+        <form asp-action="SaveLookup" method="post">
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="EntityType" />
+
+            <div class="form-group">
+                <label class="form-label">Name</label>
+                <div class="custom-input-group">
+                    <input asp-for="Name" class="form-control-custom" placeholder="Enter name..." />
+                </div>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <a asp-action="Manage" asp-route-type="@Model.EntityType" class="btn-dash" style="border: 1px solid #666; color: #ccc;">Cancel</a>
+                <button type="submit" class="btn-dash" style="background: var(--accent-cyan); color: #000;">Save</button>
+            </div>
+        </form>
+    </div>
+</div>

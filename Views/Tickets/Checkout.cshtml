@@ -1,0 +1,84 @@
+﻿@model GlobalFests.ViewModels.CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+    int maxPurchasable = Math.Min(4 - Model.ExistingTicketsCount, Model.StockAvailable);
+}
+
+<div class="container page-container checkout">
+
+    <div class="dash-glass-card checkout__card">
+
+        <!-- Left: Event Image & Info -->
+        <div class="checkout__left" style="background-image: url('@(string.IsNullOrEmpty(Model.EventPoster) ? "https://picsum.photos/600/800" : Model.EventPoster)')">
+            <div class="checkout__overlay"></div>
+
+            <div class="checkout__info">
+                <span class="checkout__badge">CONFIRM ORDER</span>
+                <h2 class="checkout__title">@Model.EventTitle</h2>
+                <p class="checkout__meta"><i class="far fa-calendar"></i> @Model.EventDate.ToString("f")</p>
+                <p class="checkout__meta"><i class="fas fa-map-marker-alt"></i> @Model.Venue</p>
+            </div>
+        </div>
+
+        <!-- Right: Payment Form -->
+        <div class="checkout__right">
+            <h3 class="dash-card-title checkout__heading">Order Summary</h3>
+
+            <form asp-action="Purchase" method="post">
+                <input type="hidden" asp-for="EventId" />
+
+                <!-- Price Info -->
+                <div class="checkout__price-row">
+                    <span class="checkout__label">Price per ticket</span>
+                    <span class="checkout__value">@Model.PricePerTicket.ToString("C2")</span>
+                </div>
+
+                <!-- Quantity Selector -->
+                <div class="checkout__form-group">
+                    <label class="form-label">Quantity (Max @maxPurchasable)</label>
+                    <div class="custom-input-group checkout__qty-input">
+                        <input asp-for="Quantity" type="number" id="ticketQty" min="1" max="@maxPurchasable" value="1" class="checkout__qty-field" onchange="updateTotal()" onkeyup="updateTotal()" />
+                    </div>
+                    <span class="text-danger" asp-validation-for="Quantity"></span>
+                </div>
+
+                <!-- Total -->
+                <div class="checkout__total-box">
+                    <span class="checkout__label" style="color: #ccc;">Total Amount</span>
+                    <span id="totalPrice" class="checkout__total-price">@Model.PricePerTicket.ToString("C2")</span>
+                </div>
+
+                <!-- Actions -->
+                <div class="checkout__actions">
+                    <button type="submit" class="btn-main w-100">
+                        <i class="fas fa-credit-card"></i> Pay & Book
+                    </button>
+                    <a asp-controller="Events" asp-action="Details" asp-route-id="@Model.EventId" class="btn-dash checkout__btn-cancel">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateTotal() {
+        const price = @Model.PricePerTicket;
+        const qtyInput = document.getElementById('ticketQty');
+        let qty = parseInt(qtyInput.value);
+        const max = @maxPurchasable;
+
+        if (isNaN(qty) || qty < 1) qty = 1;
+        if (qty > max) qty = max;
+
+        // qtyInput.value = qty; // Optional: Force value update in UI
+
+        const total = price * qty;
+
+        const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+        });
+
+        document.getElementById('totalPrice').innerText = formatter.format(total);
+    }
+</script>

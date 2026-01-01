@@ -38,30 +38,7 @@
         <div class="grid-column-left">
 
             <!-- db CRUD -->
-            <div class="dash-glass-card">
-                <h3 class="dash-card-title">Database Management</h3>
-                <div class="crud-actions-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px;">
-                    
-                    <a asp-controller="Users" asp-action="Index" class="btn-dash btn-manage">
-                        <i class="fas fa-users"></i> Users
-                    </a>
-                    <a asp-controller="Countries" asp-action="Index" class="btn-dash btn-manage">
-                        <i class="fas fa-globe"></i> Countries
-                    </a>
-                    <a asp-controller="Genres" asp-action="Index" class="btn-dash btn-manage">
-                        <i class="fas fa-music"></i> Genres
-                    </a>
-                    <a asp-controller="EventTypes" asp-action="Index" class="btn-dash btn-manage">
-                        <i class="fas fa-calendar-alt"></i> Event Types
-                    </a>
-                    <a asp-controller="Roles" asp-action="Index" class="btn-dash btn-manage">
-                        <i class="fas fa-user-shield"></i> Roles
-                    </a>
-                    <a asp-controller="Permissions" asp-action="Index" class="btn-dash btn-manage">
-                        <i class="fas fa-key"></i> Permissions
-                    </a>
-                </div>
-            </div>
+            <partial name="_AdminDbNav" />
 
             <!-- events moderations  -->
             <div class="dash-glass-card">

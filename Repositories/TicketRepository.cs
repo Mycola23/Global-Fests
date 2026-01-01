@@ -31,7 +31,8 @@ namespace GlobalFests.Repositories
         {
             var query = _context.Set<Ticket>()
                 .Include(t => t.Event)
-                .Include(t => t.User);
+                .Include(t => t.User)
+                .OrderByDescending(t => t.CreatedAt);
 
             if (trackChanges)
                 return await query.ToListAsync(cancellationToken);

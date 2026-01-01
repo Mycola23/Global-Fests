@@ -1,0 +1,81 @@
+﻿@model GlobalFests.ViewModels.AdminUserFormViewModel
+@{
+    var isEdit = Model.Id != 0;
+    ViewData["Title"] = isEdit ? "Edit User" : "Create User";
+}
+
+<div class="organizer__container" style="max-width: 800px;">
+
+    <div class="dash-glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h2 class="dash-card-title">@(isEdit ? "Edit User" : "Create New User")</h2>
+            <a asp-action="Users" class="btn-dash" style="border: 1px solid #666; color: #ccc;">Cancel</a>
+        </div>
+
+        <form asp-action="@(isEdit ? "EditUser" : "CreateUser")" method="post">
+            <input type="hidden" asp-for="Id" />
+
+            <!-- general -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <div class="custom-input-group">
+                        <input asp-for="Username" class="form-control-custom" placeholder="Enter username" />
+                    </div>
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <div class="custom-input-group">
+                        <input asp-for="Email" type="email" class="form-control-custom" placeholder="name@example.com" />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- pass -->
+            <div class="form-group">
+                <label class="form-label">@(isEdit ? "New Password (leave blank to keep current)" : "Password")</label>
+                <div class="custom-input-group">
+                    <input asp-for="NewPassword" type="password" class="form-control-custom" placeholder="••••••" />
+                </div>
+                <span asp-validation-for="NewPassword" class="text-danger"></span>
+            </div>
+
+            <!-- country & role -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <div class="custom-input-group">
+                        <select asp-for="RoleId" asp-items="Model.Roles" class="form-control-custom">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Country</label>
+                    <div class="custom-input-group">
+                        <select asp-for="CountryId" asp-items="Model.Countries" class="form-control-custom">
+                            <option value="">-- Global / Unknown --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="form-group" style="margin-top: 10px;">
+                <label class="checkbox-group" style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                    <input asp-for="Verified" type="checkbox" style="width: 18px; height: 18px; accent-color: var(--accent-cyan);" />
+                    <span style="color: white;">Is Verified Account?</span>
+                </label>
+            </div>
+
+            <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
+                <button type="submit" class="btn-dash" style="background: var(--accent-cyan); color: #000; border: none; font-weight: 700;">
+                    @(isEdit ? "Save Changes" : "Create User")
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

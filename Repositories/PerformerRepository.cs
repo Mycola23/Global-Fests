@@ -92,6 +92,44 @@ namespace GlobalFests.Repositories
             return CreateCursorOrganizerResult(performers, pageSize);
         }
 
+        public async Task<CursorResult<PerformerDto>> SearchPerformersAsync(
+    string? searchTerm,
+    int? status,
+    DateTime? cursorDate,
+    int? cursorId,
+    int pageSize)
+        {
+            var query = _context.Set<Performer>()
+                .Include(p => p.Genres)
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.Trim();
+                query = query.Where(p => p.Name.Contains(searchTerm));
+            }
+
+            if (status.HasValue)
+            {
+                query = query.Where(p => p.Status == status.Value);
+            }
+
+            if (cursorDate.HasValue && cursorId.HasValue)
+            {
+                query = query.Where(p => p.CreatedAt < cursorDate.Value
+                                      || (p.CreatedAt == cursorDate.Value && p.Id < cursorId.Value));
+            }
+
+            var entities = await query
+                .OrderByDescending(p => p.CreatedAt)
+                .ThenByDescending(p => p.Id)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return CreateCursorOrganizerResult(entities, pageSize); 
+        }
+
         private CursorResult<PerformerDto> CreateCursorOrganizerResult(List<Performer> performers, int pageSize)
         {
             var dtos = performers.Select(e => new PerformerDto

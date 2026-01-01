@@ -92,10 +92,18 @@
 
         @*right  info *@
         <div class="side-panel">
-            <a asp-controller="Organizer" asp-action="Index" class="btn-dash btn-cyan btn-back-panel">
-                <i class="fas fa-arrow-left"></i> Back to Dashboard
-            </a>
-
+            @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+            {
+                <a asp-controller="Admin" asp-action="Performers" class="btn-dash btn-cyan btn-back-panel">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            }
+            else
+            {
+                <a asp-controller="Organizer" asp-action="Index" class="btn-dash btn-cyan btn-back-panel">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            }
             <div class="guidelines-card">
                 <h3 class="guidelines-title"><i class="fas fa-info-circle"></i> Submission Tips</h3>
                 <ul class="guidelines-list">

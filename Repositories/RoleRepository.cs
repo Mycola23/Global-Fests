@@ -23,15 +23,13 @@ namespace GlobalFests.Repositories
         {
             return await _context.Set<Role>()
                 .Include(r => r.Users)
-                .Include(r => r.Permissions)
                 .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
         }
 
         public async Task<List<Role>> GetAllAsync(bool trackChanges = false, CancellationToken cancellationToken = default)
         {
             var query = _context.Set<Role>()
-                .Include(r => r.Users)
-                .Include(r => r.Permissions);
+                .Include(r => r.Users);
 
             if (trackChanges)
                 return await query.ToListAsync(cancellationToken);

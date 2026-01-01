@@ -25,4 +25,11 @@ namespace GlobalFests.Helpers
         Rejected = 3,       // need to be rewrited
         Archived = 4        // 
     }
+
+    public enum AdminManageItemType
+    {
+        Genres,
+        EventTypes,
+        Roles,
+    }
 }
