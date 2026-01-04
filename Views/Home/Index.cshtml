@@ -103,12 +103,14 @@
 
     @if (Model != null && Model.Items != null && Model.Items.Any())
     {
-        <div class="events-grid">
+        <div class="grid-container">
             @foreach (var eventItem in Model.Items)
             {
                 <div class="event-card">
-                    
-                    <div class="card-image-header"></div>
+
+                    <div class="card-img-placeholder">
+                        <img src="@(string.IsNullOrEmpty(eventItem.Poster) ? $"https://ui-avatars.com/api/?name={eventItem.Title}&background=random" : eventItem.Poster)" alt="Poster">
+                    </div>
                     <div class="card-body">
                         <div class="card-date">
                             <i class="fas fa-calendar"></i> @eventItem.StartDate.ToString("MMM dd, yyyy")

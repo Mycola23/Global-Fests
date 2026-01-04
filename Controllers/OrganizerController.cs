@@ -108,6 +108,10 @@ namespace GlobalFests.Controllers
                 await _performerRepo.CreateAsync(model.NewPerformer);
         
                 TempData["SuccessMessage"] = "Event created successfully! It will be visible after approval.";
+                if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                {
+                    return RedirectToAction("Performers", "Admin");
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -193,6 +197,10 @@ namespace GlobalFests.Controllers
                 await _performerRepo.UpdateAsync(existingPerformer);
 
                 TempData["SuccessMessage"] = "Performer updated successfully!";
+                if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                {
+                    return RedirectToAction("Performers", "Admin");
+                }
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)

@@ -1,4 +1,5 @@
-﻿@model GlobalFests.ViewModels.EditEventsViewModel
+﻿@using GlobalFests.Helpers
+@model GlobalFests.ViewModels.EditEventsViewModel
 
 <div class="page-container">
     <div class="create-grid">
@@ -150,6 +151,17 @@
                     <li><i class="fas fa-eye"></i> <span>Your event will stay approved unless you change key info.</span></li>
                 </ul>
             </div>
+            @if(Model.Event.Status == (int)Status.Rejected)
+            {
+                <div class="guidelines-card">
+                    <h3 style="color:var(--warning-color); margin-bottom:15px;"><i class="fas fa-info-circle"></i> Rejectin Reason</h3>
+                    <div class="guidelines__text">
+                        @Model.Event.RejectionReason
+                    </div>
+                </div>
+            }
+           
+
         </div>
     </div>
 </div>

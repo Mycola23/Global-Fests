@@ -104,7 +104,7 @@ namespace GlobalFests.Controllers
         // POST: Events/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateEventsViewModel model)
+        public async Task<IActionResult> Create(CreateEventsViewModel model, string submitAction)
         {
             if (!User.Identity?.IsAuthenticated ?? true)
                 return RedirectToAction("Login", "Account");
@@ -116,15 +116,23 @@ namespace GlobalFests.Controllers
 
             int userId = int.Parse(userIdClaim.Value);
             model.NewEvent.OrganizerId = userId;
+            if (submitAction == "Draft")
+            {
+                model.NewEvent.Status = (int)Status.Draft; // Status 0
+            }
+            else
+            {
+                model.NewEvent.Status = (int)Status.Pending; // Status 1
+            }
 
-            
-            ModelState.Remove("Country");
-            ModelState.Remove("Type");
-            ModelState.Remove("Organizer");
-            ModelState.Remove("Tickets");
-           
-            ModelState.Remove("Performers");
-            ModelState.Remove("WishList");
+
+            ModelState.Remove("NewEvent.Country");
+            ModelState.Remove("NewEvent.Type");
+            ModelState.Remove("NewEvent.Organizer");
+            ModelState.Remove("NewEvent.Tickets");
+            ModelState.Remove("NewEvent.Performers");
+            ModelState.Remove("NewEvent.WishList");
+            ModelState.Remove("submitAction");
 
             if (!ModelState.IsValid)
             {
@@ -158,7 +166,11 @@ namespace GlobalFests.Controllers
 
                 await _eventService.CreateEventAsync(model.NewEvent);
                 TempData["SuccessMessage"] = "Event created successfully! It will be visible after approval.";
-                return RedirectToAction(nameof(Index));
+                if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                {
+                    return RedirectToAction("Events", "Admin");
+                }
+                return RedirectToAction("Index", "Organizer");
             }
             catch (Exception ex)
             {
@@ -256,7 +268,11 @@ namespace GlobalFests.Controllers
                 await _eventRepo.UpdateAsync(existingEvent);
 
                 TempData["SuccessMessage"] = "Event updated successfully!";
-                return RedirectToAction("Index", "Organizer"); 
+                if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                {
+                    return RedirectToAction("Events", "Admin");
+                }
+                return RedirectToAction("Index", "Organizer");
             }
             catch (Exception ex)
             {
@@ -267,44 +283,6 @@ namespace GlobalFests.Controllers
                 return View(model);
             }
         }
-    
-        
-
-        //// POST: Events/Edit/5
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(int id, Event eventEntity)
-        //{
-        //    if (!User.Identity?.IsAuthenticated ?? true)
-        //        return RedirectToAction("Login", "Account");
-
-        //    if (id != eventEntity.Id)
-        //        return BadRequest();
-
-        //    if (!ModelState.IsValid)
-        //    {
-        //        ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
-        //        ViewBag.EventTypes = await _lookupService.GetAllEventTypesAsync();
-        //        ViewBag.Genres = await _lookupService.GetAllGenresAsync();
-        //        return View(eventEntity);
-        //    }
-
-        //    try
-        //    {
-        //        await _eventService.UpdateEventAsync(eventEntity);
-        //        TempData["SuccessMessage"] = "Event updated successfully!";
-        //        return RedirectToAction(nameof(Details), new { id });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ModelState.AddModelError("", $"Error updating event: {ex.Message}");
-        //        ViewBag.Countries = await _lookupService.GetAllCountriesAsync();
-        //        ViewBag.EventTypes = await _lookupService.GetAllEventTypesAsync();
-        //        ViewBag.Genres = await _lookupService.GetAllGenresAsync();
-        //        return View(eventEntity);
-        //    }
-        //}
-
         // GET: Events/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
@@ -315,7 +293,7 @@ namespace GlobalFests.Controllers
 
             if (eventDetails == null)
                 return NotFound();
-
+            
             return View(eventDetails);
         }
 
@@ -333,7 +311,11 @@ namespace GlobalFests.Controllers
                 if (deleted)
                 {
                     TempData["SuccessMessage"] = "Event deleted successfully!";
-                    return RedirectToAction(nameof(Index));
+                    if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                    {
+                        return RedirectToAction("Events", "Admin");
+                    }
+                    return RedirectToAction("Index", "Organizer");
                 }
                 else
                 {

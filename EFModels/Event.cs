@@ -14,7 +14,12 @@ public partial class Event
     public int Id { get; set; }
 
     public int OrganizerId { get; set; }
+    [Display(Name = "Event Type")]
+    [Range(1, int.MaxValue, ErrorMessage = "Please select an Event Type.")]
     public int TypeId { get; set; }
+
+    [Display(Name = "Country")]
+    [Range(1, int.MaxValue, ErrorMessage = "Please select a valid Country.")]
     public int CountryId { get; set; }
 
     [StringLength(2000)]
@@ -43,11 +48,13 @@ public partial class Event
     public DateTime EndDate { get; set; }
 
     [Column(TypeName = "decimal(10, 2)")]
+    [Display(Name = "Ticket Price")]
+    [Range(0, double.MaxValue, ErrorMessage = "Price cannot be negative.")]
     public decimal? TicketPrice { get; set; }
 
+    [Display(Name = "Ticket Quantity")]
+    [Range(1, int.MaxValue, ErrorMessage = "Ticket quantity must be at least 1.")]
     public int TicketAmount { get; set; }
-
-    public bool? Approved { get; set; }
 
     [Column(TypeName = "datetime")]
     public DateTime CreatedAt { get; set; }

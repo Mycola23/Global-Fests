@@ -181,6 +181,7 @@ namespace GlobalFests.Repositories
                     EventType = e.Type.Type,
                     OrganizerName = e.Organizer.Username,
                     OrganizerEmail = e.Organizer.Email,
+                    Status = e.Status,
                     Genres = e.Genres.Select(g => g).ToList(),
                     Performers = e.Performers.Select(p => p).ToList()
                 })
@@ -312,6 +313,7 @@ namespace GlobalFests.Repositories
                 Title = e.Title,
                 Description = e.Description,
                 StartDate = e.StartDate,
+                Poster = e.Poster,
                 EndDate = e.EndDate,
                 TicketPrice = e.TicketPrice,
                 City = e.City ?? "N/A",

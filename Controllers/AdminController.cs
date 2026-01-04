@@ -573,6 +573,27 @@ namespace GlobalFests.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteEvent(int id)
+        {
+
+            if (!User.IsInRole("SuperAdmin"))
+            {
+                return Forbid();
+            }
+            var success = await _eventService.DeleteEventAsync(id);
+
+            if (!success)
+            {
+                TempData["ErrorMessage"] = "Event not found.";
+                return RedirectToAction(nameof(Events));
+            }
+
+            TempData["SuccessMessage"] = "Event deleted successfully.";
+            return RedirectToAction(nameof(Events));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletePerformer(int id)
         {
           

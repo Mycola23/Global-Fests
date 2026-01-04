@@ -46,9 +46,30 @@
                                                             ? string.Join(", ", item.Genres.Select(g => g.Genre1))
                                                             : "No genres")
                                     </span>
-                                    <span class="p-status @(item.Status == (int)Status.Approved ? "" : "review")">
+                                   @*  <span class="p-status @(item.Status == (int)Status.Approved ? "" : "review")">
                                         @(item.Status == (int)Status.Approved ? "Approved" : "Pending")
-                                    </span>
+                                    </span> *@
+
+                                    @{
+
+                                        var statusLabel = "Unknown";
+                                        var statusColor = "#888";
+
+
+
+                                        switch (item.Status)
+                                        {
+                                            case 1: statusLabel = "Pending"; statusColor = "#ffd800"; break;
+                                            case 2: statusLabel = "Approved"; statusColor = "#b4f8c8"; break;
+                                            case 3: statusLabel = "Rejected"; statusColor = "#ff6b6b"; break;
+                                            default: statusLabel = "Draft"; break;
+                                        }
+
+
+                                        <span class="p-status" style="color: @statusColor; border: 1px solid @statusColor;" >
+                                            @statusLabel
+                                        </span>
+                                    }
                                 </div>
 
                                 <a asp-controller="Organizer"
@@ -85,16 +106,38 @@
                             <div class="event-mini-card">
                                 <div class="event-mini-thumb" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('@(string.IsNullOrEmpty(ev.Poster) ? "https://picsum.photos/300/200?blur=2" : ev.Poster)')"></div>
                                 <span class="event-mini-name" title="@ev.Title">@ev.Title</span>
-                                <span class="p-status @(ev.Status == (int)Status.Approved ? "" : "review")" style="font-size: 10px; display: block; margin-bottom: 5px;">
-                                    @(ev.Status == (int)Status.Approved ? "Approved" : "Pending")
-                                </span>
-                                <a asp-controller="Events"
-                                asp-action="Edit"
-                                asp-route-id="@ev.Id"
-                                class="btn-mini-edit"
-                                style="text-align: center; text-decoration: none; display: block;">
-                                    Edit Event
-                                </a>
+                                @{
+
+                                    var statusLabel = "Unknown";
+                                    var statusColor = "#888";
+
+
+
+                                    switch (ev.Status)
+                                    {
+                                        case 1: statusLabel = "Pending"; statusColor = "#ffd800"; break;
+                                        case 2: statusLabel = "Approved"; statusColor = "#b4f8c8"; break;
+                                        case 3: statusLabel = "Rejected"; statusColor = "#ff6b6b"; break;
+                                        default: statusLabel = "Draft"; break;
+                                    }
+
+
+                                    <span class="p-status" style="color: @statusColor; border: 1px solid @statusColor;">
+                                        @statusLabel
+                                    </span>
+                                }
+                                <div class="ev-btns">
+                                    <a asp-controller="Events"
+                                       asp-action="Edit"
+                                       asp-route-id="@ev.Id"
+                                       class="btn-mini-edit">
+                                        Edit Event
+                                    </a>
+                                    <form asp-controller="Events" asp-action="Delete" asp-route-id="@ev.Id" method="post" onsubmit="return confirm('Hard delete this event?');">
+                                        <button type="submit" class="btn-icon-no"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </div>
+                               
                             </div>
                         }
                     }
@@ -213,7 +256,7 @@
     <script>
         
         var organizerData = @Html.Raw(Json.Serialize(Model.Stats));
-
+        console.log(organizerData);
         // color pallete
         function getChartColors(index, alpha = 1) {
             const colors = [

@@ -48,7 +48,7 @@
 <div class="container page-container" style="margin-top: -60px; position: relative; z-index: 2;">
 
     <!-- ADMIN PANEL -->
-    @if (User.IsInRole("Admin"))
+    @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
     {
         <div class="admin-actions-bar" style="background: rgba(20, 20, 30, 0.95); padding: 20px; border-radius: 16px; margin-top: 40px; margin-bottom: 30px; border: 1px solid var(--accent-blue); display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -99,7 +99,7 @@
             </div>
 
             <!-- Rejection Reason (Visible only if rejected) -->
-            @if (Model.Performer.Status == (int)Status.Rejected && !string.IsNullOrEmpty(Model.Performer.RejectionReason))
+            @if (Model.Performer.Status == (int)Status.Rejected)
             {
                 <div class="dash-glass-card" style="border-color: #ff6b6b;">
                     <h3 class="section-title" style="color: #ff6b6b;">Rejection Notice</h3>

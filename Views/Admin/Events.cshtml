@@ -91,30 +91,44 @@
                                         case 2: statusLabel = "Approved"; statusColor = "#b4f8c8"; break;
                                         case 3: statusLabel = "Rejected"; statusColor = "#ff6b6b"; break;
                                         default: statusLabel = "Draft"; break;
-                                            }
+                                    }
                                     
-                                                                           }
-                                                                           <span style="color: @statusColor; border: 1px solid @statusColor; padding: 2px 8px; border-radius: 12px; font-size: 11px;">
-                                                                               @statusLabel
-                                                                           </span>
-                                                                       </td>
-                                                                       <td>
-                                                                           <div style="display: flex; gap: 8px;">
-                                                                               <a asp-controller="Events" asp-action="Details" asp-route-id="@item.Id" class="btn-icon-view" title="View">
-                                                                                   <i class="fas fa-eye"></i>
-                                                                               </a>
+                                
+                                <span style="color: @statusColor; border: 1px solid @statusColor; padding: 2px 8px; border-radius: 12px; font-size: 11px;">
+                                    @statusLabel
+                                </span>
+                                }
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 8px;">
+                                    <a asp-controller="Events" asp-action="Details" asp-route-id="@item.Id" class="btn-icon-view" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                                                                
-                                                                               <a asp-controller="Events" asp-action="Edit" asp-route-id="@item.Id" class="btn-icon-view" style="color: var(--accent-cyan);" title="Edit">
-                                                                                   <i class="fas fa-pen"></i>
-                                                                               </a>
-
-                                                                               
-                                                                               <form asp-action="DeleteEvent" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Hard delete this event?');">
-                                                                                   <button type="submit" class="btn-icon-no"><i class="fas fa-trash"></i></button>
-                                                                               </form>
-                                                                           </div>
-                                                                       </td>
-                                                                   </tr>
+                                    <a asp-controller="Events" asp-action="Edit" asp-route-id="@item.Id" class="btn-icon-view" style="color: var(--accent-cyan);" title="Edit">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                    @if (User.IsInRole("SuperAdmin"))
+                                    {
+                                        @*active*@
+                                        <form asp-action="DeleteEvent" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this event? This cannot be undone.');">
+                                            <button type="submit" class="btn-icon-no" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        @*plug*@
+                                        <button type="button" class="btn-icon-no" disabled
+                                                style="opacity: 0.3; cursor: not-allowed;"
+                                                title="Restricted: Only SuperAdmin can delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                     </tr>
                     }
                 </tbody>
             </table>

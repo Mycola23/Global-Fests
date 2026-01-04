@@ -60,16 +60,21 @@
 
                 <!-- Dates -->
                 <div class="custom-input-group">
-                    <input type="date" asp-for="Search.StartDateFrom"  class="form-control-custom" />
+                    <i class="fas fa-calendar-alt input-icon"></i>
+                    <!-- Поле "З" -->
+                    <input type="text" asp-for="Search.StartDateFrom" id="dateFrom" class="form-control-custom" placeholder="Date From" />
                 </div>
+
                 <div class="custom-input-group">
-                    <input type="date" asp-for="Search.StartDateTo"  class="form-control-custom" />
+                    <i class="fas fa-calendar-check input-icon"></i>
+                    <!-- Поле "По" -->
+                    <input type="text" asp-for="Search.StartDateTo" id="dateTo" class="form-control-custom" placeholder="Date To" />
                 </div>
 
 
                 <div style="display:flex; gap:10px;">
                     <button type="submit" class="btn-main" style="flex:2;">Search</button>
-                    <a asp-action="Index" class="btn-main btn-secondary-custom" style="flex:1; justify-content:center; margin-top:10px; display:flex;">
+                    <a asp-action="Index" class="btn-main btn-secondary-custom" style="flex:1; justify-content:center; display:flex;">
                         <i class="fas fa-redo"></i>
                     </a>
                 </div>
@@ -80,13 +85,15 @@
     <!-- events  -->
     @if (Model.Events?.Items?.Any() == true)
     {
-        <p style="color: #888; margin-bottom: 20px;">Found @Model.Events.Items.Count event(s)</p>
+        <p class="grid-container__sub-title">Found @Model.Events.Items.Count event(s)</p>
 
         <div class="grid-container">
             @foreach (var eventItem in Model.Events.Items)
             {
                 <div class="event-card">
-                    <div class="card-img-placeholder"></div>
+                    <div class="card-img-placeholder">
+                        <img src="@(string.IsNullOrEmpty(eventItem.Poster) ? $"https://ui-avatars.com/api/?name={eventItem.Title}&background=random" : eventItem.Poster)" alt="Poster">
+                    </div>
                     <div class="card-details">
                         <div class="event-date">@eventItem.StartDate.ToString("MMM dd, yyyy")</div>
                         <h3 class="event-title">@eventItem.Title</h3>
@@ -98,6 +105,7 @@
                             </div>
                             <div class="event-price">
                                 @(eventItem.TicketPrice.HasValue && eventItem.TicketPrice > 0 ? "$" + eventItem.TicketPrice.Value.ToString("N0") : "Free")
+                                <i class="fa-solid fa-arrow-right event-card__arrow"></i>
                             </div>
                         </div>
 
@@ -130,3 +138,40 @@
         </div>
     }
 </div>
+@section Scripts {
+    <!-- Підключаємо Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // Налаштування для поля "Дата По" (спочатку)
+            const dateTo = flatpickr("#dateTo", {
+                dateFormat: "Y-m-d",
+                theme: "dark",
+                allowInput: true // Дозволяє вводити вручну, якщо треба
+            });
+
+            // Налаштування для поля "Дата З"
+            const dateFrom = flatpickr("#dateFrom", {
+                dateFormat: "Y-m-d",
+                theme: "dark",
+                allowInput: true,
+                onChange: function (selectedDates, dateStr, instance) {
+                    // КОЛИ ЗМІНЮЄТЬСЯ "ДАТА З":
+                    // Встановлюємо мінімальну дату для "Дата По",
+                    // щоб не можна було вибрати кінець раніше початку.
+                    dateTo.set('minDate', dateStr);
+                }
+            });
+
+            // (Опціонально) Якщо сторінка завантажилась вже з вибраною датою "З",
+            // треба оновити обмеження для "По" одразу.
+            if (document.getElementById('dateFrom').value) {
+                dateTo.set('minDate', document.getElementById('dateFrom').value);
+            }
+        });
+    </script>
+}

@@ -59,7 +59,16 @@ builder.Services.AddSession(options =>
 
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    // to show not just "" but real field name that invalid 
+    options.ModelBindingMessageProvider.SetAttemptedValueIsInvalidAccessor(
+        (value, fieldName) => $"The {fieldName} field is required.");
+
+    // 2. Handles unknown value failures
+    options.ModelBindingMessageProvider.SetValueIsInvalidAccessor(
+        (value) => "Please select a valid option.");
+});
 
 
 

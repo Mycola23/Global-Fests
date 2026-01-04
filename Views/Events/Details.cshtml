@@ -1,4 +1,5 @@
 ﻿@using System.Globalization
+@using GlobalFests.Helpers
 @model GlobalFests.ViewModels.EventDetailsViewModel
 
 @{
@@ -140,6 +141,7 @@
                                     <h5>@p.Name</h5>
                                     <span style="font-size: 11px; color: #888;">@(p.Genres.Any() ? p.Genres.First().Genre1 : "Artist")</span>
                                 </div>
+                                <a asp-controller="Organizer" asp-action="DetailsPerformer" asp-route-id="@p.Id" class="card-link"></a>
                             </div>
                         }
                     </div>
@@ -163,7 +165,7 @@
                     </span>
                 </div>
 
-                @if (Model.Event.TicketAmount > 0)
+                @if (Model.Event.TicketAmount > 0 && Model.Event.Status == (int)Status.Approved) 
                 {
                     <a asp-controller="Tickets" asp-action="Checkout" asp-route-eventId="@Model.Event.Id" class="btn-main w-100" style="text-align: center; text-decoration: none; display: block; line-height: 50px;">
                         Get Tickets

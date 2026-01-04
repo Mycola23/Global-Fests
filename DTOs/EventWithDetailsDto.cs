@@ -21,6 +21,7 @@ namespace GlobalFests.DTOs
         public string EventType { get; set; } = null!;
         public string OrganizerName { get; set; } = null!;
         public string OrganizerEmail { get; set; } = null!;
+        public int Status { get; set; }
         public List<Genre> Genres { get; set; } = new();
         public List<Performer> Performers { get; set; } = new();
     }
