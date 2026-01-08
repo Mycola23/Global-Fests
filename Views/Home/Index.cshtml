@@ -1,9 +1,14 @@
 ﻿@model GlobalFests.DTOs.CursorResult<GlobalFests.DTOs.EventDto>
 @{
     ViewData["Title"] = "Home";
+    var randomId = Guid.NewGuid();
+
+   
+    var posterUrl = $"https://picsum.photos/seed/{randomId}/1920/1080";
+
 }
 <section class="hero-section">
-    <div class="hero-overlay"></div>
+    <div class="hero-overlay" style="background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.8) 100%), url('@posterUrl') no-repeat center center; background-size: cover;"></div>
     <div class="hero-content container">
 
         <h1 class="hero-title">

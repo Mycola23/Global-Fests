@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using GlobalFests.Models;
 using GlobalFests.Services;
 using GlobalFests.Helpers;
+using GlobalFests.DTOs;
 
 namespace GlobalFests.Controllers;
 
@@ -18,7 +19,7 @@ public class HomeController : Controller
     public async Task<IActionResult> Index()
     {
         
-        var events = await _eventService.SearchEventsAsync(
+        var events = await _eventService.SearchEventsAsync<EventDto>(
             title: null,
             city: null,
             countryId: null,

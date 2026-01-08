@@ -518,7 +518,7 @@ namespace GlobalFests.Controllers
         [HttpGet]
         public async Task<IActionResult> Events(string? searchTerm, int? status, DateTime? cursorDate, int? cursorId)
         {
-            var result = await _eventService.SearchEventsAsync(
+            var result = await _eventService.SearchEventsAsync<EventDto>(
                 title: searchTerm,
                 city: null,
                 countryId: null,

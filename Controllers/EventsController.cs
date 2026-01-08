@@ -6,6 +6,7 @@ using GlobalFests.ViewModels;
 using GlobalFests.Repositories;
 using Microsoft.EntityFrameworkCore;
 using GlobalFests.Helpers;
+using GlobalFests.DTOs;
 
 namespace GlobalFests.Controllers
 {
@@ -39,7 +40,7 @@ namespace GlobalFests.Controllers
             model.Genres = await _lookupService.GetAllGenresAsync();
 
             
-            var searchResult = await _eventService.SearchEventsAsync(
+            var searchResult = await _eventService.SearchEventsAsync<EventDto>(
                 model.Search.Title,
                 model.Search.City,
                 model.Search.CountryId,
@@ -342,7 +343,7 @@ namespace GlobalFests.Controllers
 
             var userId = int.Parse(userIdClaim.Value);
 
-            var result = await _eventService.SearchEventsAsync(
+            var result = await _eventService.SearchEventsAsync<EventDto>(
                 title: null,
                 city: null,
                 countryId: null,

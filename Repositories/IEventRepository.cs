@@ -32,7 +32,7 @@ namespace GlobalFests.Repositories
         //Task<List<EventsByTypeDto>> GetEventsByTypeAsync(CancellationToken cancellationToken = default);
 
         // filtering
-        Task<CursorResult<EventDto>> SearchEventsAsync(
+        Task<CursorResult<T>> SearchEventsAsync<T>(
             string? title = null,
             string? city = null,
             int? countryId = null,

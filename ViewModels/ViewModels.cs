@@ -31,6 +31,9 @@ namespace GlobalFests.ViewModels
 
         
         public int? CountryId { get; set; }
+
+        [Required(ErrorMessage = "Choose your role,please")]
+        public int? RoleId { get; set; }
     }
 
     public class RegisterViewModel
@@ -39,6 +42,8 @@ namespace GlobalFests.ViewModels
 
         [ValidateNever]
         public List<Country>? Countries { get; set; }
+        [ValidateNever]
+        public List<Role>? Roles { get; set; }
     }
 
     public class LoginViewModel
@@ -56,6 +61,17 @@ namespace GlobalFests.ViewModels
         public bool RememberMe { get; set; }
     }
 
+
+    public class HomeViewModel
+    {
+        
+        public CursorResult<EventDto>? SearchResult { get; set; }
+        public List<EventDto> TrendingEvents { get; set; } = new();
+        public List<EventDto> UpcomingEvents { get; set; } = new();
+
+        public List<EventDto>? LocalEvents { get; set; }
+        public string? UserCountryName { get; set; }
+    }
     public class EventsSearchModel
     {
         public string? Title { get; set; }
@@ -338,6 +354,26 @@ namespace GlobalFests.ViewModels
     public class MyTicketsViewModel
     {
         public List<GlobalFests.EFModels.Ticket> Tickets { get; set; } = new();
+
+        public Dictionary<int, string> QrCodes { get; set; } = new();
+    }
+
+
+    //  WORLD MAP VIEW MODEL
+
+    public class WorldMapViewModel
+    {
+        public EventsSearchModel? Search { get; set; }
+
+        public CursorResult<EventWorldMapDto> Events { get; set; }
+
+        [ValidateNever]
+        public List<Country>? Countries { get; set; }
+        [ValidateNever]
+        public List<EventType>? EventTypes { get; set; }
+
+        [ValidateNever]
+        public List<Genre>? Genres { get; set; }
     }
 
 }

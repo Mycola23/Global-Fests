@@ -5,8 +5,15 @@ namespace GlobalFests.Helpers
     public enum UserRole
     {
         Admin = 1,
-        User = 2,
-        Organizer = 3
+        User = 3,
+        Organizer = 2,
+        SuperAdmin =4,
+    }
+
+    public enum SearchWorkMode
+    {
+        Default = 1,
+        WorldMap = 2,
     }
     public static class checkRole
     {

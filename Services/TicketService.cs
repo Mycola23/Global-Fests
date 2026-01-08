@@ -123,10 +123,10 @@ namespace GlobalFests.Services
         {
             var ticket = await _context.Tickets.FindAsync(ticketId);
 
-            // check ticket exists and belongs to the user requesting cancellation
+            // check ticket exists and belongs to the user -who cancel tickets
             if (ticket == null || ticket.UserId != userId) return false;
 
-            // Check if event already started (can't cancel past events)
+            // check if event already started if yest we can`n cancel tickets
             var ev = await _context.Events.FindAsync(ticket.EventId);
             if (ev != null && ev.StartDate < DateTime.Now) return false;
 

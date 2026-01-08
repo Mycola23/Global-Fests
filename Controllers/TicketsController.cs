@@ -3,6 +3,7 @@ using GlobalFests.ViewModels;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QRCoder;
 
 namespace GlobalFests.Controllers
 {
@@ -87,8 +88,20 @@ namespace GlobalFests.Controllers
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var tickets = await _ticketService.GetTicketsByUserIdAsync(userId);
+            var viewModel = new MyTicketsViewModel
+            {
+                Tickets = tickets
+            };
 
-            return View(new MyTicketsViewModel { Tickets = tickets });
+            foreach (var ticket in tickets)
+            {
+               
+                string payload = $"GlobalFest-TICKET-{ticket.Id}-EVENT-{ticket.EventId}-{ticket.UserId}";
+
+                viewModel.QrCodes[ticket.Id] = GenerateQrCodeBase64(payload);
+            }
+
+            return View(viewModel);
         }
 
         // POST: Cancel Ticket
@@ -105,6 +118,22 @@ namespace GlobalFests.Controllers
                 TempData["ErrorMessage"] = "Could not cancel ticket.";
 
             return RedirectToAction(nameof(MyTickets));
+        }
+
+
+        //helper methods 
+
+        private string GenerateQrCodeBase64(string content)
+        {
+            using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
+            {
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(content, QRCodeGenerator.ECCLevel.Q);
+                using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
+                {
+                    byte[] qrCodeBytes = qrCode.GetGraphic(20); 
+                    return $"data:image/png;base64,{Convert.ToBase64String(qrCodeBytes)}";
+                }
+            }
         }
     }
 }

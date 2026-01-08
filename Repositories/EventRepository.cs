@@ -1,6 +1,7 @@
 ﻿using GlobalFests.Data;
 using GlobalFests.DTOs;
 using GlobalFests.EFModels;
+using GlobalFests.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace GlobalFests.Repositories
@@ -30,7 +31,7 @@ namespace GlobalFests.Repositories
                 .Include(e => e.Organizer)
                 .Include(e => e.Country)
                 .Include(e => e.Type)
-                .Include(e=> e.Genres)
+                .Include(e => e.Genres)
                 .Include(e => e.Performers)
                 .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
         }
@@ -41,7 +42,7 @@ namespace GlobalFests.Repositories
                 .Include(e => e.Organizer)
                 .Include(e => e.Country)
                 .Include(e => e.Type);
-                
+
 
             if (!trackChanges)
             {
@@ -117,7 +118,7 @@ namespace GlobalFests.Repositories
 
 
 
-       
+
         public async Task<EventDto?> GetEventDtoByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             return await _context.Set<Event>()
@@ -218,7 +219,7 @@ namespace GlobalFests.Repositories
         // ==========================================
         // search cursor
         // ==========================================
-        public async Task<CursorResult<EventDto>> SearchEventsAsync(
+        public async Task<CursorResult<T>> SearchEventsAsync<T>(
             string? title = null,
             string? city = null,
             int? countryId = null,
@@ -234,6 +235,7 @@ namespace GlobalFests.Repositories
             CancellationToken cancellationToken = default)
         {
             var query = _context.Set<Event>()
+                .Include(e => e.Genres)
                 .Include(e => e.Organizer)
                 .Include(e => e.Country)
                 .Include(e => e.Type)
@@ -265,9 +267,20 @@ namespace GlobalFests.Repositories
                 .ThenByDescending(e => e.Id)
                 .Take(pageSize)
                 .ToListAsync(cancellationToken);
+            if (typeof(T) == typeof(EventWorldMapDto))
+            {
+                var result = CreateCursorWorldMapResult(events, pageSize);
+                return (CursorResult<T>)(object)result;
+            }
+            else if (typeof(T) == typeof(EventDto))
+            {
+                var result = CreateCursorResult(events, pageSize);
+                return (CursorResult<T>)(object)result;
+            }
 
-            return CreateCursorResult(events, pageSize);
+            throw new InvalidOperationException($"Type {typeof(T).Name} is not supported for search.");
         }
+
 
 
         // ======= Get All Events By Organizer =======================
@@ -340,10 +353,10 @@ namespace GlobalFests.Repositories
 
             return result;
         }
-    
+
         private CursorResult<EventOrganizerDto> CreateCursorOrganizerResult(List<Event> events, int pageSize)
         {
-            var dtos = events.Select( e => new EventOrganizerDto
+            var dtos = events.Select(e => new EventOrganizerDto
             {
                 Id = e.Id,
                 Title = e.Title,
@@ -375,15 +388,57 @@ namespace GlobalFests.Repositories
 
             return result;
         }
-    }
+    
+        private CursorResult<EventWorldMapDto> CreateCursorWorldMapResult(List<Event> events, int pageSize)
+        {
+            var dtos = events.Select(e => new EventWorldMapDto
+            {
+                Id = e.Id,
+                Title = e.Title,
+                StartDate = e.StartDate,
+                Poster = e.Poster,
+                EndDate = e.EndDate,
+                City = e.City ?? "N/A",
+                CountryName = e.Country?.CountryName ?? "Unknown",
+                EventType = e.Type?.Type ?? "Unknown",
+                Status = e.Status,
+                TicketAmount = e.TicketAmount,
+                Latitude = e.Latitude,
+                Longitude = e.Longitude,
+                Genres = e.Genres.Select(g => new Genre
+                {
+                    Id = g.Id,
+                    Genre1 = g.Genre1
+                }).ToList()
 
+            }).ToList();
 
-    // think about rewrite two methods in one 
-    /*public enum CursorResult
-    {
-        defaultMethod = 1,
-        Organizer = 2
+            var result = new CursorResult<EventWorldMapDto>
+            {
+                Items = dtos,
+                HasNextPage = dtos.Count == pageSize
+            };
 
-    }*/
+            if (dtos.Any())
+            {
+                var lastItem = dtos.Last();
+                result.NextCursorDate = lastItem.StartDate;
+                result.NextCursorId = lastItem.Id;
+            }
+
+            return result;
+        }
+    } 
+
 }
+
+
+        // think about rewrite two methods in one 
+        /*public enum CursorResult
+        {
+            defaultMethod = 1,
+            Organizer = 2
+
+        }*/
+    
 

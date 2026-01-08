@@ -1,31 +1,65 @@
-﻿@model GlobalFests.ViewModels.EventsViewModel
+﻿@model GlobalFests.ViewModels.WorldMapViewModel
 
 @{
-    ViewData["Title"] = "Events";
+    ViewData["Title"] = "World Map";
 }
 
 
-<div class="map-container">
-    <div class="map" id="map"></div>
-    <div class="map__sidebar">
-        <div style="padding: 20px;">
-            <h3>Events List</h3>
-            <p>Content goes here...</p>
+<div class="map-layout">
+    <!-- SIDEBAR -->
+    <div class="map-sidebar">
+
+        <!-- FILTERS  -->
+        <div class="sidebar-filters">
+            <div class="form-group mb-2">
+                <input type="text" id="searchTitle" class="form-control-custom" placeholder="Event Title..." />
+            </div>
+            <div class="form-group mb-2">
+                <input type="text" id="searchCity" class="form-control-custom" placeholder="City..." />
+            </div>
+            <div class="form-group mb-2">
+                <select id="searchCountry" class="form-control-custom" asp-items="@(new SelectList(Model.Countries, "Id", "CountryName"))">
+                    <option value="">All Countries</option>
+                </select>
+            </div>
+            <div class="form-group mb-2">
+                <select id="searchType" class="form-control-custom" asp-items="@(new SelectList(Model.EventTypes, "Id", "Type"))">
+                    <option value="">All Types</option>
+                </select>
+            </div>
+
+            <!-- Filter Button -->
+            <button id="btnSearch" class="btn-main w-100 mt-2">
+                <i class="fas fa-search"></i> Apply Filters
+            </button>
         </div>
 
-        <!-- The Toggle Button -->
-        <button class="sidebar-toggle"  type="button">
-            &gt; 
+        <!-- RESULTS LIST -->
+        <div class="sidebar-results">
+            <h4 class="results-header">Events</h4>
+            <div id="eventsList" class="events-list-container">
+               
+                <p class="text-muted text-center mt-4">Loading events...</p>
+            </div>
+        </div>
+        <button class="sidebar-toggle" type="button">
+            &gt;
         </button>
     </div>
+
+    <!-- MAP -->
+    <div id="map" class="map-canvas"></div>
 </div>
+
 
 @section Styles {
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossorigin="" />
-   
+    <!-- styles for clustering -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
 }
 
 
@@ -33,9 +67,11 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""></script>
-
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <script>
-        let map = L.map('map').setView([51.505, -0.09], 8);
+        let map = L.map('map', {
+             zoomControl: false
+         }).setView([50.2547, 28.6587], 6);
 
         let googleStreets = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
             maxZoom: 20,
@@ -47,7 +83,7 @@
             position: 'bottomright'
         }).addTo(map);
 
-        const sidebar = document.querySelector('.map__sidebar');
+        const sidebar = document.querySelector('.map-sidebar');
         const toggleBtn = document.querySelector('.sidebar-toggle');
 
         toggleBtn.addEventListener('click', function () {
@@ -59,6 +95,147 @@
                 toggleBtn.innerHTML = '&gt;';
             }
         });
+
+
+        var markers = L.markerClusterGroup({
+                showCoverageOnHover: false,
+                spiderfyOnMaxZoom: true,
+                removeOutsideVisibleBounds: true,
+               
+            });
+            map.addLayer(markers);
+
+            
+            var markersMap = {};
+
+            // Fetch Data 
+            function loadEvents() {
+                
+                const params = new URLSearchParams({
+                    title: document.getElementById('searchTitle').value,
+                    city: document.getElementById('searchCity').value,
+                    countryId: document.getElementById('searchCountry').value,
+                    typeId: document.getElementById('searchType').value
+                });
+                const WORLDMAPPATH = "/WorldMap/GetMapEvents?" ;
+                fetch(`${WORLDMAPPATH}${params}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        renderMap(data);
+                        renderSidebar(data);
+                    })
+                    .catch(err => console.error("Error loading events:", err));
+            }
+
+            
+            function renderMap(events) {
+                markers.clearLayers();
+                markersMap = {}; // map reset
+
+                events.forEach(ev => {
+                    if (ev.latitude && ev.longitude) {
+                        console.log(ev);
+                        
+                        const tagsHtml = (ev.genres || []).slice(0, 3)
+                            .map(g => `<span class="popup-tag">${g.genre1}</span>`).join('');
+
+                        const dateStr = new Date(ev.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                        const posterUrl = ev.poster ? ev.poster : `https://ui-avatars.com/api/?name=${ev.title}&background=random`;
+
+                        const popupContent = `
+                            <div class="popup-card">
+                                <img src="${posterUrl}" class="popup-img" alt="${ev.title}">
+                                <div class="popup-body">
+                                    <div class="popup-tags">${tagsHtml}</div>
+                                    <div class="popup-title">${ev.title}</div>
+                                    <div class="popup-meta">
+                                        ${ev.city}, ${ev.countryName}<br/>
+                                        ${dateStr}
+                                    </div>
+                                    <div class="popup-details">
+                                        <i class="fas fa-ticket-alt"></i> ${ev.ticketAmount} Tickets Left
+                                    </div>
+                                    <a href="/Events/Details/${ev.id}" class="btn-main btn-link" style="color:#0b0c15; max-height: 35px; width:80%" >View Details</a>
+                                </div>
+                            </div>
+                        `;
+
+                        const customIcon = L.divIcon({
+                            className: 'custom-div-icon', 
+                            html: `<div class="custom-pin"><i class="fas fa-music"></i></div>`,
+                            iconSize: [30, 42],
+                            iconAnchor: [13, 10] 
+                        });
+
+                        
+                       const marker = L.marker([ev.latitude, ev.longitude], {
+                            icon: customIcon
+                       });
+
+                        // bind popup 
+                        marker.bindPopup(popupContent, {
+                            className: 'custom-popup',
+                            minWidth: 280,
+                            maxWidth: 280
+                        });
+
+                        markers.addLayer(marker);
+                        markersMap[ev.id] = marker; 
+                    }
+                });
+            }
+
+           
+            function renderSidebar(events) {
+                const container = document.getElementById('eventsList');
+                container.innerHTML = '';
+
+                if (events.length === 0) {
+                    container.innerHTML = '<p class="text-muted text-center mt-3">No events found.</p>';
+                    return;
+                }
+
+                events.forEach(ev => {
+                    const dateStr = new Date(ev.startDate).toLocaleDateString();
+                    const posterUrl = ev.poster ? ev.poster : `https://ui-avatars.com/api/?name=${ev.title}&background=random`;
+                    const price = ev.ticketPrice > 0 ? `$${ev.ticketPrice}` : 'Free';
+
+                    const item = document.createElement('div');
+                    item.className = 'side-event-item';
+                    item.innerHTML = `
+                        <img src="${posterUrl}" class="side-img">
+                        <div class="side-info">
+                            <h5>${ev.title}</h5>
+                            <p><i class="fas fa-map-marker-alt"></i> ${ev.city}, ${ev.countryName}</p>
+                            <p><i class="far fa-calendar"></i> ${dateStr}</p>
+                            <span class="side-price">${price}</span>
+                        </div>
+                    `;
+
+                    // responsible for fly
+                    item.addEventListener('click', () => {
+                        const marker = markersMap[ev.id];
+                        if (marker) {
+                          
+                            markers.zoomToShowLayer(marker, function () {
+                                marker.openPopup();
+                            });
+                            
+                            map.flyTo([ev.latitude, ev.longitude], 13);
+                        }
+                    });
+
+                    container.appendChild(item);
+                });
+            }
+
+            // Initialization
+            loadEvents();
+
+            
+            document.getElementById('btnSearch').addEventListener('click', loadEvents);
+
+        
     </script>
     
 }

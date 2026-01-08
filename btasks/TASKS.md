@@ -22,9 +22,10 @@
 ## 🚧 In Progress
 
 ### Plans
+- [ ] редагування евенту доступно до першої продажі(поле кількості квитків) або до дати початку евенту після настання дати евенту взагалі не можна редагувати подію
 - ✅ delete functionality for organizer panel (btn + method in controller with all checks)
 - ✅ make possibility by click in Events details on performer go to PerformerDetails page
-- [ ] make interactive World Map
+- ✅ make interactive World Map
 - [ ] Add performer selection interface in event creation form
 - ✅ Allow multiple performers per event
 - ✅ Display selected performers with preview cards

@@ -32,6 +32,8 @@ body {
     -ms-text-size-adjust: 100%;
     -moz-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: #b4f8c8 #2e303e;
 }
 
 input,
@@ -926,6 +928,13 @@ textarea.form-control-custom {
         transform: translateY(-2px);
     }
 
+.btn-link {
+    display: flex;
+    text-align: center;
+    width: auto;
+    padding: 0 30px;
+    align-items: center;
+}
 .btn-secondary-custom {
     background: transparent;
     border: 1px solid rgba(255,255,255,0.2);
@@ -2421,6 +2430,26 @@ canvas {
     display: flex;
     flex-direction: column;
 }
+.qr-code-container{
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:flex-start;
+}
+.qr-code-container__img {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    border: 2px solid white;
+    margin-bottom:5px;
+}
+.qr-code-container__title {
+    font-size: 1rem;
+    margin-top: 5px;
+    color: #ccc;
+}
+
 
 .my-tickets__title {
     color: white;
@@ -2507,9 +2536,10 @@ canvas {
 
 /*============World map ==========================*/
 
-.map-container {
+/*.map-container {
     position: relative;
-    height: 100vh;
+    padding-top:70px ;
+    height: calc(100vh - 70px);
     width: 100%;
     overflow: hidden;
 }
@@ -2559,12 +2589,309 @@ canvas {
 
 .sidebar-toggle:hover {
     background-color: #f0f0f0;
-}
+}*/
 
 /* responsive for world map */
-@@media (max-width: 768px) {
+/*@media (max-width: 768px) {
     .map__sidebar {
         width: 80vw;
         left: -80vw;
     }
+}*/
+
+
+.map-layout {
+    display: flex;
+    position: fixed; 
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100vh; 
+    padding-top: 65px;
+    overflow: hidden;
+}
+/*toggle button*/
+.sidebar-toggle {
+    position: absolute;
+    top: 50%;
+    right: -40px;
+    width: 40px;
+    height: 60px;
+    background: white;
+    border: 1px solid #ccc;
+    border-left: none;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    cursor: pointer;
+    z-index: 2001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 20px;
+    color: #333;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    transform: translateY(-50%);
+}
+
+    .sidebar-toggle:hover {
+        background-color: #f0f0f0;
+    }
+
+/* Sidebar Styling */
+.map-sidebar {
+    position: absolute;
+    top: 0;
+    left: -30vw;
+    width: 30vw;
+    height: 100vh;
+    margin-top: 65px;
+    background: #151621; /* Dark theme bg */
+    border-right: 1px solid #2e303e;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+    transition: all 0.3s ease-in 0s;
+}
+.map-sidebar.open{
+    left: 0;
+}
+.sidebar-header {
+    padding: 20px;
+    background: #0b0c15;
+    border-bottom: 1px solid #2e303e;
+}
+
+.sidebar-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    padding:15px;
+    border-bottom: 1px solid #2e303e;
+   
+    max-height: 40%;
+}
+
+.sidebar-results {
+    scrollbar-width: thin;
+    scrollbar-color: #b4f8c8 #2e303e;
+    flex-grow: 1;
+    overflow-y: auto;
+    background: #1c1d25;
+}
+
+.results-header {
+    padding: 5px;
+    margin: 0;
+    color: var(--accent-cyan);
+    font-size: 16px;
+    border-bottom: 1px solid #2e303e;
+}
+
+/* Form Inputs override for sidebar */
+.form-control-custom {
+    background: #23242f;
+    border: 1px solid #2e303e;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    width: 100%;
+}
+
+    .form-control-custom:focus {
+        border-color: var(--accent-cyan);
+        outline: none;
+    }
+
+/* Map Styling */
+.map-canvas {
+    flex-grow: 1;
+    height: 100%;
+    background: #222;
+}
+
+/* Sidebar Event Card Item */
+.side-event-item {
+    padding: 15px;
+    border-bottom: 1px solid #2e303e;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    gap: 10px;
+}
+
+    .side-event-item:hover {
+        background: rgba(180, 248, 200, 0.05);
+    }
+
+.side-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #333;
+}
+
+.side-info h5 {
+    font-size: 14px;
+    margin: 0 0 5px 0;
+    color: white;
+}
+
+.side-info p {
+    font-size: 12px;
+    margin: 0;
+    color: #888;
+}
+
+.side-price {
+    color: var(--accent-cyan);
+    font-weight: bold;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Custom Popup Styling */
+.custom-popup .leaflet-popup-content-wrapper {
+    background: #1c1d25;
+    color: white;
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.custom-popup .leaflet-popup-content {
+    margin: 0;
+    width: 280px !important;
+}
+
+.custom-popup .leaflet-popup-tip {
+    background: #1c1d25;
+}
+
+.popup-img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+}
+
+.popup-body {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding: 15px;
+    text-align: center;
+}
+
+.popup-tags {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.popup-tag {
+    background: #000;
+    color: white;
+    padding: 3px 8px;
+    font-size: 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.popup-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.popup-meta {
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.popup-details {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-cyan);
+    margin-bottom: 10px;
+}
+
+
+.leaflet-div-icon {
+    background: transparent;
+    border: none;
+}
+
+/* 2. Create the Pin Shape */
+.custom-pin {
+    width: 36px;
+    height: 36px;
+    border-radius: 50% 50% 50% 0;
+    background: var(--accent-cyan); 
+    position: absolute;
+    transform: rotate(-45deg);
+    left: 50%;
+    top: 50%;
+    margin: -20px 0 0 -20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Neon Glow Effect */
+    box-shadow: 0 0 4px 2px #000 ;
+    border: 2px solid #1c1d25; /* Dark border to separate from map */
+}
+
+    /* 3. Style the Icon inside the pin */
+    .custom-pin i {
+        transform: rotate(45deg); 
+        color: #1c1d25  ; /* Dark icon on bright background */
+        font-size: 16px;
+        margin-bottom: 3px; /* Visual tweak to center it perfectly */
+    }
+
+    /* Optional: Pulse animation for the pin */
+    .custom-pin::after {
+        content: '';
+        width: 14px;
+        height: 14px;
+        margin: 6px 0 0 7px;
+        background: rgba(255, 255, 255, 0.3);
+        position: absolute;
+        border-radius: 50%;
+        bottom: -8px;
+        left: 2px;
+        filter: blur(2px);
+        transform: rotate(45deg);
+        z-index: -1;
+    }
+
+.marker-cluster-custom {
+    background-color: rgba(0, 210, 255, 0.4); /* Faint Cyan Ring */
+    border-radius: 50%;
+}
+.marker-cluster-custom div {
+    width: 30px;
+    height: 30px;
+    margin: 5px;
+    background-color: var(--accent-cyan); /* Solid Cyan Core */
+    border-radius: 50%;
+    text-align: center;
+    color: #000;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 30px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }

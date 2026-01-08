@@ -26,7 +26,10 @@ namespace GlobalFests.Controllers
             var model = new RegisterViewModel
             {
                 User = new RegisterUserModel(),
-                Countries = await _lookupService.GetAllCountriesAsync()
+                Countries = await _lookupService.GetAllCountriesAsync(),
+                Roles = (await _lookupService.GetAllRolesAsync())
+                .Where(r => r.Id is (int)UserRole.User or (int)UserRole.Organizer)
+                .ToList()
             };
             return View(model);
         }
@@ -59,7 +62,7 @@ namespace GlobalFests.Controllers
                     model.User.Username,
                     model.User.Email,
                     model.User.Password,
-                    roleId: 2,
+                    roleId: model.User.RoleId ?? (int)UserRole.User,
                     countryId: model.User.CountryId);
 
                 TempData["SuccessMessage"] = "Registration successful! Please login.";
