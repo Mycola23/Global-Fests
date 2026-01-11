@@ -13,7 +13,8 @@ builder.Services.AddDbContext<GlobalFestsContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<DbContext>(provider => provider.GetRequiredService<GlobalFestsContext>());
-
+// localization
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 // Register Repositories
 builder.Services.AddScoped<ICRUD<Country>, CountryRepository>();
 builder.Services.AddScoped<ICRUD<EventType>, EventTypeRepository>();
@@ -23,13 +24,15 @@ builder.Services.AddScoped<ICRUD<Role>, RoleRepository>();
 builder.Services.AddScoped<ICRUD<Ticket>, TicketRepository>();
 builder.Services.AddScoped<IUserRepo, UserRepository>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
-
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 // Register Services
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILookupService, LookupService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IWishListService, WishListService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IOrganizerStatsService, OrganizerStatsService>();
 builder.Services.AddScoped<AdminManageItemsService>();
 // Configure Authentication
@@ -68,16 +71,24 @@ builder.Services.AddControllersWithViews(options =>
     // 2. Handles unknown value failures
     options.ModelBindingMessageProvider.SetValueIsInvalidAccessor(
         (value) => "Please select a valid option.");
+}).AddViewLocalization() 
+  .AddDataAnnotationsLocalization();
+
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { "en", "uk" };
+
+    options.SetDefaultCulture("en");
+    options.AddSupportedCultures(supportedCultures);
+    options.AddSupportedUICultures(supportedCultures);
 });
-
-
-
 
 
 var app = builder.Build();
 
 
-
+app.UseRequestLocalization();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

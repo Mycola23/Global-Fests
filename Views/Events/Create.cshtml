@@ -159,6 +159,31 @@
                     </span>
                     <span asp-validation-for="SelectedGenreIds" class="text-danger"></span>
                 </div>
+                <!-- Performers Section -->
+                <div class="form-group">
+                    <label class="form-label">Add Performers</label>
+
+                    <!-- search performer -->
+                    <div class="custom-input-group" style="margin-bottom: 15px;">
+                        <i class="fas fa-search input-icon"></i>
+                        <input type="text" id="performerSearch" class="form-control-custom" placeholder="Search performers by name..." />
+                    </div>
+
+                    <!-- performer list -->
+                    <div id="performersContainer" class="performers-selection-grid">
+                      
+                    </div>
+
+                    <!-- load more -->
+                    <div style="text-align: center; margin-top: 10px;">
+                        <button type="button" id="btnLoadMorePerformers" class="btn-dash btn-cyan" style="width: auto; padding: 5px 15px; display: none;">
+                            Load More <i class="fas fa-chevron-down" style="margin-left: 5px;"></i>
+                        </button>
+                    </div>
+
+                    
+                    <div id="selectedPerformersInputs"></div>
+                </div>
                 <div style="display: flex; gap: 15px; margin-top: 30px;">
                     <a asp-controller="Organizer" asp-action="Index" class="btn-main btn-secondary-custom">Cancel</a>
                     <button type="submit" name="submitAction" value="Draft" class="btn-main btn-secondary-custom"  style="border: 1px solid var(--accent-cyan);">
@@ -201,4 +226,194 @@
 
 @section Scripts {
 <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById('performerSearch');
+            const container = document.getElementById('performersContainer');
+            const loadMoreBtn = document.getElementById('btnLoadMorePerformers');
+            const inputsContainer = document.getElementById('selectedPerformersInputs');
+
+            let currentCursorDate = null;
+            let currentCursorId = null;
+            let isLoading = false;
+            let selectedIds = new Set(); 
+
+           
+            function loadPerformers(reset = false) {
+                if (isLoading) return;
+                isLoading = true;
+
+                const query = searchInput.value;
+                let url = `/Events/GetPerformersJson?search=${encodeURIComponent(query)}`;
+
+                if (!reset && currentCursorDate && currentCursorId) {
+                    url += `&cursorDate=${currentCursorDate}&cursorId=${currentCursorId}`;
+                }
+
+                fetch(url)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (reset) container.innerHTML = '';
+
+                        if (data.items && data.items.length > 0) {
+                            data.items.forEach(p => {
+                                const card = createPerformerCard(p);
+                                container.appendChild(card);
+                            });
+
+                            // update cursor
+                            if (data.hasNextPage) {
+                                currentCursorDate = data.nextCursorDate;
+                                currentCursorId = data.nextCursorId;
+                                loadMoreBtn.style.display = 'inline-block';
+                            } else {
+                                loadMoreBtn.style.display = 'none';
+                            }
+                        } else if (reset) {
+                            container.innerHTML = '<p style="color:#888; text-align:center; grid-column: 1/-1;">No performers found.</p>';
+                            loadMoreBtn.style.display = 'none';
+                        }
+                        isLoading = false;
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        isLoading = false;
+                    });
+            }
+
+            
+            function createPerformerCard(performer) {
+                const div = document.createElement('div');
+                div.className = 'performer-select-card';
+                div.dataset.id = performer.id;
+
+                    // restore selected state if this Id is already in  list
+                if (selectedIds.has(performer.id)) {
+                    div.classList.add('selected');
+                }
+
+                const imgUrl = performer.avatar ? performer.avatar : `https://ui-avatars.com/api/?name=${performer.name}&background=random`;
+
+                div.innerHTML = `
+    <img src="${imgUrl}" alt="${performer.name}">
+    <div class="performer-name">${performer.name}</div>
+    <i class="fas fa-check-circle check-icon"></i>
+                `;
+
+                // listener to choose performer
+                div.addEventListener('click', function () {
+                    const id = parseInt(this.dataset.id);
+
+                    if (selectedIds.has(id)) {
+                        selectedIds.delete(id);
+                        this.classList.remove('selected');
+                        removeInput(id);
+                    } else {
+                        selectedIds.add(id);
+                        this.classList.add('selected');
+                        addInput(id);
+                    }
+                });
+
+                return div;
+            }
+
+            // hided input to send form on server
+            function addInput(id) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'SelectedPerformerIds'; 
+                input.value = id;
+                input.id = `perf_input_${id}`;
+                inputsContainer.appendChild(input);
+            }
+
+            function removeInput(id) {
+                const input = document.getElementById(`perf_input_${id}`);
+                if (input) input.remove();
+            }
+
+            
+            let debounceTimer;
+            searchInput.addEventListener('input', function () {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    currentCursorDate = null;
+                    currentCursorId = null;
+                    loadPerformers(true); // reset = true
+                }, 500);
+            });
+
+            //btn load more ..  
+            loadMoreBtn.addEventListener('click', function () {
+                loadPerformers(false);
+            });
+
+            // load start performers
+            loadPerformers(true);
+        });
+    </script>
  }
+
+@section Styles {
+    <style>
+        .performers-selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .performer-select-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+            .performer-select-card:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+           
+            .performer-select-card.selected {
+                border-color: var(--accent-cyan);
+                background: rgba(180, 248, 200, 0.1);
+                box-shadow: 0 0 10px rgba(180, 248, 200, 0.1);
+            }
+
+            .performer-select-card img {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                margin-right: 10px;
+                object-fit: cover;
+            }
+
+        .performer-name {
+            font-size: 14px;
+            color: white;
+            font-weight: 500;
+        }
+
+        .check-icon {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            color: var(--accent-cyan);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .performer-select-card.selected .check-icon {
+            opacity: 1;
+        }
+    </style>
+}

@@ -64,10 +64,10 @@ namespace GlobalFests.ViewModels
 
     public class HomeViewModel
     {
-        
         public CursorResult<EventDto>? SearchResult { get; set; }
         public List<EventDto> TrendingEvents { get; set; } = new();
         public List<EventDto> UpcomingEvents { get; set; } = new();
+        public List<EventDto> BestSellingEvents { get; set; } = new();
 
         public List<EventDto>? LocalEvents { get; set; }
         public string? UserCountryName { get; set; }
@@ -126,6 +126,13 @@ namespace GlobalFests.ViewModels
         [ValidateNever]
         public List<Genre>? Genres { get; set; }
 
+
+        [ValidateNever]
+        public string? SearchPerformer { get; set; }
+        [ValidateNever]
+        public CursorResult<PerformerDto> Performers { get; set; } = new();
+        public List<int> SelectedPerformerIds { get; set; } = new List<int>();
+
         public List<int> SelectedGenreIds { get; set; } = new List<int>();
     }
 
@@ -142,12 +149,22 @@ namespace GlobalFests.ViewModels
         public List<Genre>? Genres { get; set; }
 
         public List<int> SelectedGenreIds { get; set; } = new List<int>();
+
+        [ValidateNever]
+        public string? SearchPerformer { get; set; }
+        [ValidateNever]
+        public CursorResult<PerformerDto> Performers { get; set; } = new();
+        public List<int> SelectedPerformerIds { get; set; } = new List<int>();
     }
 
     public class EventDetailsViewModel
     {
         public EventWithDetailsDto Event { get; set; } = new EventWithDetailsDto();
-        
+
+        public List<ReviewViewDto> Reviews { get; set; } = new();
+
+        public bool IsInWishList { get; set; }
+
     }
 
 
@@ -374,6 +391,43 @@ namespace GlobalFests.ViewModels
 
         [ValidateNever]
         public List<Genre>? Genres { get; set; }
+    }
+
+    // for user profile 
+
+    public class UserProfileViewModel
+    {
+        public int Id { get; set; }
+
+        [Required]
+        public string Username { get; set; } = null!;
+
+        [Required, EmailAddress]
+        public string Email { get; set; } = null!;
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Current Password")]
+        public string? CurrentPassword { get; set; } 
+
+        [DataType(DataType.Password)]
+        [Display(Name = "New Password")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 chars")]
+        public string? NewPassword { get; set; }
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm New Password")]
+        [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+        public string? ConfirmNewPassword { get; set; }
+
+        public int? CountryId { get; set; }
+
+        
+        public string RoleName { get; set; } = "";
+        public string CountryName { get; set; } = "";
+        public bool IsVerified { get; set; }
+
+       
+        public SelectList? Countries { get; set; }
     }
 
 }

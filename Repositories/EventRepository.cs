@@ -130,6 +130,8 @@ namespace GlobalFests.Repositories
                     Description = e.Description,
                     StartDate = e.StartDate,
                     EndDate = e.EndDate,
+                    Poster = e.Poster,
+                    Status = e.Status,
                     TicketPrice = e.TicketPrice,
                     City = e.City ?? "N/A",
                     CountryName = e.Country.CountryName,
@@ -224,6 +226,7 @@ namespace GlobalFests.Repositories
             string? city = null,
             int? countryId = null,
             int? typeId = null,
+            int? genreId = null,
             decimal? minPrice = null,
             decimal? maxPrice = null,
             DateTime? startDateFrom = null,
@@ -239,13 +242,24 @@ namespace GlobalFests.Repositories
                 .Include(e => e.Organizer)
                 .Include(e => e.Country)
                 .Include(e => e.Type)
+                .Include(e => e.Performers)
                 .AsNoTracking()
                 .AsQueryable();
 
             //  search filters
-            if (!string.IsNullOrWhiteSpace(title)) query = query.Where(e => e.Title.Contains(title));
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                query = query.Where(e =>
+                    e.Title.Contains(title) ||
+                    e.Performers.Any(p => p.Name.Contains(title))
+                );
+            }
             if (!string.IsNullOrWhiteSpace(city)) query = query.Where(e => e.City != null && e.City.Contains(city));
             if (countryId.HasValue) query = query.Where(e => e.CountryId == countryId.Value);
+            if (genreId.HasValue)
+            {
+                query = query.Where(e => e.Genres.Any(g => g.Id == genreId.Value));
+            }
             if (typeId.HasValue) query = query.Where(e => e.TypeId == typeId.Value);
             if (minPrice.HasValue) query = query.Where(e => e.TicketPrice >= minPrice.Value);
             if (maxPrice.HasValue) query = query.Where(e => e.TicketPrice <= maxPrice.Value);

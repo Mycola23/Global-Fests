@@ -4,6 +4,8 @@ using GlobalFests.Models;
 using GlobalFests.Services;
 using GlobalFests.Helpers;
 using GlobalFests.DTOs;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Localization;
 
 namespace GlobalFests.Controllers;
 
@@ -18,24 +20,27 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        
-        var events = await _eventService.SearchEventsAsync<EventDto>(
-            title: null,
-            city: null,
-            countryId: null,
-            typeId: null,
-            minPrice: null,
-            maxPrice: null,
-            startDateFrom: null,
-            startDateTo: null,
-            status: (int)Status.Approved,
-            cursorDate: null,
-            cursorId: null,
-            pageSize: 12);
+        int? userId = null;
+        if (User.Identity.IsAuthenticated)
+        {
+            var claimId = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (claimId != null) userId = int.Parse(claimId.Value);
+        }
 
-        return View(events);
+        var model = await _eventService.GetHomePageDataAsync(userId);
+        return View(model);
     }
+    [HttpPost]
+    public IActionResult SetLanguage(string culture, string returnUrl)
+    {
+        Response.Cookies.Append(
+            CookieRequestCultureProvider.DefaultCookieName,
+            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+            new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }
+        );
 
+        return LocalRedirect(returnUrl);
+    }
     public IActionResult Privacy()
     {
         return View();
@@ -51,4 +56,6 @@ public class HomeController : Controller
     {
         return View();
     }
+
+
 }

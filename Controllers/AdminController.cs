@@ -523,6 +523,7 @@ namespace GlobalFests.Controllers
                 city: null,
                 countryId: null,
                 typeId: null,
+                genreId: null,
                 minPrice: null,
                 maxPrice: null,
                 startDateFrom: null,

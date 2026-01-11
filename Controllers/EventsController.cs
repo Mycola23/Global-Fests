@@ -15,14 +15,23 @@ namespace GlobalFests.Controllers
         private readonly IEventService _eventService;
         private readonly ILookupService _lookupService;
         private readonly IEventRepository _eventRepo;
+        private readonly IWishListService _wishListService;
+        private readonly IReviewService _reviewService;
+        private readonly IPerformerRepository _performerRepo;
 
         public EventsController(
+            IPerformerRepository performerRepo,
+            IReviewService reviewService,
             IEventService eventService,
-            ILookupService lookupService, IEventRepository eventRepo)
+            ILookupService lookupService, IEventRepository eventRepo, IWishListService wishListService)
         {
+
+            _reviewService = reviewService;
             _eventService = eventService;
             _lookupService = lookupService;
             _eventRepo = eventRepo;
+            _wishListService = wishListService;
+            _performerRepo = performerRepo;
         }
 
         // GET: Events
@@ -45,6 +54,7 @@ namespace GlobalFests.Controllers
                 model.Search.City,
                 model.Search.CountryId,
                 model.Search.TypeId,
+                model.Search.GenreId,
                 model.Search.MinPrice,
                 model.Search.MaxPrice,
                 model.Search.StartDateFrom,
@@ -71,8 +81,20 @@ namespace GlobalFests.Controllers
                 return NotFound();
             var model = new EventDetailsViewModel
             {
-                Event = eventDetails
+                Event = eventDetails,
+                IsInWishList = false,
+                Reviews = await _reviewService.GetEventReviewsAsync(id),
             };
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                if (userIdClaim != null)
+                {
+                    int userId = int.Parse(userIdClaim.Value);
+                    model.IsInWishList = await _wishListService.IsInWishListAsync(userId, id);
+                }
+            }
 
             return View(model);
         }
@@ -93,6 +115,7 @@ namespace GlobalFests.Controllers
                 Countries = await _lookupService.GetAllCountriesAsync(),
                 EventTypes = await _lookupService.GetAllEventTypesAsync(),
                 Genres = await _lookupService.GetAllGenresAsync(),
+                Performers = await _performerRepo.SearchPerformersAsync(null,null,null,null,15),
             };
             
 
@@ -165,6 +188,16 @@ namespace GlobalFests.Controllers
                     }
                 }
 
+                if (model.SelectedPerformerIds != null && model.SelectedPerformerIds.Any())
+                {
+
+                    var selectedPerformers = await _performerRepo.GetPerformersByIdsAsync(model.SelectedPerformerIds);
+                    foreach (var performer in selectedPerformers)
+                    {
+                        model.NewEvent.Performers.Add(performer);
+                    }
+                }
+
                 await _eventService.CreateEventAsync(model.NewEvent);
                 TempData["SuccessMessage"] = "Event created successfully! It will be visible after approval.";
                 if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
@@ -204,7 +237,7 @@ namespace GlobalFests.Controllers
                 Countries = await _lookupService.GetAllCountriesAsync(),
                 EventTypes = await _lookupService.GetAllEventTypesAsync(),
                 Genres = await _lookupService.GetAllGenresAsync(),
-
+                SelectedPerformerIds = eventEntity.Performers.Select(p => p.Id).ToList(),
                 SelectedGenreIds = eventEntity.Genres.Select(g => g.Id).ToList()
             };
 
@@ -265,7 +298,16 @@ namespace GlobalFests.Controllers
                     }
                 }
 
-                
+                existingEvent.Performers.Clear();
+                if (model.SelectedPerformerIds != null && model.SelectedPerformerIds.Any())
+                {
+                    var selectedPerformers = await _performerRepo.GetPerformersByIdsAsync(model.SelectedPerformerIds);
+                    foreach (var performer in selectedPerformers)
+                    {
+                        existingEvent.Performers.Add(performer);
+                    }
+                }
+
                 await _eventRepo.UpdateAsync(existingEvent);
 
                 TempData["SuccessMessage"] = "Event updated successfully!";
@@ -284,6 +326,15 @@ namespace GlobalFests.Controllers
                 return View(model);
             }
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetPerformersJson(string? search, DateTime? cursorDate, int? cursorId)
+        {
+            var result = await _performerRepo.SearchPerformersAsync(search, (int)Status.Approved, cursorDate, cursorId, 10);
+            return Json(result);
+        }
+
         // GET: Events/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
@@ -348,6 +399,7 @@ namespace GlobalFests.Controllers
                 city: null,
                 countryId: null,
                 typeId: null,
+                genreId: null,
                 minPrice: null,
                 maxPrice: null,
                 startDateFrom: null,

@@ -1,4 +1,26 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.Extensions.Options
+@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IOptions<RequestLocalizationOptions> LocOptions
+
+@{
+    
+    var cultureItems = LocOptions.Value.SupportedUICultures
+        .Select(c => new SelectListItem { Value = c.Name, Text = c.NativeName })
+        .ToList();
+
+    
+    var currentCulture = CultureInfo.CurrentUICulture.Name;
+
+   
+    var returnUrl = string.IsNullOrEmpty(Context.Request.Path)
+        ? "~/"
+        : $"~{Context.Request.Path.Value}{Context.Request.QueryString}";
+    @inject IHtmlLocalizer<SharedResource> Localizer
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -20,15 +42,15 @@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <header class="gf-header">
-        <!-- svg for navbar -->
+    @* <header class="gf-header">
+       
         <div class="header-container">
             <!-- Logo -->
             <a class="gf-brand" asp-area="" asp-controller="Home" asp-action="Index">
                 GlobalFests<span class="brand-sub">.com</span>
             </a>
 
-            <!-- Center Curved Nav -->
+            <!-- center navigation -->
 
             <nav class="gf-nav-center">
                 <svg  width="560" height="60" viewBox="0 0 560 60" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -36,19 +58,19 @@
                     <path d="M0.925015 2.7786e-05C-18.685 -3.05767e-05 280 2.11254e-05 280 2.11254e-05V60C280 60 93.9503 60 62.5363 60C31.1222 60 41.2985 0.000147945 0.925015 2.7786e-05Z" fill="#D9D9D9" />
                 </svg>
                 <ul class="nav-list">
-                    <li><a class="nav-link active" asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li><a class="nav-link" asp-controller="Events" asp-action="Index">Events</a></li>
-                    <li><a class="nav-link" asp-controller="WorldMap" asp-action="Index">WorldMap</a></li>
+                    <li><a class="nav-link active" asp-controller="Home" asp-action="Index">@Localizer["Home"]</a></li>
+                    <li><a class="nav-link" asp-controller="Events" asp-action="Index">@Localizer["Events"]</a></li>
+                    <li><a class="nav-link" asp-controller="WorldMap" asp-action="Index">@Localizer["WorldMap"]</a></li>
 
                     @if (User.Identity?.IsAuthenticated != true)
                     {
-                        <li><a class="nav-link" asp-controller="Account" asp-action="Login">Sign in</a></li>
+                        <li><a class="nav-link" asp-controller="Account" asp-action="Login">@Localizer["Sign in"]</a></li>
                     }
                     else
                     {
                         <li>
                             <form asp-controller="Account" asp-action="Logout" method="post">
-                                <button type="submit" class="nav-link">Logout</button>
+                                <button type="submit" class="nav-link">@Localizer["Logout"]</button>
                             </form>
                         </li>
                     }
@@ -56,8 +78,28 @@
             </nav>
 
 
-            <!-- User / Guest Section -->
+            <!-- User / language \ guest section   -->
             <div class="gf-user-actions">
+                <form asp-controller="Home" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" method="post" class="language-form">
+                    <select name="culture"
+                            onchange="this.form.submit()"
+                            class="form-control-custom"
+                            style="width: auto;  ">
+
+                        @foreach (var culture in cultureItems)
+                        {
+                            
+                            if (culture.Value == currentCulture)
+                            {
+                                <option value="@culture.Value" selected="selected">@culture.Text</option>
+                            }
+                            else
+                            {
+                                <option value="@culture.Value">@culture.Text</option>
+                            }
+                        }
+                    </select>
+                </form>
                 @if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Organizer") || User.IsInRole("Admin") || User.IsInRole("SuperAdmin")))
                 {
                     <div class="user-dropdown-container">
@@ -75,6 +117,7 @@
                                 <a asp-controller="Admin" asp-action="Index">Admin Panel</a>
                             }
                             <a asp-controller="Tickets" asp-action="MyTickets">My tickets</a>
+                            <a asp-controller="WishList" asp-action="Index">WishList</a>
                             <hr>
                             <form asp-controller="Account" asp-action="Logout" method="post">
                                 <button type="submit" class="logout-btn">Logout</button>
@@ -88,6 +131,128 @@
                 }
             </div>
         </div>
+    </header> *@
+
+    <header class="gf-header">
+        <div class="header-container">
+
+            <!-- Logo -->
+            <a class="gf-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                GlobalFests<span class="brand-sub">.com</span>
+            </a>
+
+            <!-- center navigation -->
+            <nav class="gf-nav-center desktop-only">
+                <!-- SVG background -->
+                <svg width="560" height="60" viewBox="0 0 560 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M559.075 2.7786e-05C578.685 -3.05767e-05 280 2.11254e-05 280 2.11254e-05V60C280 60 466.05 60 497.464 60C528.878 60 518.701 0.000147945 559.075 2.7786e-05Z" fill="#D9D9D9" />
+                    <path d="M0.925015 2.7786e-05C-18.685 -3.05767e-05 280 2.11254e-05 280 2.11254e-05V60C280 60 93.9503 60 62.5363 60C31.1222 60 41.2985 0.000147945 0.925015 2.7786e-05Z" fill="#D9D9D9" />
+                </svg>
+
+                <ul class="nav-list">
+                    <li><a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">@Localizer["Home"]</a></li>
+                    <li><a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Events" ? "active" : "")" asp-controller="Events" asp-action="Index">@Localizer["Events"]</a></li>
+                    <li><a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "WorldMap" ? "active" : "")" asp-controller="WorldMap" asp-action="Index">@Localizer["WorldMap"]</a></li>
+
+                    @if (User.Identity?.IsAuthenticated != true)
+                    {
+                        <li><a class="nav-link" asp-controller="Account" asp-action="Login">@Localizer["Sign in"]</a></li>
+                    }
+                    else
+                    {
+                        <li>
+                            <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                                <button type="submit" class="nav-link" style="border:none; background:none; cursor:pointer;">@Localizer["Logout"]</button>
+                            </form>
+                        </li>
+                    }
+                </ul>
+            </nav>
+
+            <!-- user actions + burger -->
+            <div class="gf-user-actions">
+
+                <!-- Language  -->
+                <form asp-controller="Home" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" method="post" class="language-form desktop-only">
+                    <select name="culture" onchange="this.form.submit()" class="form-control-custom">
+                        @foreach (var culture in cultureItems)
+                        {
+                            <option value="@culture.Value" selected="@(culture.Value == currentCulture ? "selected" : null)">@culture.Text</option>
+                        }
+                    </select>
+                </form>
+
+                <!-- User Menu -->
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="user-dropdown-container">
+                        <button class="user-btn" id="userDropdownBtn">
+                            <span class="desktop-only">@User.Identity.Name</span>
+                            <i class="fas fa-user-circle" style="font-size: 24px;"></i>
+                        </button>
+                       
+                        <div class="dropdown-menu" id="userDropdownMenu">
+                            <a asp-controller="Account" asp-action="Profile">Profile</a>
+                            @if (User.IsInRole("Organizer"))
+                            {
+                                <a asp-controller="Organizer" asp-action="Index">Organizer Panel</a>
+                            }
+                            else if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                            {
+                                <a asp-controller="Admin" asp-action="Index">Admin Panel</a>
+                            }
+                            <a asp-controller="Tickets" asp-action="MyTickets">My tickets</a>
+                            <a asp-controller="WishList" asp-action="Index">WishList</a>
+                            <hr>
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                <button type="submit" class="logout-btn">Logout</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <a href="#" class="guest-btn desktop-only">guest <i class="fas fa-user-circle"></i></a>
+                }
+
+                <!-- BURGER BTN  -->
+                <button class="mobile-menu-toggle" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- burger overlay -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-header">
+                <span class="gf-brand">GlobalFests</span>
+                <button class="close-menu-btn" id="closeMenuBtn"><i class="fas fa-times"></i></button>
+            </div>
+
+            <ul class="mobile-nav-list">
+                <li><a class="mobile-link" asp-controller="Home" asp-action="Index">@Localizer["Home"]</a></li>
+                <li><a class="mobile-link" asp-controller="Events" asp-action="Index">@Localizer["Events"]</a></li>
+                <li><a class="mobile-link" asp-controller="WorldMap" asp-action="Index">@Localizer["WorldMap"]</a></li>
+
+                <!-- language select -->
+                <li style="margin-top: 20px;">
+                    <span style="color: #888; font-size: 12px; display: block; margin-bottom: 5px;">Language</span>
+                    <form asp-controller="Home" asp-action="SetLanguage" asp-route-returnUrl="@returnUrl" method="post">
+                        <select name="culture" onchange="this.form.submit()" class="form-control-custom" style="width: 100%; background: #222; color: white; border: 1px solid #444;">
+                            @foreach (var culture in cultureItems)
+                            {
+                                <option value="@culture.Value" selected="@(culture.Value == currentCulture ? "selected" : null)">@culture.Text</option>
+                            }
+                        </select>
+                    </form>
+                </li>
+
+                @if (User.Identity?.IsAuthenticated != true)
+                {
+                    <li><a class="mobile-link highlight" asp-controller="Account" asp-action="Login">@Localizer["Sign in"]</a></li>
+                }
+            </ul>
+        </div>
     </header>
 
     <!-- Main Content Wrapper -->
@@ -95,11 +260,7 @@
         @RenderBody()
     </main>
 
-    @* <footer class="gf-footer">
-        <div class="container">
-            &copy; 2024 - GlobalFests - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer> *@
+    
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

@@ -3,7 +3,7 @@ using GlobalFests.EFModels;
 
 namespace GlobalFests.Repositories
 {
-    public interface IPerformerRepository :ICRUD<Performer>
+    public interface IPerformerRepository : ICRUD<Performer>
     {
         Task<PerformerWithDetailsDto?> GetPerformerWithDetailsAsync(int id);
         Task<CursorResult<PerformerDto>> GetAllPerformersByOrganizerAsync(
@@ -19,5 +19,7 @@ namespace GlobalFests.Repositories
             DateTime? cursorDate,
             int? cursorId,
             int pageSize);
+
+        public Task<List<Performer>> GetPerformersByIdsAsync(List<int> ids, CancellationToken cancellationToken = default);
     }
 }

@@ -1,9 +1,11 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿
 
-// Write your JavaScript code.
+
 document.addEventListener('DOMContentLoaded', function () {
-    // User Dropdown Toggle
+
+    // ==========================================
+    // user dropdown
+    // ==========================================
     const userBtn = document.getElementById('userDropdownBtn');
     const userMenu = document.getElementById('userDropdownMenu');
 
@@ -13,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
             userMenu.classList.toggle('show');
         });
 
-        // Close dropdown when clicking outside
+        
         document.addEventListener('click', function (e) {
             if (!userMenu.contains(e.target) && !userBtn.contains(e.target)) {
                 userMenu.classList.remove('show');
@@ -21,37 +23,79 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // ==========================================
+    //  navigation active state
+    // ==========================================
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.nav-link');
 
-    document.addEventListener('DOMContentLoaded', function () {
-        // Get current path
-        const currentPath = window.location.pathname;
+    navLinks.forEach(link => {
+        // Remove 'active' from hardcoded HTML just in case
+        link.classList.remove('active');
 
-        // Get all nav links
-        const navLinks = document.querySelectorAll('.nav-link');
+        // Get the clean path from the link (ignoring query strings like ?culture=en)
+        const linkPath = link.getAttribute('href');
 
-        // Remove active class from all links
-        navLinks.forEach(link => {
-            link.classList.remove('active');
+        // Skip buttons or empty links
+        if (!linkPath) return;
 
-            // Add active class to matching link
-            if (link.getAttribute('href') === currentPath ||
-                link.pathname === currentPath) {
-                link.classList.add('active');
-            }
-        });
-
-        // Add click handlers for smooth transitions
-        navLinks.forEach(link => {
-            link.addEventListener('click', function (e) {
-                // Remove active from all
-                navLinks.forEach(l => l.classList.remove('active'));
-                // Add to clicked
-                this.classList.add('active');
-            });
-        });
+        // Logic:
+        // 1. Exact match (e.g. "/" or "/Events")
+        // 2. Sub-path match (e.g. "/Events/Details/1" matches "/Events"), BUT ignore "/" home link for this check
+        if (linkPath === currentPath) {
+            link.classList.add('active');
+        }
+        else if (linkPath !== "/" && currentPath.startsWith(linkPath)) {
+            link.classList.add('active');
+        }
     });
 
+    // ==========================================
+    // mobile menu
+    // ==========================================
+
    
+    const mobileBtn = document.querySelector('.mobile-menu-toggle');
+    const closeBtn = document.querySelector('.close-menu-btn');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const body = document.body; 
 
     
+    function toggleMobileMenu() {
+        if (mobileMenu) {
+            mobileMenu.classList.toggle('open');
+            if (mobileMenu.classList.contains('open')) {
+                body.style.overflow = 'hidden';
+            } else {
+                body.style.overflow = '';
+            }
+        }
+    }
+
+    // open burger
+    if (mobileBtn) {
+        mobileBtn.addEventListener('click', function (e) {
+            e.stopPropagation(); 
+            toggleMobileMenu();
+        });
+    }
+
+    // close burger
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleMobileMenu();
+        });
+    }
+
+    // for closing
+    document.addEventListener('click', function (event) {
+       
+        if (mobileMenu && mobileMenu.classList.contains('open')) {
+            if (!mobileMenu.contains(event.target) && !mobileBtn.contains(event.target)) {
+                mobileMenu.classList.remove('open');
+                body.style.overflow = '';
+            }
+        }
+    });
 });

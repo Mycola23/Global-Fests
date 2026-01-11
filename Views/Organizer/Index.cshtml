@@ -234,7 +234,7 @@
                         </div>
                         <div class="total-item">
                             <span class="total-label">Total Revenue</span>
-                            <span class="total-value"> @Model.Stats.GeneralStats.TotalRevenue.ToString("C2")</span> >
+                            <span class="total-value"> @Model.Stats.GeneralStats.TotalRevenue.ToString("C2", System.Globalization.CultureInfo.CreateSpecificCulture("en-US"))</span> 
                         </div>
                     </div>
                 }

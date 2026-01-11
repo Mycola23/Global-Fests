@@ -30,6 +30,22 @@ namespace GlobalFests.Repositories
                 .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
         }
 
+
+        public async Task<List<Performer>> GetPerformersByIdsAsync(List<int> ids, CancellationToken cancellationToken = default)
+        {
+            
+            if (ids == null || !ids.Any())
+            {
+                return new List<Performer>();
+            }
+
+            return await _context.Set<Performer>()
+                .Include(p => p.Country)
+                .Include(p => p.Genres) 
+                .Where(p => ids.Contains(p.Id))
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task<List<Performer>> GetAllAsync(bool trackChanges = false, CancellationToken cancellationToken = default)
         {
             var query = _context.Set<Performer>()
@@ -93,11 +109,11 @@ namespace GlobalFests.Repositories
         }
 
         public async Task<CursorResult<PerformerDto>> SearchPerformersAsync(
-    string? searchTerm,
-    int? status,
-    DateTime? cursorDate,
-    int? cursorId,
-    int pageSize)
+        string? searchTerm,
+        int? status,
+        DateTime? cursorDate,
+        int? cursorId,
+        int pageSize)
         {
             var query = _context.Set<Performer>()
                 .Include(p => p.Genres)

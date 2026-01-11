@@ -30,7 +30,7 @@
                 <!-- Price Info -->
                 <div class="checkout__price-row">
                     <span class="checkout__label">Price per ticket</span>
-                    <span class="checkout__value">@Model.PricePerTicket.ToString("C2")</span>
+                    <span class="checkout__value">@Model.PricePerTicket.ToString("C2", System.Globalization.CultureInfo.CreateSpecificCulture("en-US"))</span>
                 </div>
 
                 <!-- Quantity Selector -->
@@ -45,7 +45,7 @@
                 <!-- Total -->
                 <div class="checkout__total-box">
                     <span class="checkout__label" style="color: #ccc;">Total Amount</span>
-                    <span id="totalPrice" class="checkout__total-price">@Model.PricePerTicket.ToString("C2")</span>
+                    <span id="totalPrice" class="checkout__total-price">@Model.PricePerTicket.ToString("C2", System.Globalization.CultureInfo.CreateSpecificCulture("en-US"))</span>
                 </div>
 
                 <!-- Actions -->

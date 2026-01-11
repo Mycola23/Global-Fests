@@ -12,47 +12,53 @@
     </div>
 
     <partial name="_AdminDbNav" />
-
-    
-
-    
-
     <!-- FILTERS -->
-    <div class="dash-glass-card" style="margin-bottom: 20px; padding: 15px;">
-        <div style="display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap;">
-            <form method="get" asp-action="Performers" style="display: flex; gap: 10px; flex-grow: 1; ">
-                <div style="flex-grow: 1;">
-                    <label style="color: #aaa; font-size: 12px; margin-bottom: 5px; display: block;">Search by Title</label>
-                    <div class="custom-input-group" style="background: rgba(0,0,0,0.3); border: 1px solid #444;">
+    <div class="dash-glass-card search-card">
+        <div class="admin-toolbar-wrapper">
+
+            <!-- search form -->
+            <form method="get" asp-action="Performers" class="admin-search-form">
+
+
+                <div class="search-item title-group">
+                    <label>Search by Title</label>
+                    <div class="custom-input-group">
                         <i class="fas fa-search input-icon"></i>
-                        <input type="text" name="searchTitle" value="@Model.SearchTerm" class="form-control-custom" placeholder="Event title...." />
+                        <input type="text" name="SearchTerm" value="@Model.SearchTerm" asp-for="SearchTerm" class="form-control-custom" placeholder="Performer name...." />
                     </div>
                 </div>
-                <div style="width: 200px; ">
-                    <label style="color: #aaa; font-size: 12px;  margin-bottom: 5px;">Status</label>
-                    <select name="status" asp-items="Model.Statuses" asp-for="StatusFilter" class="form-control-custom" style="background: #1c1d25;">
-                    </select>
+
+
+                <div class="search-item status-group">
+                    <label>Status</label>
+                    <div class="custom-input-group">
+                        <select name="status" asp-items="Model.Statuses" asp-for="StatusFilter" class="form-control-custom">
+                        </select>
+                    </div>
                 </div>
-                <div style="display: flex; align-items: end;">
-                    <button type="submit" class="btn-dash" style="background: var(--accent-cyan); color: #000; height: 50px;">
+
+                <!--  search actions -->
+                <div class="search-item actions-group">
+                    <button type="submit" class="btn-dash btn-search">
                         Search
                     </button>
+
                     @if (!string.IsNullOrEmpty(Model.SearchTerm))
                     {
-                        <a asp-action="Events" class="btn-dash" style="margin-left: 10px; border: 1px solid #666; color: #ccc; height: 50px; display: flex; align-items: center;">Reset</a>
+                        <a asp-action="Performers" class="btn-dash btn-reset">Reset</a>
                     }
                 </div>
             </form>
 
-            <!-- Create Button -->
-            <div style="display: flex; align-items: end;">
-                <a asp-controller="Organizer" asp-action="CreatePerformer" class="btn-dash" style="background: var(--accent-blue); color: white; height: 50px;">
-                    <i class="fas fa-plus"></i> New Performer
+
+            <div class="create-group">
+                <a asp-controller="Organizer" asp-action="CreatePerformer" class="btn-dash btn-create">
+                    <i class="fas fa-plus"></i> <span class="btn-text">New Performer</span>
                 </a>
             </div>
+
         </div>
     </div>
-
     <!-- TABLE -->
     <div class="dash-glass-card">
         <div class="custom-table-container">
@@ -151,3 +157,125 @@
         }
     </div>
 </div>
+
+@section Styles {
+    <style>
+        .search-card {
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+
+        .admin-toolbar-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-end;
+        }
+
+        /* --- FORM GRID --- */
+        .admin-search-form {
+            display: grid;
+            grid-template-columns: 1fr 200px auto;
+            gap: 15px;
+            flex-grow: 1;
+            align-items: end;
+        }
+
+
+            .admin-search-form label {
+                color: #aaa;
+                font-size: 12px;
+                margin-bottom: 5px;
+                display: block;
+            }
+
+            /* form btns */
+            .admin-search-form .btn-dash {
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0 20px;
+                font-weight: 600;
+                white-space: nowrap;
+            }
+
+        .btn-search {
+            background: var(--accent-cyan);
+            color: #000;
+            border: none;
+        }
+
+        .btn-reset {
+            border: 1px solid #666;
+            color: #ccc;
+        }
+
+        .btn-create {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+        }
+
+        .actions-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* adaptive */
+
+        /* tablet  */
+        @@media (max-width: 992px) {
+            .admin-toolbar-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .admin-search-form {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .title-group {
+                grid-column: span 2;
+                
+            }
+
+            .status-group {
+                grid-column: span 1;
+            }
+
+            .actions-group {
+                grid-column: span 1;
+            }
+
+            .create-group {
+                width: 100%;
+            }
+
+            .btn-create {
+                width: 100%;
+            }
+        }
+
+        /* phones */
+        @@media (max-width: 600px) {
+            .admin-search-form {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .title-group, .status-group, .actions-group {
+                grid-column: span 1;
+            }
+
+            .actions-group {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .admin-search-form .btn-dash {
+                width: 100%;
+            }
+        }
+    </style>
+}

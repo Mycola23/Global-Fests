@@ -5,12 +5,12 @@
 @{
     ViewData["Title"] = Model.Event.Title;
 
-    // Логіка для постера (заглушка, якщо немає)
+   
     var posterUrl = string.IsNullOrEmpty(Model.Event.Poster)
         ? "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80"
         : Model.Event.Poster;
 
-    // Форматування координат для URL (щоб була крапка: 50.45 замість 50,45)
+    
     var lat = Model.Event.Latitude.ToString(CultureInfo.InvariantCulture);
     var lng = Model.Event.Longitude.ToString(CultureInfo.InvariantCulture);
 }
@@ -101,7 +101,7 @@
         <!-- left -->
         <div class="details-left">
 
-            <!-- Description Card -->
+            <!-- descriptionb card -->
             <div class="dash-glass-card mb-4">
                 <h3 class="section-title">About Event</h3>
                 <div class="event-description">
@@ -115,7 +115,7 @@
                     }
                 </div>
 
-                <!-- Genres Tags -->
+                <!-- genres tags -->
                 @if (Model.Event.Genres.Any())
                 {
                     <div class="genres-wrapper">
@@ -151,6 +151,100 @@
                     <p class="text-muted">Lineup to be announced.</p>
                 }
             </div>
+            <!-- Review -->
+            <div class="dash-glass-card" style="margin-top: 40px;">
+                <h3 class="section-title-small" style="color: white; margin-bottom: 20px;">
+                    <i class="far fa-comments"></i> User Reviews
+                </h3>
+
+                <!-- Review Form -->
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <form asp-controller="Reviews" asp-action="Add" method="post" class="review-form">
+                        <input type="hidden" name="EventId" value="@Model.Event.Id" />
+
+                        <!-- rating btns -->
+                        <div class="rating-group">
+                            <label class="rating-label">
+                                <input type="radio" name="IsLike" value="true" checked />
+                                <span class="rating-btn like-btn">
+                                    <i class="fas fa-thumbs-up"></i> I liked it
+                                </span>
+                            </label>
+
+                            <label class="rating-label">
+                                <input type="radio" name="IsLike" value="false" />
+                                <span class="rating-btn dislike-btn">
+                                    <i class="fas fa-thumbs-down"></i> Not for me
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="custom-input-group textarea-wrapper" style="margin-bottom: 15px;">
+                            <textarea name="Comment" class="form-control-custom review-form__input" rows="3" placeholder="Share your experience with others..." required></textarea>
+                        </div>
+
+                        <div style="display:flex; justify-content: flex-end;">
+                            <button type="submit" class="btn-main" style="width: auto; padding: 0 30px; height: 40px; font-size: 14px;">
+                                Post Review
+                            </button>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <div class="login-prompt">
+                        <p>Please <a href="/Account/Login" class="text-link">Login</a> to leave a review.</p>
+                    </div>
+                }
+
+                <hr class="divider" />
+
+                <!-- List of reviews -->
+                <div class="reviews-list">
+                    @if (Model.Reviews != null && Model.Reviews.Any())
+                    {
+                        @foreach (var review in Model.Reviews)
+                        {
+                            <div class="review-item">
+                                <!-- Avatar Header -->
+                                <div class="review-header">
+                                    <div class="review-user">
+                                        <div class="review-avatar">
+                                            @(string.IsNullOrEmpty(review.Username) ? "?" : review.Username.Substring(0, 1).ToUpper())
+                                        </div>
+                                        <div>
+                                            <span class="username">@review.Username</span>
+                                            <span class="review-date">@review.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Rating Badge -->
+                                    <div class="review-badge @(review.IsLike ? "badge-like" : "badge-dislike")">
+                                        @if (review.IsLike)
+                                        {
+                                            <i class="fas fa-thumbs-up"></i> <span>Recommended</span>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-thumbs-down"></i> <span>Not Recommended</span>
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- Comment Content -->
+                                <div class="review-body">
+                                    @review.Comment
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted" style="font-style: italic;">No reviews yet. Be the first to share your thoughts!</p>
+                    }
+                </div>
+            </div>
         </div>
 
         <!-- right -->
@@ -161,7 +255,7 @@
                 <div class="price-header">
                     <span class="price-label">Tickets starting at</span>
                     <span class="price-value">
-                        @(Model.Event.TicketPrice.HasValue ? Model.Event.TicketPrice.Value.ToString("C0") : "Free")
+                        @(Model.Event.TicketPrice.HasValue ? Model.Event.TicketPrice.Value.ToString("C0", System.Globalization.CultureInfo.CreateSpecificCulture("en-US")) : "Free")
                     </span>
                 </div>
 
@@ -175,6 +269,21 @@
                 else
                 {
                     <button class="btn-main w-100" disabled style="background: #444; color: #888; cursor: not-allowed;">Sold Out</button>
+                }
+                <!--  Wishlist -->
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <form asp-controller="WishList" asp-action="Toggle" method="post">
+                        <input type="hidden" name="eventId" value="@Model.Event.Id" />
+                        <input type="hidden" name="returnUrl" value="@Context.Request.Path" /> <!-- it will help to return back to this page -->
+
+                        <button type="submit" class="btn-dash"
+                                style="height: 50px; width: 50px; justify-content: center; padding: 0; border: 1px solid var(--accent-cyan);
+                           background: @(Model.IsInWishList ? "var(--accent-cyan)" : "transparent");">
+                            <i class="@(Model.IsInWishList ? "fas" : "far") fa-heart"
+                               style="font-size: 20px; color: @(Model.IsInWishList ? "#000" : "var(--accent-cyan)");"></i>
+                        </button>
+                    </form>
                 }
 
                 <hr class="divider" />
@@ -237,14 +346,185 @@
     
 </div>
 
+@section Styles {
+    <style>
+        /* --- Review form  --- */
+        .review-form {
+            margin-bottom: 30px;
+        }
 
+
+        /* review rate-btns container */
+        .rating-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .rating-label {
+            cursor: pointer;
+            position: relative;
+        }
+
+            
+            .rating-label input[type="radio"] {
+                display: none;
+            }
+
+        
+        .rating-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        
+        .rating-label:hover .rating-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        /* Checked for LIKE  */
+        .rating-label input[type="radio"]:checked + .like-btn {
+            background: rgba(180, 248, 200, 0.2);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(180, 248, 200, 0.2);
+        }
+
+        /* Checked for DISLIKE  */
+        .rating-label input[type="radio"]:checked + .dislike-btn {
+            background: rgba(255, 107, 107, 0.2);
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+        }
+
+        .review-form .review-form__input{
+            padding: 15px 8px;
+        }
+
+        .login-prompt {
+            padding: 15px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+            text-align: center;
+            color: #888;
+            border: 1px dashed rgba(255,255,255,0.1);
+        }
+
+        /* --- REVIEW LIST  --- */
+        .reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .review-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .review-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .review-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #333, #555);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .review-user .username {
+            display: block;
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .review-user .review-date {
+            display: block;
+            font-size: 12px;
+            color: #666;
+        }
+
+        /*badges  */
+        .review-badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+        }
+
+        .badge-like {
+            background: rgba(180, 248, 200, 0.1);
+            color: var(--accent-cyan);
+        }
+
+        .badge-dislike {
+            background: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b;
+        }
+
+        .review-body {
+            color: #ddd;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* adaptive for mobile */
+        @@media (max-width: 600px) {
+            .rating-group {
+                flex-direction: row;
+                width: 100%;
+            }
+
+            .rating-label {
+                flex: 1;
+            }
+
+            .rating-btn {
+                justify-content: center;
+            }
+        }
+    </style>
+}
 
 @section Scripts {
     <script>
-            function openRejectModal(type, id) {
-            var form = document.getElementById('rejectForm');
-            var input = document.getElementById('rejectIdInput');
-            var modal = document.getElementById('rejectModal');
+        function openRejectModal(type, id) {
+            const form = document.getElementById('rejectForm');
+            const input = document.getElementById('rejectIdInput');
+            const modal = document.getElementById('rejectModal');
             input.value = id;
             if (type === 'Event' || typeof type === 'number') {
                 form.action = '/Admin/RejectEvent';

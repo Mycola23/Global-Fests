@@ -19,6 +19,8 @@ namespace GlobalFests.Services
 
         public string GenerateSalt();
         public string HashPassword(string password, string salt);
+
+        public bool VerifyPassword(string inputPassword, string passwordHash, string salt);
     }
 
     public class UserService : IUserService
@@ -127,6 +129,16 @@ namespace GlobalFests.Services
                 var hash = sha256.ComputeHash(combined);
                 return Convert.ToBase64String(hash);
             }
+        }
+
+        public bool VerifyPassword(string inputPassword,string passwordHash, string salt)
+        {
+            var inputPasswordHash = HashPassword(inputPassword, salt);
+            if (passwordHash == inputPasswordHash)
+            {
+                return true;
+            }
+                return false;
         }
     }
 }

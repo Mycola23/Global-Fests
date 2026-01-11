@@ -1,86 +1,101 @@
 ﻿@model GlobalFests.ViewModels.EventsViewModel;
-
-
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IHtmlLocalizer<SharedResource> Localizer
 <div class="page-container">
     <div class="action-row">
-        <h1 style="color:white; font-size: 32px;">Browse Events</h1>
+        <h1 style="color:white; font-size: 32px;">@Localizer["Browse Events"]</h1>
         @if (User.Identity?.IsAuthenticated == true)
         {
             <a asp-action="Create" class="btn-main" style="width: auto; padding: 0 25px;">
-                <i class="fas fa-plus-circle"></i> Create Event
+                <i class="fas fa-plus-circle"></i> @Localizer["Create Event"]
             </a>
         }
     </div>
 
     <!-- search bar  -->
-    <div class="filter-bar">
-        <form asp-action="Index" method="get">
-            <div class="filter-grid">
-                <!-- Title -->
-                <div class="custom-input-group">
-                    <i class="fas fa-search input-icon"></i>
-                    <input type="text" asp-for="Search.Title" class="form-control-custom" placeholder="Title..." />
-                </div>
+    <div class="search-panel" style="margin-bottom: 40px;">
+    <form asp-action="Index" method="get">
 
-                <!-- City -->
-                <div class="custom-input-group">
-                    <i class="fas fa-map-marker-alt input-icon"></i>
-                    <input type="text"  asp-for="Search.City" class="form-control-custom" placeholder="City..." />
-                </div>
+        <!-- Primary Row: Title, Dates, Type, Search Button -->
+        <div class="search-row primary-row">
 
-                <!-- Country -->
-                <div class="custom-input-group">
-                    <i class="fas fa-globe input-icon"></i>
-                    <select asp-for="Search.CountryId"
-                            asp-items="@(Model.Countries != null ? new SelectList(Model.Countries, "Id", "CountryName") : null)"
-                            class="form-control-custom">
-                        <option value="">All Countries</option>
-                    </select>
-                </div>
-
-                <!-- Type -->
-                <div class="custom-input-group">
-                    <i class="fas fa-music input-icon"></i>
-                    <select asp-for="Search.TypeId"
-                            asp-items="@(Model.EventTypes != null ? new SelectList(Model.EventTypes, "Id", "Type") : null)"
-                            class="form-control-custom">
-                        <option value="">All Types</option>
-                    </select>
-                </div>
+            <!-- Title Search -->
+            <div class="input-group search-text">
+                <i class="fas fa-search"></i>
+                    <input type="text" asp-for="Search.Title" placeholder="@Localizer["Find your next event, performer..."]" />
             </div>
 
-            <div class="filter-grid">
-                <!-- Price Range -->
-                <div class="custom-input-group">
-                    <span style="color:#666;  margin-right:5px;"> $  </span>
-                    <input type="number" asp-for="Search.MinPrice"  class="form-control-custom" min="0" max="100000000"  placeholder="Min" />
-                    <span style="color:#666; margin-right:5px;">$</span>
-                    <input type="number" asp-for="Search.MaxPrice"  class="form-control-custom" min="0" max="100000000"  placeholder="Max" />
-                </div>
-
-                <!-- Dates -->
-                <div class="custom-input-group">
-                    <i class="fas fa-calendar-alt input-icon"></i>
-                    <!-- Поле "З" -->
-                    <input type="text" asp-for="Search.StartDateFrom" id="dateFrom" class="form-control-custom" placeholder="Date From" />
-                </div>
-
-                <div class="custom-input-group">
-                    <i class="fas fa-calendar-check input-icon"></i>
-                    <!-- Поле "По" -->
-                    <input type="text" asp-for="Search.StartDateTo" id="dateTo" class="form-control-custom" placeholder="Date To" />
-                </div>
-
-
-                <div style="display:flex; gap:10px;">
-                    <button type="submit" class="btn-main" style="flex:2;">Search</button>
-                    <a asp-action="Index" class="btn-main btn-secondary-custom" style="flex:1; justify-content:center; display:flex;">
-                        <i class="fas fa-redo"></i>
-                    </a>
-                </div>
+            <!-- Date Range (using Flatpickr) -->
+            <div class="input-group date-group" style="flex: 1.5;">
+                <i class="fas fa-calendar-alt"></i>
+                <!-- Поле "З" -->
+                    <input type="text" asp-for="Search.StartDateFrom" id="dateFrom" placeholder="@Localizer["Start date"]" style="text-align: center;" />
+                <span class="separator"></span>
+                <!-- Поле "По" -->
+                    <input type="text" asp-for="Search.StartDateTo" id="dateTo" placeholder="@Localizer["End date"]" style="text-align: center;" />
             </div>
-        </form>
-    </div>
+
+           
+            <!-- Type -->
+            <div class="custom-input-group">
+                <i class="fas fa-music input-icon"></i>
+                <select asp-for="Search.TypeId"
+                        asp-items="@(Model.EventTypes != null ? new SelectList(Model.EventTypes, "Id", "Type") : null)"
+                        class="form-control-custom">
+                    <option value="">All Types</option>
+                </select>
+            </div>
+            <!-- Genre -->
+            <div class="custom-input-group">
+                    <i class="fas fa-theater-masks input-icon"></i>
+                <select asp-for="Search.GenreId"
+                        asp-items="@(Model.Genres != null ? new SelectList(Model.Genres, "Id", "Genre1") : null)"
+                        class="form-control-custom">
+                    <option value="">All Genres</option>
+                </select>
+            </div>
+
+            <!-- Search Button -->
+            <button type="submit" class="search-btn">SEARCH</button>
+        </div>
+
+        <!-- Secondary Row: Price, Country, City -->
+        <div class="search-row secondary-row">
+
+            <!-- Price Range -->
+            <div class="input-group price-group">
+                <i class="fas fa-dollar-sign"></i>
+                <input type="number" asp-for="Search.MinPrice" min="0" placeholder="Min price" />
+                <span style="color:#444;">-</span>
+                <input type="number" asp-for="Search.MaxPrice" min="0" placeholder="Max price" />
+            </div>
+
+            <!-- City Input -->
+            <div class="input-group dropdown-group">
+                <i class="fas fa-city"></i>
+                <input type="text" asp-for="Search.City" placeholder="City name..." />
+            </div>
+
+            <!-- Country -->
+            <div class="custom-input-group">
+                <i class="fas fa-globe input-icon"></i>
+                <select asp-for="Search.CountryId"
+                        asp-items="@(Model.Countries != null ? new SelectList(Model.Countries, "Id", "CountryName") : null)"
+                        class="form-control-custom">
+                    <option value="">All Countries</option>
+                </select>
+            </div>
+
+            
+
+            <!-- Reset Button (Optional, styled as icon) -->
+            <a asp-action="Index" class="input-group" style="width: 50px; flex: 0; justify-content: center; cursor: pointer; text-decoration: none;" title="Reset Filters">
+                <i class="fas fa-redo" style="margin: 0; color: #777;"></i>
+            </a>
+        </div>
+
+    </form>
+</div>
 
     <!-- events  -->
     @if (Model.Events?.Items?.Any() == true)

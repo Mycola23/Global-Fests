@@ -27,7 +27,11 @@
                     <option value="">All Types</option>
                 </select>
             </div>
-
+            <div class="form-group mb-2">
+                <select id="searchGenre" class="form-control-custom" asp-items="@(new SelectList(Model.Genres, "Id", "Genre1"))">
+                    <option value="">All Genres</option>
+                </select>
+            </div>
             <!-- Filter Button -->
             <button id="btnSearch" class="btn-main w-100 mt-2">
                 <i class="fas fa-search"></i> Apply Filters
@@ -115,7 +119,8 @@
                     title: document.getElementById('searchTitle').value,
                     city: document.getElementById('searchCity').value,
                     countryId: document.getElementById('searchCountry').value,
-                    typeId: document.getElementById('searchType').value
+                    typeId: document.getElementById('searchType').value,
+                    genreId: document.getElementById('searchGenre').value
                 });
                 const WORLDMAPPATH = "/WorldMap/GetMapEvents?" ;
                 fetch(`${WORLDMAPPATH}${params}`)

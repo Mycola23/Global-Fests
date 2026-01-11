@@ -26,7 +26,8 @@ namespace GlobalFests.Controllers
             var model = new WorldMapViewModel
             {
                 Countries = await _lookupService.GetAllCountriesAsync(),
-                EventTypes = await _lookupService.GetAllEventTypesAsync()
+                EventTypes = await _lookupService.GetAllEventTypesAsync(),
+                Genres = await _lookupService.GetAllGenresAsync()
             };
             return View(model);
         }
@@ -37,7 +38,7 @@ namespace GlobalFests.Controllers
         {
             
             var result = await _eventService.SearchEventsAsync<EventWorldMapDto>(
-                search.Title, search.City, search.CountryId, search.TypeId,
+                search.Title, search.City, search.CountryId, search.TypeId, search.GenreId,
                 search.MinPrice, search.MaxPrice, search.StartDateFrom,
                 search.StartDateTo, (int)Status.Approved, null, null, pageSize: 200);
 

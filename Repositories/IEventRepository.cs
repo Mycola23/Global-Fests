@@ -37,6 +37,7 @@ namespace GlobalFests.Repositories
             string? city = null,
             int? countryId = null,
             int? typeId = null,
+            int? genreId = null,
             decimal? minPrice = null,
             decimal? maxPrice = null,
             DateTime? startDateFrom = null,

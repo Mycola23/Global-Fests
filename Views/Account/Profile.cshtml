@@ -1,0 +1,334 @@
+﻿@model GlobalFests.ViewModels.UserProfileViewModel
+
+
+@{
+    ViewData["Title"] = "My Profile";
+    bool hasErrors = !ViewData.ModelState.IsValid;
+}
+
+<div class="organizer__container">
+    
+    <!-- user info -->
+    <div style="max-width: 600px; margin: 0 auto;">
+        
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success" style="background: rgba(180, 248, 200, 0.1); color: #b4f8c8; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #b4f8c8; text-align: center;">
+                <i class="fas fa-check-circle"></i> @TempData["Success"]
+            </div>
+        }
+
+        <div class="dash-glass-card" style="text-align: center; padding: 50px;">
+            
+            <div class="profile-avatar">
+                @(Model.Username.Substring(0, 1).ToUpper())
+            </div>
+
+            <h1 style="color: white; margin-bottom: 5px; font-size: 32px;">@Model.Username</h1>
+
+            <div class="role-badge">
+                @Model.RoleName
+                @if (Model.IsVerified)
+                {
+                    <i class="fas fa-check-circle" title="Verified" style="color: var(--accent-cyan); margin-left: 5px;"></i>
+                }
+            </div>
+
+            <p style="color: #aaa; font-size: 16px; margin-top: 15px; margin-bottom: 30px;">
+                <i class="fas fa-map-marker-alt" style="color:var(--accent-cyan)"></i> @(string.IsNullOrEmpty(Model.CountryName) ? "World Citizen" : Model.CountryName)
+                <span style="margin: 0 10px;">|</span>
+                <i class="fas fa-envelope" style="color:var(--accent-cyan)"></i> @Model.Email
+            </p>
+
+            
+            <button id="btnOpenDrawer" class="btn-main" style="max-width: 250px; margin: 0 auto 20px auto;">
+                <i class="fas fa-user-edit"></i> Edit Profile
+            </button>
+
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 30px 0;" />
+
+            <!-- navigation -->
+            <div class="profile-actions-grid">
+                <a asp-controller="WishList" asp-action="Index" class="btn-dash btn-cyan justify-center">
+                    <i class="fas fa-heart"></i> Wishlist
+                </a>
+                <a asp-controller="Tickets" asp-action="MyTickets" class="btn-dash btn-cyan justify-center">
+                    <i class="fas fa-ticket-alt"></i> Tickets
+                </a>
+
+                @if (User.IsInRole("Organizer"))
+                {
+                    <a asp-controller="Organizer" asp-action="Index" class="btn-dash btn-purple justify-center" style="grid-column: span 2;">
+                        <i class="fas fa-calendar-alt"></i> Organizer Panel
+                    </a>
+                }
+                @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                {
+                    <a asp-controller="Admin" asp-action="Index" class="btn-dash justify-center" style="grid-column: span 2; background: #ffbc44; color: black; border:none;">
+                        <i class="fas fa-cogs"></i> Admin Panel
+                    </a>
+                }
+            </div>
+            
+            <!-- del account) -->
+            <button onclick="document.getElementById('dangerZone').style.display='block'; this.style.display='none'" class="btn-link-text" style="margin-top: 30px; color: #ff6b6b; opacity: 0.7;">
+                Show Danger Zone
+            </button>
+
+            
+            <div id="dangerZone" style="display: none; margin-top: 20px; border-top: 1px solid rgba(255, 107, 107, 0.3); padding-top: 20px;">
+                <p style="color: #aaa; font-size: 12px; margin-bottom: 10px;">Once you delete your account, there is no going back.</p>
+                <form asp-action="DeleteAccount" method="post" onsubmit="return confirm('Are you absolutely sure? This cannot be undone.');">
+                    <button type="submit" class="btn-dash" style="background: rgba(255, 107, 107, 0.1); color: #ff6b6b; border: 1px solid #ff6b6b; width: 100%; justify-content: center;">
+                        <i class="fas fa-trash-alt"></i> Delete Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- form panel  -->
+
+<!-- background-->
+<div id="drawerBackdrop" class="drawer-backdrop @(hasErrors ? "open" : "")"></div>
+
+
+<div class="edit-form @(hasErrors ? "open" : "")">
+    
+    <div class="drawer-header">
+        <h2 style="color: white; font-size: 20px; margin: 0;">Edit Profile</h2>
+        <button id="btnCloseDrawer" class="btn-close-drawer"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="drawer-content">
+        <form asp-action="UpdateProfile" method="post">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <div class="custom-input-group">
+                    <i class="fas fa-user input-icon"></i>
+                    <input asp-for="Username" class="form-control-custom" />
+                </div>
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <div class="custom-input-group">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input asp-for="Email" class="form-control-custom" />
+                </div>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Country</label>
+                <div class="custom-input-group">
+                    <i class="fas fa-globe input-icon"></i>
+                    <select asp-for="CountryId" asp-items="Model.Countries" class="form-control-custom">
+                        <option value="">-- Select Country --</option>
+                    </select>
+                </div>
+            </div>
+
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 30px 0;" />
+
+            <h3 style="color: white; font-size: 16px; margin-bottom: 10px;">Change Password</h3>
+            
+            <div class="form-group">
+                <label class="form-label">Current Password</label>
+                <div class="custom-input-group">
+                    <i class="fas fa-key input-icon"></i>
+                    <input asp-for="CurrentPassword" type="password" class="form-control-custom" placeholder="Required to set new password" />
+                </div>
+                <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+            </div>
+
+            <!--  New Password + confirm -->
+            <div class="form-group">
+                <label class="form-label">New Password</label>
+                <div class="custom-input-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input asp-for="NewPassword" type="password" class="form-control-custom" placeholder="Min 6 characters" />
+                </div>
+                <span asp-validation-for="NewPassword" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Confirm New Password</label>
+                <div class="custom-input-group">
+                    <i class="fas fa-check-double input-icon"></i>
+                    <input asp-for="ConfirmNewPassword" type="password" class="form-control-custom" placeholder="Repeat new password" />
+                </div>
+                <span asp-validation-for="ConfirmNewPassword" class="text-danger"></span>
+            </div>
+
+            <div class="drawer-footer">
+                <button type="button" id="btnCancelDrawer" class="btn-main btn-secondary-custom">Cancel</button>
+                <button type="submit" class="btn-main">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .profile-actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .justify-center {
+            justify-content: center;
+        }
+
+      
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--accent-cyan), #3d5af1);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 700;
+            color: #0b0c15;
+            box-shadow: 0 0 30px rgba(61, 90, 241, 0.4);
+            border: 4px solid rgba(255,255,255,0.1);
+        }
+
+        .role-badge {
+            background: rgba(255,255,255,0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #ccc;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /*edit form */
+
+       
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(3px);
+            z-index: 9998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+            .drawer-backdrop.open {
+                opacity: 1;
+                visibility: visible;
+            }
+
+       
+        .edit-form {
+            position: fixed;
+            top: 0;
+            right: -500px; 
+            width: 100%;
+            max-width: 450px; 
+            height: 100vh;
+            background: #151621; 
+            border-left: 1px solid rgba(255,255,255,0.1);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+            z-index: 9999;
+            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+            display: flex;
+            flex-direction: column;
+        }
+
+        .edit-form.open {
+            right: 0; 
+        }
+
+        .drawer-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0b0c15;
+        }
+
+        .drawer-content {
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .drawer-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            background: #0b0c15;
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-close-drawer {
+            background: transparent;
+            border: none;
+            color: #888;
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+            .btn-close-drawer:hover {
+                color: white;
+            }
+
+    </style>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const editForm = document.querySelector('.edit-form');
+            const backdrop = document.getElementById('drawerBackdrop');
+            const btnOpen = document.getElementById('btnOpenDrawer');
+            const btnClose = document.getElementById('btnCloseDrawer');
+            const btnCancel = document.getElementById('btnCancelDrawer');
+
+            
+            function openForm() {
+                editForm.classList.add('open');
+                backdrop.classList.add('open');
+                document.body.style.overflow = 'hidden'; 
+            }
+
+            
+            function closeForm() {
+                editForm.classList.remove('open');
+                backdrop.classList.remove('open');
+                document.body.style.overflow = ''; 
+            }
+
+            
+            btnOpen.addEventListener('click', openForm);
+            btnClose.addEventListener('click', closeForm);
+            btnCancel.addEventListener('click', closeForm);
+            backdrop.addEventListener('click', closeForm); 
+
+           
+            if (drawer.classList.contains('open')) {
+                document.body.style.overflow = 'hidden';
+            }
+        });
+</script>}

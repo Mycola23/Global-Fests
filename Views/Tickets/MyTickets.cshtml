@@ -53,7 +53,7 @@
 
                         <div class="my-tickets__price-row">
                             <span>Price Paid:</span>
-                            <span style="color: white;">@ticket.Price.ToString("C2")</span>
+                            <span style="color: white;">@ticket.Price.ToString("C2", System.Globalization.CultureInfo.CreateSpecificCulture("en-US"))</span>
                         </div>
 
                         <!-- Actions -->

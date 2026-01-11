@@ -1,0 +1,46 @@
+﻿@model List<GlobalFests.DTOs.EventDto>
+
+@{
+    ViewData["Title"] = "My Wishlist";
+}
+
+<div class="page-container">
+    <h1 class="form-title" style="justify-content: flex-start; margin-bottom: 30px;">
+        <i class="fas fa-heart" style="color: var(--accent-cyan);"></i> My Wishlist
+    </h1>
+
+    @if (Model.Any())
+    {
+            <div class="grid-container">
+            @foreach (var eventItem in Model)
+            {
+                        <div style="position: relative;">
+                            <!-- Рендеримо картку -->
+                            <partial name="EventCardPartial" model="eventItem" />
+
+                            <!-- Кнопка видалення (хрестик) поверх картки -->
+                            <form asp-controller="WishList" asp-action="Toggle" method="post" style="position: absolute; top: 10px; right: 10px; z-index: 10;">
+                                <input type="hidden" name="eventId" value="@eventItem.Id" />
+                                <!-- returnUrl пустий, щоб контролер перенаправив на Index WishList -->
+
+                                <button type="submit" title="Remove from Wishlist" 
+                                        style="background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); 
+                                       color: #ff6b6b; width: 32px; height: 32px; border-radius: 50%; 
+                                       display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </div>
+            }
+            </div>
+    }
+    else
+    {
+            <div class="dash-glass-card" style="text-align: center; padding: 60px;">
+                <i class="far fa-heart fa-3x" style="color: #444; margin-bottom: 20px;"></i>
+                <h3 style="color: white;">Your wishlist is empty</h3>
+                <p style="color: #888;">Go exploring and save events you don't want to miss!</p>
+                <a asp-controller="Events" asp-action="Index" class="btn-main" style="max-width: 200px; margin: 20px auto 0;">Explore Events</a>
+            </div>
+    }
+</div>

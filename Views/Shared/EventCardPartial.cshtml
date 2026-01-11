@@ -1,0 +1,22 @@
+﻿@model GlobalFests.DTOs.EventDto
+
+<div class="event-card" style="width: 100%;"> 
+    <div class="card-img-placeholder">
+         <img src="@(string.IsNullOrEmpty(Model.Poster) ? $"https://ui-avatars.com/api/?name={Model.Title}&background=random" : Model.Poster)" alt="Poster">
+    </div>
+    <div class="card-details">
+        <div class="event-date">@Model.StartDate.ToString("MMM dd, yyyy")</div>
+        <h3 class="event-title">@Model.Title</h3>
+
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top: auto;">
+            <div class="event-meta">
+                <i class="fas fa-map-marker-alt"></i> @Model.City, @Model.CountryName <br />
+            </div>
+            <div class="event-price">
+                @(Model.TicketPrice.HasValue && Model.TicketPrice > 0 ? "$" + Model.TicketPrice.Value.ToString("N0") : "Free")
+            </div>
+        </div>
+
+        <a href="/Events/Details/@Model.Id" class="card-link"></a>
+    </div>
+</div>

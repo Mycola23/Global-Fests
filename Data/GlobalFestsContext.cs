@@ -36,6 +36,8 @@ public partial class GlobalFestsContext : DbContext
 
     public virtual DbSet<WishList> WishList { get; set; }
 
+    public virtual DbSet<Review> Reviews { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Country>(entity =>
@@ -213,12 +215,12 @@ public partial class GlobalFestsContext : DbContext
 
             entity.HasOne(d => d.User).WithMany(p => p.WishList)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__WishList__UserId__534D60F1");
 
             entity.HasOne(d => d.Event).WithMany(p => p.WishList)
                 .HasForeignKey(d => d.EventId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__WishList__EventI__52593CB8");
         });
 

@@ -6,18 +6,24 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using GlobalFests.Helpers;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using GlobalFests.Data;
 
 namespace GlobalFests.Controllers
 {
     public class AccountController : Controller
     {
+        private readonly GlobalFestsContext _context;
         private readonly IUserService _userService;
         private readonly ILookupService _lookupService;
 
-        public AccountController(IUserService userService, ILookupService lookupService)
+        public AccountController(GlobalFestsContext context, IUserService userService, ILookupService lookupService)
         {
+            _context = context;
             _userService = userService;
             _lookupService = lookupService;
+
         }
 
         [HttpGet]
@@ -155,21 +161,118 @@ namespace GlobalFests.Controllers
 
         // GET: Account/Profile
         [Authorize]
+        [HttpGet]
         public async Task<IActionResult> Profile()
         {
+            
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-                return RedirectToAction("Login");
+            if (userIdClaim == null) return RedirectToAction("Login");
+            int userId = int.Parse(userIdClaim.Value);
 
-            if (!int.TryParse(userIdClaim.Value, out var userId))
-                return RedirectToAction("Login");
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .Include(u => u.Country)
+                .FirstOrDefaultAsync(u => u.Id == userId);
 
-            var user = await _userService.GetUserByIdAsync(userId);
+            if (user == null) return NotFound();
 
-            if (user == null)
-                return NotFound();
+            var model = new UserProfileViewModel
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                CountryId = user.CountryId,
+                RoleName = user.Role.Role1,
+                CountryName = user.Country?.CountryName ?? "Global",
+                IsVerified = user.Verified ?? false,
+                Countries = new SelectList(await _context.Countries.OrderBy(c => c.CountryName).ToListAsync(), "Id", "CountryName", user.CountryId)
+            };
 
-            return View(user);
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile(UserProfileViewModel model)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null) return RedirectToAction("Login");
+            int userId = int.Parse(userIdClaim.Value);
+
+            if (model.Id != userId) return Forbid();
+
+            if (ModelState.IsValid)
+            {
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null) return NotFound();
+
+
+                
+                user.Username = model.Username;
+                user.Email = model.Email;
+                user.CountryId = model.CountryId;
+
+
+                if (!string.IsNullOrEmpty(model.NewPassword))
+                {
+                    
+                    if (string.IsNullOrEmpty(model.CurrentPassword))
+                    {
+                        ModelState.AddModelError("CurrentPassword", "To change password, you must enter your current password.");
+                    }
+                    else
+                    {
+                        
+                        bool isCurrentCorrect = _userService.VerifyPassword(model.CurrentPassword, user.PasswordHash, user.Salt);
+
+                        if (!isCurrentCorrect)
+                        {
+                            ModelState.AddModelError("CurrentPassword", "Incorrect current password.");
+                        }
+                    }
+
+                    
+                    if (!ModelState.IsValid)
+                    {
+                        model.Countries = new SelectList(await _context.Countries.OrderBy(c => c.CountryName).ToListAsync(), "Id", "CountryName", model.CountryId);
+                        return View("Profile", model);
+                    }
+
+                    
+                    var salt = _userService.GenerateSalt();
+                    var hash = _userService.HashPassword(model.NewPassword, salt);
+                    user.PasswordHash = hash;
+                    user.Salt = salt;
+                }
+
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Profile updated successfully!";
+                return RedirectToAction(nameof(Profile));
+            }
+
+            
+            model.Countries = new SelectList(await _context.Countries.OrderBy(c => c.CountryName).ToListAsync(), "Id", "CountryName", model.CountryId);
+            return View("Profile", model);
+        }
+
+        // POST: /Account/DeleteAccount
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null) return RedirectToAction("Login");
+            int userId = int.Parse(userIdClaim.Value);
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+                await HttpContext.SignOutAsync();
+            }
+
+            return RedirectToAction("Index", "Home");
         }
 
         // GET: Account/AccessDenied

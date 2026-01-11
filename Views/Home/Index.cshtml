@@ -1,10 +1,14 @@
-﻿@model GlobalFests.DTOs.CursorResult<GlobalFests.DTOs.EventDto>
+﻿@model GlobalFests.ViewModels.HomeViewModel;
+@using Microsoft.AspNetCore.Mvc.Localization
 @{
     ViewData["Title"] = "Home";
     var randomId = Guid.NewGuid();
 
    
     var posterUrl = $"https://picsum.photos/seed/{randomId}/1920/1080";
+    
+    <!-- Інжектуємо локалізатор, прив'язаний до SharedResource -->
+    @inject IHtmlLocalizer<SharedResource> Localizer
 
 }
 <section class="hero-section">
@@ -12,7 +16,7 @@
     <div class="hero-content container">
 
         <h1 class="hero-title">
-            Explore your place<br>to enjoy
+            @Localizer["main-phraze"]
         </h1>
         <!-- search bar container -->
         <div class="search-panel">
@@ -52,7 +56,7 @@
                         <i class="fas fa-chevron-down arrow"></i>
                     </div>
 
-                    <button type="submit" class="search-btn">SEARCH</button>
+                    <button type="submit" class="search-btn"> @Localizer["Search"]</button>
                 </div>
 
                 <!-- row  filters -->
@@ -103,13 +107,13 @@
 <!-- events  section  -->
 <section class="events-section container">
     <div class="section-header">
-        <h2>Featured Events</h2>
+        <h2>@Localizer["Featured Events"]</h2>
     </div>
 
-    @if (Model != null && Model.Items != null && Model.Items.Any())
+    @if (Model != null && Model.SearchResult?.Items != null && Model.SearchResult.Items.Any())
     {
         <div class="grid-container">
-            @foreach (var eventItem in Model.Items)
+            @foreach (var eventItem in Model.SearchResult.Items)
             {
                 <div class="event-card">
 
@@ -145,7 +149,7 @@
             }
         </div>
 
-        @if (Model.Items.Count >= 12)
+        @if (Model.SearchResult.Items.Count >= 12)
         {
             <div class="load-more-container">
                 <a asp-controller="Events" asp-action="Index" class="load-more-btn">View All Events</a>
@@ -159,4 +163,189 @@
             <p>No events found right now.</p>
         </div>
     }
+
+    @if (Model.LocalEvents != null && Model.LocalEvents.Any())
+    {
+        <div class="slider-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-map-marker-alt" style="color: var(--accent-cyan);"></i> 
+                    Events in @Model.UserCountryName
+                </h2>
+                <a href="#" class="view-all">View All</a>
+            </div>
+            
+            <!-- Swiper Container -->
+            <div class="swiper mySwiper">
+                <div class="swiper-wrapper">
+                    @foreach (var ev in Model.LocalEvents)
+                    {
+                        <div class="swiper-slide">
+                            @await Html.PartialAsync("EventCardPartial", ev)
+                        </div>
+                    }
+                </div>
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+            </div>
+        </div>
+    }
+    <!-- 2. BESTSELLING SLIDER -->
+    @if (Model.BestSellingEvents != null && Model.BestSellingEvents.Any())
+    {
+        <div class="slider-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-trophy" style="color: #ffd700;"></i>  @Localizer["Best Selling"]
+                </h2>
+            </div>
+            <div class="swiper mySwiper">
+                <div class="swiper-wrapper">
+                    @foreach (var ev in Model.BestSellingEvents)
+                    {
+                        <div class="swiper-slide">
+                            @await Html.PartialAsync("EventCardPartial", ev)
+
+                        
+                            <div style="position: absolute; top: 10px; left: 10px; background: #ffd700; color: #000; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; z-index: 2;">
+                                #@(Model.BestSellingEvents.IndexOf(ev) + 1)
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+            </div>
+        </div>
+    }
+    <!-- 2. TRENDING SLIDER -->
+    <div class="slider-section">
+        <div class="section-header">
+            <h2 class="section-title">🔥 @Localizer["Trending Now"]</h2>
+        </div>
+        <div class="swiper mySwiper">
+            <div class="swiper-wrapper">
+                @foreach (var ev in Model.TrendingEvents)
+                {
+                    <div class="swiper-slide">
+                        @await Html.PartialAsync("EventCardPartial", ev)
+                    </div>
+                }
+            </div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
+    </div>
+
+    <!-- 3. UPCOMING SLIDER -->
+    <div class="slider-section">
+        <div class="section-header">
+            <h2 class="section-title">📅 @Localizer["Upcoming Soon"]</h2>
+        </div>
+        <div class="swiper mySwiper">
+            <div class="swiper-wrapper">
+                @foreach (var ev in Model.UpcomingEvents)
+                {
+                    <div class="swiper-slide">
+                        @await Html.PartialAsync("EventCardPartial", ev)
+                    </div>
+                }
+            </div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
+    </div>
+
 </section>
+
+@section Styles {
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+    <style>
+        .slider-section {
+            margin-bottom: 50px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .view-all {
+            color: var(--accent-cyan);
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        
+        .swiper {
+            width: 100%;
+            padding: 10px 5px 40px 5px;
+        }
+
+        .swiper-slide {
+            height: auto; 
+            display: flex;
+        }
+
+        /* nav arrows */
+        .swiper-button-next, .swiper-button-prev {
+            color: var(--accent-cyan);
+            background: rgba(0,0,0,0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            backdrop-filter: blur(5px);
+        }
+
+            .swiper-button-next::after, .swiper-button-prev::after {
+                font-size: 18px;
+                font-weight: bold;
+            }
+    </style>
+}
+
+@section Scripts {
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <script>
+        var swiper = new Swiper(".mySwiper", {
+            slidesPerView: 1,
+            spaceBetween: 20,
+            loop: true, 
+            navigation: {
+                nextEl: ".swiper-button-next",
+                prevEl: ".swiper-button-prev",
+            },
+            breakpoints: {
+                640: {
+                    slidesPerView: 2,
+                    spaceBetween: 20,
+                },
+                768: {
+                    slidesPerView: 3,
+                    spaceBetween: 30,
+                },
+                1024: {
+                    slidesPerView: 4,
+                    spaceBetween: 30,
+                },
+            },
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: true
+            }
+        });
+    </script>
+}
