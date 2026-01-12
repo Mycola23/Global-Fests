@@ -1,5 +1,6 @@
 ﻿using GlobalFests.DTOs;
 using GlobalFests.EFModels;
+using GlobalFests.Helpers;
 
 namespace GlobalFests.Repositories
 {
@@ -19,6 +20,23 @@ namespace GlobalFests.Repositories
              int? cursorId,
              int pageSize,
              CancellationToken cancellationToken = default);
+
+        Task<CursorSortingResult<T>> SearchEventsSortedAsync<T>(
+        string? title = null,
+        string? city = null,
+        int? countryId = null,
+        int? typeId = null,
+        int? genreId = null,
+        decimal? minPrice = null,
+        decimal? maxPrice = null,
+        DateTime? startDateFrom = null,
+        DateTime? startDateTo = null,
+        int? status = null,
+        SortState sortOrder = SortState.DateDesc,
+        string? cursorValue = null, // for date ,price/name...
+        int? cursorId = null,
+        int pageSize = 10,
+        CancellationToken cancellationToken = default);
 
         Task<CursorResult<EventOrganizerDto>> GetAllEventsByOrganizerAsync(
            int organizerId,

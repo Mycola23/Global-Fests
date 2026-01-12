@@ -33,7 +33,7 @@
 <div class="container page-container" style="margin-top: -60px; position: relative; z-index: 2;">
 
     <!-- ADMIN PANEL  -->
-    @if (User.IsInRole("Admin"))
+    @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
     {
         <div class="admin-actions-bar" style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 16px; margin-top: 40px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
             <div>

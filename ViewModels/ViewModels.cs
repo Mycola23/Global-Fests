@@ -4,6 +4,7 @@ using GlobalFests.EFModels;
 using GlobalFests.Helpers;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace GlobalFests.ViewModels
@@ -98,13 +99,15 @@ namespace GlobalFests.ViewModels
         [Display(Name = "Start Date To")]
         [DataType(DataType.Date)]
         public DateTime? StartDateTo { get; set; }
+
+        public SortState SortOrder { get; set; }
     }
 
     public class EventsViewModel
     {
         public EventsSearchModel? Search { get; set; }
 
-        public CursorResult<EventDto> Events { get; set; }
+        public CursorSortingResult<EventDto> Events { get; set; }
 
         [ValidateNever]
         public List<Country>? Countries { get; set; }

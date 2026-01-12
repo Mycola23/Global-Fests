@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace GlobalFests.Helpers
 {
@@ -15,14 +16,7 @@ namespace GlobalFests.Helpers
         Default = 1,
         WorldMap = 2,
     }
-    public static class checkRole
-    {
-        public static bool HasRole(this ClaimsPrincipal user, UserRole role)
-        {
-            // Перевіряємо, чи є роль "1", "2" і т.д.
-            return user.IsInRole(((int)role).ToString());
-        }
-    }
+    
 
     public enum Status
     {
@@ -38,5 +32,19 @@ namespace GlobalFests.Helpers
         Genres,
         EventTypes,
         Roles,
+    }
+
+    public enum SortState
+    {
+        [Display(Name = "Date: Newest First")]
+        DateDesc = 1,
+        [Display(Name = "Date: Oldest First")]
+        DateAsc = 2,
+        [Display(Name = "Price: Low to High")]
+        PriceAsc = 3,
+        [Display(Name = "Price: High to Low")]
+        PriceDesc = 4,
+        [Display(Name = "Popular")]
+        PopularitySales = 5
     }
 }

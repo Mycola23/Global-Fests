@@ -46,9 +46,6 @@
                                                             ? string.Join(", ", item.Genres.Select(g => g.Genre1))
                                                             : "No genres")
                                     </span>
-                                   @*  <span class="p-status @(item.Status == (int)Status.Approved ? "" : "review")">
-                                        @(item.Status == (int)Status.Approved ? "Approved" : "Pending")
-                                    </span> *@
 
                                     @{
 
@@ -201,23 +198,6 @@
                     }
                 </div>
             </div>
-            @* not nessessary part of stats *@
-            @* <div class="stat-double-row">
-                <div class="dash-glass-card">
-                    <h3 class="dash-card-title">Average Ticket Price</h3>
-                    <div class="circle-chart">
-                        @if (Model.Stats?.GeneralStats != null)
-                        {
-                            <span>@Model.Stats.GeneralStats.AverageTicketPrice.ToString("C0")</span> 
-                        }
-                        else
-                        {
-                            <span>N/A</span>
-                        }
-                    </div>
-                </div> 
-                
-            </div>*@
 
             <!-- summary -->
             <div class="dash-glass-card totals-card">
@@ -263,7 +243,7 @@
                 'rgba(180, 248, 200, ' + alpha + ')', // --accent-cyan
                 'rgba(61, 90, 241, ' + alpha + ')',   // --accent-blue 
                 'rgba(168, 85, 247, ' + alpha + ')',  // --accent-purple line-gradient
-                'rgba(255, 206, 86, ' + alpha + ')',  // additional
+                'rgba(255, 206, 86, ' + alpha + ')',  
                 'rgba(75, 192, 192, ' + alpha + ')',
                 'rgba(153, 102, 255, ' + alpha + ')',
                 'rgba(255, 159, 64, ' + alpha + ')'
@@ -281,18 +261,18 @@
                     datasets: [{
                         label: 'Tickets Sold',
                         data: organizerData.monthlySales.map(item => item.ticketsSold),
-                        borderColor: getChartColors(0), // Accent Cyan
-                        backgroundColor: getChartColors(0, 0.2), // light fill
+                        borderColor: getChartColors(0), 
+                        backgroundColor: getChartColors(0, 0.2), 
                         fill: true,
-                        tension: 0.3, // border-radious for lines
+                        tension: 0.3, 
                         pointBackgroundColor: getChartColors(0),
                         pointBorderColor: '#fff',
                         pointBorderWidth: 2
                     }, {
                         label: 'Revenue',
                         data: organizerData.monthlySales.map(item => item.revenue),
-                        borderColor: getChartColors(1), // Accent Blue
-                        backgroundColor: getChartColors(1, 0.2), // Light fill
+                        borderColor: getChartColors(1), 
+                        backgroundColor: getChartColors(1, 0.2), 
                         fill: true,
                         tension: 0.3,
                         pointBackgroundColor: getChartColors(1),

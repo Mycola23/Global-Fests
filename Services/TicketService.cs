@@ -14,9 +14,7 @@ namespace GlobalFests.Services
         Task<Ticket> PurchaseTicketAsync(int eventId, int userId, decimal price);
         Task<bool> CancelTicketAsync(int ticketId);
 
-
-
-        //Checkout logic
+        //checkout logic
         Task<int> GetUserTicketCountForEventAsync(int userId, int eventId);
         Task<bool> PurchaseTicketsAsync(int eventId, int userId, int quantity);
         Task<bool> CancelTicketAsync(int ticketId, int userId);

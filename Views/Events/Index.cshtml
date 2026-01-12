@@ -1,5 +1,6 @@
 ﻿@model GlobalFests.ViewModels.EventsViewModel;
 @using Microsoft.AspNetCore.Mvc.Localization
+@using GlobalFests.Helpers
 @inject IHtmlLocalizer<SharedResource> Localizer
 <div class="page-container">
     <div class="action-row">
@@ -14,7 +15,7 @@
 
     <!-- search bar  -->
     <div class="search-panel" style="margin-bottom: 40px;">
-    <form asp-action="Index" method="get">
+        <form asp-action="Index" method="get" id="searchForm">
 
         <!-- Primary Row: Title, Dates, Type, Search Button -->
         <div class="search-row primary-row">
@@ -25,13 +26,13 @@
                     <input type="text" asp-for="Search.Title" placeholder="@Localizer["Find your next event, performer..."]" />
             </div>
 
-            <!-- Date Range (using Flatpickr) -->
+            <!-- Date Range  -->
             <div class="input-group date-group" style="flex: 1.5;">
                 <i class="fas fa-calendar-alt"></i>
-                <!-- Поле "З" -->
+                <!-- from -->
                     <input type="text" asp-for="Search.StartDateFrom" id="dateFrom" placeholder="@Localizer["Start date"]" style="text-align: center;" />
                 <span class="separator"></span>
-                <!-- Поле "По" -->
+                <!-- to" -->
                     <input type="text" asp-for="Search.StartDateTo" id="dateTo" placeholder="@Localizer["End date"]" style="text-align: center;" />
             </div>
 
@@ -85,10 +86,15 @@
                     <option value="">All Countries</option>
                 </select>
             </div>
-
-            
-
-            <!-- Reset Button (Optional, styled as icon) -->
+                <!-- Sorting  -->
+                <div class="custom-input-group" style="min-width: 180px;">
+                    <i class="fas fa-sort-amount-down"></i>
+                    <select asp-for="Search.SortOrder"
+                            asp-items="Html.GetEnumSelectList<SortState>()"
+                            id="sortSelect" class="form-control-custom">
+                    </select>
+                </div>
+            <!-- Reset   -->
             <a asp-action="Index" class="input-group" style="width: 50px; flex: 0; justify-content: center; cursor: pointer; text-decoration: none;" title="Reset Filters">
                 <i class="fas fa-redo" style="margin: 0; color: #777;"></i>
             </a>
@@ -132,16 +138,25 @@
 
         @if (Model.Events.HasNextPage)
         {
+            <div style="display:flex; justify-content:center; align-items:center; margin-top: 40px;">
             <a asp-action="Index"
-               asp-route-Search.Title="@(Model.Search?.Title ?? "" )"
-               asp-route-Search.City="@Model.Search.City"
-               asp-route-Search.CountryId="@Model.Search.CountryId"
-               asp-route-Search.TypeId="@Model.Search.TypeId"
-               asp-route-cursorDate="@Model.Events.NextCursorDate"
-               asp-route-cursorId="@Model.Events.NextCursorId"
-               class="btn-main btn-secondary-custom">
-                Load More
-            </a>
+                   asp-route-Search.Title="@(Model.Search?.Title)"
+                   asp-route-Search.City="@Model.Search.City"
+                   asp-route-Search.CountryId="@Model.Search.CountryId"
+                   asp-route-Search.TypeId="@Model.Search.TypeId"
+                   asp-route-Search.GenreId="@Model.Search.GenreId"
+                   asp-route-Search.MinPrice="@Model.Search.MinPrice"
+                   asp-route-Search.MaxPrice="@Model.Search.MaxPrice"
+                   asp-route-Search.StartDateFrom="@Model.Search.StartDateFrom?.ToString("yyyy-MM-dd")"
+                   asp-route-Search.StartDateTo="@Model.Search.StartDateTo?.ToString("yyyy-MM-dd")"
+                   asp-route-Search.SortOrder="@Model.Search.SortOrder"
+                   
+                   asp-route-cursorValue="@Model.Events.NextCursorValue" 
+                   asp-route-cursorId="@Model.Events.NextCursorId"
+                   class="btn-main btn-secondary-custom" >
+                    Load More
+                </a>
+            </div>
         }
     }
     else
@@ -154,7 +169,7 @@
     }
 </div>
 @section Scripts {
-    <!-- Підключаємо Flatpickr -->
+    <!-- flatpickr -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -162,30 +177,36 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
 
-            // Налаштування для поля "Дата По" (спочатку)
+            
             const dateTo = flatpickr("#dateTo", {
                 dateFormat: "Y-m-d",
                 theme: "dark",
-                allowInput: true // Дозволяє вводити вручну, якщо треба
+                allowInput: true 
             });
 
-            // Налаштування для поля "Дата З"
+           
             const dateFrom = flatpickr("#dateFrom", {
                 dateFormat: "Y-m-d",
                 theme: "dark",
                 allowInput: true,
                 onChange: function (selectedDates, dateStr, instance) {
-                    // КОЛИ ЗМІНЮЄТЬСЯ "ДАТА З":
-                    // Встановлюємо мінімальну дату для "Дата По",
-                    // щоб не можна було вибрати кінець раніше початку.
+                    
                     dateTo.set('minDate', dateStr);
                 }
             });
 
-            // (Опціонально) Якщо сторінка завантажилась вже з вибраною датою "З",
-            // треба оновити обмеження для "По" одразу.
+           
             if (document.getElementById('dateFrom').value) {
                 dateTo.set('minDate', document.getElementById('dateFrom').value);
+            }
+
+            const sortSelect = document.getElementById('sortSelect');
+            const form = document.getElementById('searchForm');
+
+            if (sortSelect && form) {
+                sortSelect.addEventListener('change', function() {
+                    form.submit();
+                });
             }
         });
     </script>

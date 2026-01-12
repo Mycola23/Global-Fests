@@ -34,43 +34,42 @@ namespace GlobalFests.Controllers
             _performerRepo = performerRepo;
         }
 
-        // GET: Events
+        
         public async Task<IActionResult> Index(
-            EventsViewModel model, DateTime? cursorDate, int? cursorId)
+        EventsViewModel model,
+        string? cursorValue, 
+        int? cursorId)
         {
             if (model.Search == null)
             {
                 model.Search = new EventsSearchModel();
             }
-            
-            
             model.EventTypes = await _lookupService.GetAllEventTypesAsync();
             model.Countries = await _lookupService.GetAllCountriesAsync();
             model.Genres = await _lookupService.GetAllGenresAsync();
 
-            
-            var searchResult = await _eventService.SearchEventsAsync<EventDto>(
-                model.Search.Title,
-                model.Search.City,
-                model.Search.CountryId,
-                model.Search.TypeId,
-                model.Search.GenreId,
-                model.Search.MinPrice,
-                model.Search.MaxPrice,
-                model.Search.StartDateFrom,
-                model.Search.StartDateTo,
-            //      true, // approved = true
-                (int)Status.Approved,
-                cursorDate,
-                cursorId,
-                15 // pageSize
+            var searchResult = await _eventRepo.SearchEventsSortedAsync<EventDto>(
+                title: model.Search.Title,
+                city: model.Search.City,
+                countryId: model.Search.CountryId,
+                typeId: model.Search.TypeId,
+                genreId: model.Search.GenreId,
+                minPrice: model.Search.MinPrice,
+                maxPrice: model.Search.MaxPrice,
+                startDateFrom: model.Search.StartDateFrom,
+                startDateTo: model.Search.StartDateTo,
+                status: (int)Status.Approved,
+                sortOrder: model.Search.SortOrder, 
+                cursorValue: cursorValue,         
+                cursorId: cursorId,
+                pageSize: 15
             );
 
-            
             model.Events = searchResult;
 
             return View(model);
         }
+
 
         // GET: Events/Details/5
         public async Task<IActionResult> Details(int id)
@@ -142,11 +141,11 @@ namespace GlobalFests.Controllers
             model.NewEvent.OrganizerId = userId;
             if (submitAction == "Draft")
             {
-                model.NewEvent.Status = (int)Status.Draft; // Status 0
+                model.NewEvent.Status = (int)Status.Draft; 
             }
             else
             {
-                model.NewEvent.Status = (int)Status.Pending; // Status 1
+                model.NewEvent.Status = (int)Status.Pending; 
             }
 
 
@@ -286,8 +285,8 @@ namespace GlobalFests.Controllers
                 existingEvent.Poster = model.Event.Poster;
                 existingEvent.Latitude = model.Event.Latitude;
                 existingEvent.Longitude = model.Event.Longitude;
+                existingEvent.Status = (int)Status.Pending;
 
-               
                 existingEvent.Genres.Clear(); 
                 if (model.SelectedGenreIds != null && model.SelectedGenreIds.Any())
                 {

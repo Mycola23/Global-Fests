@@ -274,7 +274,7 @@ namespace GlobalFests.Repositories
                                       || (e.StartDate == cursorDate.Value && e.Id < cursorId.Value));
             }
             var sql = query.ToQueryString();
-            Console.WriteLine(sql);
+            //Console.WriteLine(sql);
             // sorting limit
             var events = await query
                 .OrderByDescending(e => e.StartDate)
@@ -295,6 +295,129 @@ namespace GlobalFests.Repositories
             throw new InvalidOperationException($"Type {typeof(T).Name} is not supported for search.");
         }
 
+
+        // ======= Search with sorting + pagination =======================
+        public async Task<CursorSortingResult<T>> SearchEventsSortedAsync<T>(
+        string? title = null,
+        string? city = null,
+        int? countryId = null,
+        int? typeId = null,
+        int? genreId = null,
+        decimal? minPrice = null,
+        decimal? maxPrice = null,
+        DateTime? startDateFrom = null,
+        DateTime? startDateTo = null,
+        int? status = null,
+        SortState sortOrder = SortState.DateDesc,
+        string? cursorValue = null,
+        int? cursorId = null,
+        int pageSize = 10,
+        CancellationToken cancellationToken = default)
+        {
+            var query = _context.Set<Event>()
+                .Include(e => e.Genres)
+                .Include(e => e.Organizer)
+                .Include(e => e.Country)
+                .Include(e => e.Type)
+                .Include(e => e.Performers)
+                .AsNoTracking()
+                .AsQueryable();
+
+            //  search filters
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                query = query.Where(e =>
+                    e.Title.Contains(title) ||
+                    e.Performers.Any(p => p.Name.Contains(title))
+                );
+            }
+            if (!string.IsNullOrWhiteSpace(city)) query = query.Where(e => e.City != null && e.City.Contains(city));
+            if (countryId.HasValue) query = query.Where(e => e.CountryId == countryId.Value);
+            if (genreId.HasValue)
+            {
+                query = query.Where(e => e.Genres.Any(g => g.Id == genreId.Value));
+            }
+            if (typeId.HasValue) query = query.Where(e => e.TypeId == typeId.Value);
+            if (minPrice.HasValue) query = query.Where(e => e.TicketPrice >= minPrice.Value);
+            if (maxPrice.HasValue) query = query.Where(e => e.TicketPrice <= maxPrice.Value);
+            if (startDateFrom.HasValue) query = query.Where(e => e.StartDate >= startDateFrom.Value);
+            if (startDateTo.HasValue) query = query.Where(e => e.StartDate <= startDateTo.Value);
+            if (status.HasValue) query = query.Where(e => e.Status == status.Value);
+
+            bool hasCursor = !string.IsNullOrEmpty(cursorValue) && cursorId.HasValue;
+
+            switch (sortOrder)
+            {
+                case SortState.PriceAsc:
+                    query = query.OrderBy(e => e.TicketPrice).ThenBy(e => e.Id);
+                    if (hasCursor && decimal.TryParse(cursorValue, out var lastPriceAsc))
+                    {
+                        
+                        query = query.Where(e => e.TicketPrice > lastPriceAsc
+                                              || (e.TicketPrice == lastPriceAsc && e.Id > cursorId));
+                    }
+                    break;
+
+                case SortState.PriceDesc:
+                    query = query.OrderByDescending(e => e.TicketPrice).ThenByDescending(e => e.Id);
+                    if (hasCursor && decimal.TryParse(cursorValue, out var lastPriceDesc))
+                    {
+                        
+                        query = query.Where(e => e.TicketPrice < lastPriceDesc
+                                              || (e.TicketPrice == lastPriceDesc && e.Id < cursorId));
+                    }
+                    break;
+
+               
+                case SortState.PopularitySales:
+                    query = query.OrderByDescending(e => e.Tickets.Count()).ThenByDescending(e => e.Id);
+                    if (hasCursor && int.TryParse(cursorValue, out var lastSales))
+                    {
+                        query = query.Where(e => e.Tickets.Count() < lastSales
+                                              || (e.Tickets.Count() == lastSales && e.Id < cursorId));
+                    }
+                    break;
+
+                case SortState.DateAsc:
+                    query = query.OrderBy(e => e.StartDate).ThenBy(e => e.Id);
+                    if (hasCursor && DateTime.TryParse(cursorValue, out var lastDateAsc))
+                    {
+                        query = query.Where(e => e.StartDate > lastDateAsc
+                                              || (e.StartDate == lastDateAsc && e.Id > cursorId));
+                    }
+                    break;
+
+                case SortState.DateDesc:
+                default:
+                    query = query.OrderByDescending(e => e.StartDate).ThenByDescending(e => e.Id);
+                    if (hasCursor && DateTime.TryParse(cursorValue, out var lastDateDesc))
+                    {
+                        query = query.Where(e => e.StartDate < lastDateDesc
+                                              || (e.StartDate == lastDateDesc && e.Id < cursorId));
+                    }
+                    break;
+            }
+
+
+            var sql = query.ToQueryString();
+            
+            // sorting limit
+            var events = await query
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+            if (typeof(T) == typeof(EventWorldMapDto))
+            {
+                var result = CreateCursorResultGeneric<EventWorldMapDto>(events, pageSize, sortOrder);
+                return (CursorSortingResult<T>)(object)result;
+            }
+            else if (typeof(T) == typeof(EventDto))
+            {
+                var result = CreateCursorResultGeneric<EventDto>(events, pageSize, sortOrder);
+                return (CursorSortingResult<T>)(object)result;
+            }
+
+            throw new InvalidOperationException($"Type {typeof(T).Name} is not supported.");
+        }
 
 
         // ======= Get All Events By Organizer =======================
@@ -442,17 +565,72 @@ namespace GlobalFests.Repositories
 
             return result;
         }
+
+
+
+        private CursorSortingResult<TR> CreateCursorResultGeneric<TR>(List<Event> events, int pageSize, SortState sortOrder)
+    where TR : class
+        {
+           
+            var dtos = events.Select(e => MapToDto<TR>(e)).ToList();
+
+            var result = new CursorSortingResult<TR>
+            {
+                Items = dtos,
+                HasNextPage = dtos.Count == pageSize
+            };
+
+            
+            if (dtos.Any())
+            {
+                var lastEvent = events.Last(); 
+                result.NextCursorId = lastEvent.Id;
+
+                
+                result.NextCursorValue = sortOrder switch
+                {
+                    SortState.PriceAsc or SortState.PriceDesc =>
+                        lastEvent.TicketPrice?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "0",
+
+                   
+                    SortState.PopularitySales =>
+                        lastEvent.Tickets.Count.ToString(),
+
+                    _ => lastEvent.StartDate.ToString("o") // ISO 8601 
+                };
+            }
+
+            return result;
+        }
+
+        
+        private TR MapToDto<TR>(Event e)
+        {
+            if (typeof(TR) == typeof(EventDto))
+            {
+                return (TR)(object)new EventDto
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    Description = e.Description,
+                    StartDate = e.StartDate,
+                    Poster = e.Poster,
+                    EndDate = e.EndDate,
+                    TicketPrice = e.TicketPrice,
+                    City = e.City ?? "N/A",
+                    CountryName = e.Country?.CountryName ?? "Unknown",
+                    EventType = e.Type?.Type ?? "Unknown",
+                    Status = e.Status,
+                    OrganizerName = e.Organizer?.Username ?? "Unknown",
+                    TicketAmount = e.TicketAmount,
+
+                };
+            }
+            
+            return default!;
+        }
     } 
 
 }
-
-
-        // think about rewrite two methods in one 
-        /*public enum CursorResult
-        {
-            defaultMethod = 1,
-            Organizer = 2
-
-        }*/
     
 

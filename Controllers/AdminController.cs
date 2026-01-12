@@ -1,4 +1,5 @@
 ﻿using System.Security;
+using System.Security.Claims;
 using GlobalFests.Data;
 using GlobalFests.DTOs;
 using GlobalFests.EFModels;
@@ -30,7 +31,19 @@ namespace GlobalFests.Controllers
 
         public async Task<IActionResult> Index()
         {
-            
+            if (!User.Identity?.IsAuthenticated ?? true)
+                return RedirectToAction("Login", "Account");
+
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return RedirectToAction("Login", "Account");
+
+            if (!User.IsInRole("SuperAdmin") && !User.IsInRole("Admin"))
+            {
+                return Forbid();
+            }
+
             var totalUsers = await _context.Users.CountAsync();
             var totalEvents = await _context.Events.CountAsync();
             var totalPerformers = await _context.Performers.CountAsync();
@@ -46,14 +59,14 @@ namespace GlobalFests.Controllers
                 .Include(e => e.Type)
                 .Where(e => e.Status == (int)Status.Pending)
                 .OrderBy(e => e.CreatedAt)
-                .Take(10) //change it
+                .Take(10) 
                 .ToListAsync();
 
             var pendingPerformers = await _context.Performers
                 .Include(p => p.Genres)
                 .Where(e => e.Status == (int)Status.Pending)
                 .OrderBy(p => p.CreatedAt)
-                .Take(10) //change it
+                .Take(10) 
                 .ToListAsync();
 
             // graphics datas 
@@ -195,10 +208,10 @@ namespace GlobalFests.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditCountry(int? id)
+        public async Task<IActionResult> EditCountry(CountryFormViewModel? inputModel, int? id)
         {
             if (id == null || id == 0)
-                return View("CountryForm", new CountryFormViewModel());
+                return View("CountryForm", inputModel ?? new CountryFormViewModel());
 
             var entity = await _context.Countries.FindAsync(id);
             if (entity == null) return NotFound();
@@ -217,33 +230,42 @@ namespace GlobalFests.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveCountry(CountryFormViewModel model)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return View("CountryForm", model);
-            }
-
-            if (model.Id == 0)
-            {
-               
-                var newCountry = new Country
+                if (!ModelState.IsValid)
                 {
-                    CountryName = model.CountryName,
-                    CountryCode = model.CountryCode
-                };
-                _context.Countries.Add(newCountry);
-            }
-            else
-            {
-               
-                var entity = await _context.Countries.FindAsync(model.Id);
-                if (entity == null) return NotFound();
+                    return View("CountryForm", model);
+                }
 
-                entity.CountryName = model.CountryName;
-                entity.CountryCode = model.CountryCode;
+                if (model.Id == 0)
+                {
+
+                    var newCountry = new Country
+                    {
+                        CountryName = model.CountryName,
+                        CountryCode = model.CountryCode
+                    };
+                    _context.Countries.Add(newCountry);
+                }
+                else
+                {
+
+                    var entity = await _context.Countries.FindAsync(model.Id);
+                    if (entity == null) return NotFound();
+
+                    entity.CountryName = model.CountryName;
+                    entity.CountryCode = model.CountryCode;
+                }
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Збереження успішне!";
+                return RedirectToAction(nameof(Countries));
+            }
+            catch (Exception ex) {
+                TempData["ErrorMessage"] = $"Збереження не успішне, всі поля мають бути унікальними";
+                return RedirectToAction(nameof(EditCountry) ,model);
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Countries));
         }
 
         [HttpPost]
@@ -310,11 +332,19 @@ namespace GlobalFests.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveLookup(AdminManageItemViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View("UniversalForm", model);
-            await _adminManageItemsService.SaveAsync(model);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return View("UniversalForm", model);
+                await _adminManageItemsService.SaveAsync(model);
+                TempData["SuccessMessage"] = "Збереження успішне!";
+                return RedirectToAction(nameof(Manage), new { type = model.EntityType });
+            }
+            catch (Exception ex) {
+                TempData["ErrorMessage"] = $"Збереження неуспішне, назва має бути унікальною";
+                return RedirectToAction(nameof(EditLookup), model);
+            }
 
-            return RedirectToAction(nameof(Manage), new { type = model.EntityType });
         }
 
         [HttpPost]

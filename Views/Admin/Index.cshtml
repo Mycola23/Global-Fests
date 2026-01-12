@@ -29,7 +29,7 @@
         </div>
         <div class="dash-glass-card" style="margin-bottom: 0; text-align: center;">
             <span class="total-label">System Revenue</span>
-            <span class="total-value" style="color: #b4f8c8;">@Model.TotalRevenue.ToString("C0")</span>
+            <span class="total-value" style="color: #b4f8c8;">@Model.TotalRevenue.ToString("C0", System.Globalization.CultureInfo.CreateSpecificCulture("en-US"))</span>
         </div>
     </div>
 

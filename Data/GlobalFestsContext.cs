@@ -59,15 +59,15 @@ public partial class GlobalFestsContext : DbContext
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
 
             entity.HasOne(d => d.Country).WithMany(p => p.Events)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Events__CountryI__4316F928");
 
             entity.HasOne(d => d.Organizer).WithMany(p => p.Events)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Events__Organize__412EB0B6");
 
             entity.HasOne(d => d.Type).WithMany(p => p.Events)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Events__TypeId__4222D4EF");
 
             entity.HasMany(d => d.Genres).WithMany(p => p.Events)
@@ -75,11 +75,11 @@ public partial class GlobalFestsContext : DbContext
                     "EventGenre",
                     r => r.HasOne<Genre>().WithMany()
                         .HasForeignKey("GenreId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK__EventGenr__Genre__46E78A0C"),
                     l => l.HasOne<Event>().WithMany()
                         .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK__EventGenr__Event__45F365D3"),
                     j =>
                     {
@@ -92,11 +92,11 @@ public partial class GlobalFestsContext : DbContext
                     "EventPerformer",
                     r => r.HasOne<Performer>().WithMany()
                         .HasForeignKey("PerformerId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK__EventPerf__Perfo__4AB81AF0"),
                     l => l.HasOne<Event>().WithMany()
                         .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK__EventPerf__Event__49C3F6B7"),
                     j =>
                     {
@@ -142,11 +142,11 @@ public partial class GlobalFestsContext : DbContext
              "PerformerGenre", // name in EF
              r => r.HasOne<Genre>().WithMany()
                  .HasForeignKey("GenreId")
-                 .OnDelete(DeleteBehavior.ClientSetNull)
+                 .OnDelete(DeleteBehavior.Cascade)
                  .HasConstraintName("FK__Performer__Genre__7B264821"),
              l => l.HasOne<Performer>().WithMany()
                  .HasForeignKey("PerformerId")
-                 .OnDelete(DeleteBehavior.ClientSetNull)
+                 .OnDelete(DeleteBehavior.Cascade)
                  .HasConstraintName("FK__Performer__Perfo__7A3223E8"),
              j =>
              {
@@ -184,11 +184,11 @@ public partial class GlobalFestsContext : DbContext
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
 
             entity.HasOne(d => d.Event).WithMany(p => p.Tickets)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Tickets__EventId__4E88ABD4");
 
             entity.HasOne(d => d.User).WithMany(p => p.Tickets)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Tickets__UserId__4F7CD00D");
         });
 
@@ -204,7 +204,7 @@ public partial class GlobalFestsContext : DbContext
             entity.HasOne(d => d.Country).WithMany(p => p.Users).HasConstraintName("FK__Users__CountryId__33D4B598");
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Users__RoleId__34C8D9D1");
 
         });

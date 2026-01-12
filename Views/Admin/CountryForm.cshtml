@@ -3,7 +3,19 @@
     var isEdit = Model.Id != 0;
     ViewData["Title"] = isEdit ? "Edit Country" : "Add Country";
 }
+@if (TempData["SuccessMessage"] != null)
+{
+    <div style="margin-top:65px;background: rgba(180, 248, 200, 0.15); border: 1px solid #b4f8c8; color: #b4f8c8; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+    </div>
+}
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div style=" margin-top:65px;background: rgba(255, 107, 107, 0.15); border: 1px solid #ff6b6b; color: #ff6b6b; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+        <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+    </div>
+}
 <div class="organizer__container" style="max-width: 600px;">
 
     <div class="dash-glass-card">

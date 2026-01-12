@@ -22,7 +22,7 @@
         {
             public int TotalTicketsSold { get; set; }
             public decimal TotalRevenue { get; set; }
-            public decimal AverageTicketPrice { get; set; }
+            //public decimal AverageTicketPrice { get; set; }
             //public decimal PercentageTicketsSoldOverall { get; set; } 
         }
 

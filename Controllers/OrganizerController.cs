@@ -35,6 +35,13 @@ namespace GlobalFests.Controllers
             if (userIdClaim == null)
                 return RedirectToAction("Login", "Account");
 
+            
+
+            if (!User.IsInRole("Organizer"))
+            {
+                return Forbid();
+            }
+
             int userId = int.Parse(userIdClaim.Value);
             var model = new OrganizerPanelViewModel
             {
@@ -50,6 +57,10 @@ namespace GlobalFests.Controllers
 
         public async Task<IActionResult> CreatePerformer()
         {
+            if (User.IsInRole("User"))
+            {
+                return Forbid();
+            }
             var model = new CreatePerformerViewModel
             {
                 Countries = await _lookupService.GetAllCountriesAsync(),
@@ -71,6 +82,10 @@ namespace GlobalFests.Controllers
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
                 return RedirectToAction("Login", "Account");
+            if (User.IsInRole("User"))
+            {
+                return Forbid();
+            }
 
             int userId = int.Parse(userIdClaim.Value);
             model.NewPerformer.CreatedBy = userId;
@@ -133,7 +148,7 @@ namespace GlobalFests.Controllers
                 return NotFound();
 
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            if (performer.CreatedBy != userId && !User.IsInRole("Admin"))
+            if (performer.CreatedBy != userId &&  !User.IsInRole("Admin") && !User.IsInRole("SuperAdmin"))
                 return Forbid();
 
             var model = new EditPerformerViewModel
@@ -243,7 +258,7 @@ namespace GlobalFests.Controllers
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
           
-            if (performer.CreatedBy != userId && !User.IsInRole("Admin") && !User.IsInRole("SuperAdmin"))
+            if (performer.CreatedBy != userId || User.IsInRole("User"))
             {
                 return Forbid();
             }

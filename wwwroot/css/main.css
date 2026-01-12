@@ -910,11 +910,11 @@ ul {
     font-weight: 500;
 }
 
-/* Custom Input Styling (Matches Home Search) */
+/* Custom Input  */
 .custom-input-group {
     display: flex;
     align-items: center;
-    background: #292a30;
+    background: var(--input-bg);
     border: 1px solid transparent;
     border-radius: 12px;
     padding: 0 15px;
@@ -950,8 +950,8 @@ ul {
     }
 /* Fix for Select dropdowns */
 select.form-control-custom {
-    max-height:50px;
-    background: #292a30;
+    max-height: 50px;
+    background: var(--input-bg);
 }
 
 /* Textarea specific */

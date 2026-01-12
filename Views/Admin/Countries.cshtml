@@ -69,7 +69,7 @@
                                     <a asp-action="EditCountry" asp-route-id="@item.Id" class="btn-icon-view" title="Edit">
                                         <i class="fas fa-pen"></i>
                                     </a>
-                                    @if (item.EventsCount > 0 || item.UsersCount > 0)
+                                    @if ((item.EventsCount > 0 || item.UsersCount > 0 || item.PerformersCount > 0) && !User.IsInRole("SuperAdmin"))
                                     {
                                         @* not active *@
                                         <button type="button" class="btn-icon-no" style="opacity: 0.3; cursor: not-allowed;" title="Cannot delete: Item is in use">

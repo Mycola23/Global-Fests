@@ -7,7 +7,6 @@
    
     var posterUrl = $"https://picsum.photos/seed/{randomId}/1920/1080";
     
-    <!-- Інжектуємо локалізатор, прив'язаний до SharedResource -->
     @inject IHtmlLocalizer<SharedResource> Localizer
 
 }
@@ -175,7 +174,7 @@
                 <a href="#" class="view-all">View All</a>
             </div>
             
-            <!-- Swiper Container -->
+            <!-- swiper container -->
             <div class="swiper mySwiper">
                 <div class="swiper-wrapper">
                     @foreach (var ev in Model.LocalEvents)
