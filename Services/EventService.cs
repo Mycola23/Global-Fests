@@ -24,6 +24,7 @@ namespace GlobalFests.Services
         Task<bool> DeleteEventAsync(int id);
 
         Task<HomeViewModel> GetHomePageDataAsync(int? currentUserId);
+        Task<bool> HasTicketsAsync(int eventId);
     }
 
     public class EventService : IEventService
@@ -165,7 +166,12 @@ namespace GlobalFests.Services
             return model;
         }
 
-       // helper
+        public async Task<bool> HasTicketsAsync(int eventId)
+        {
+            return await _context.Tickets.AnyAsync(t => t.EventId == eventId);
+        }
+
+        // helper
         private List<EventDto> MapToDto(List<Event> events)
         {
             return events.Select(e => new EventDto

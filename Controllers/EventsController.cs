@@ -237,7 +237,9 @@ namespace GlobalFests.Controllers
                 EventTypes = await _lookupService.GetAllEventTypesAsync(),
                 Genres = await _lookupService.GetAllGenresAsync(),
                 SelectedPerformerIds = eventEntity.Performers.Select(p => p.Id).ToList(),
-                SelectedGenreIds = eventEntity.Genres.Select(g => g.Id).ToList()
+                SelectedGenreIds = eventEntity.Genres.Select(g => g.Id).ToList(),
+                HasSoldTickets = await _eventService.HasTicketsAsync(id),
+                IsEventInProgress = eventEntity.StartDate <= DateTime.Now && eventEntity.EndDate > DateTime.Now
             };
 
             return View(model);
@@ -272,19 +274,64 @@ namespace GlobalFests.Controllers
                 var existingEvent = await _eventRepo.GetByIdAsync(id);
                 if (existingEvent == null) return NotFound();
 
+                bool isOrganizer = User.IsInRole("Organizer");
+                bool hasSoldTickets = await _eventService.HasTicketsAsync(id); 
+                bool eventStarted = existingEvent.StartDate <= DateTime.Now;
+                bool eventEnded = existingEvent.EndDate <= DateTime.Now;
+
+                // check for start event
+                if (isOrganizer && eventStarted && !eventEnded)
+                {
+                    TempData["ErrorMessage"] = "You cannot edit an event while it is in progress.";
+                    return RedirectToAction("Index", "Organizer");
+                }
+
+                // check for sold tickets
+                if (hasSoldTickets)
+                {
+
+                    if (existingEvent.TicketPrice != model.Event.TicketPrice)
+                    {
+                        ModelState.AddModelError("Event.TicketPrice", "Cannot change price because tickets have already been sold.");
+                    }
+
+
+                    if (existingEvent.TicketAmount != model.Event.TicketAmount)
+                    {
+                        ModelState.AddModelError("Event.TicketAmount", "Cannot change ticket quantity because sales have started.");
+                    }
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    model.Countries = await _lookupService.GetAllCountriesAsync();
+                    model.EventTypes = await _lookupService.GetAllEventTypesAsync();
+                    model.Genres = await _lookupService.GetAllGenresAsync();
+                    model.SelectedPerformerIds = existingEvent.Performers.Select(p => p.Id).ToList();
+                    return View(model);
+                }
+
                 existingEvent.Title = model.Event.Title;
                 existingEvent.Description = model.Event.Description;
-                existingEvent.StartDate = model.Event.StartDate;
-                existingEvent.EndDate = model.Event.EndDate;
+                existingEvent.Poster = model.Event.Poster;
                 existingEvent.TypeId = model.Event.TypeId;
                 existingEvent.CountryId = model.Event.CountryId;
                 existingEvent.City = model.Event.City;
                 existingEvent.Address = model.Event.Address;
-                existingEvent.TicketPrice = model.Event.TicketPrice;
-                existingEvent.TicketAmount = model.Event.TicketAmount;
-                existingEvent.Poster = model.Event.Poster;
+                
                 existingEvent.Latitude = model.Event.Latitude;
                 existingEvent.Longitude = model.Event.Longitude;
+
+                existingEvent.StartDate = model.Event.StartDate;
+                existingEvent.EndDate = model.Event.EndDate;
+              
+
+                if (!hasSoldTickets)
+                {
+                    existingEvent.TicketPrice = model.Event.TicketPrice;
+                    existingEvent.TicketAmount = model.Event.TicketAmount;
+                }
+
                 existingEvent.Status = (int)Status.Pending;
 
                 existingEvent.Genres.Clear(); 
@@ -355,7 +402,19 @@ namespace GlobalFests.Controllers
         {
             if (!User.Identity?.IsAuthenticated ?? true)
                 return RedirectToAction("Login", "Account");
+            bool hasSoldTickets = await _eventService.HasTicketsAsync(id);
 
+            if (hasSoldTickets)
+            {
+                TempData["ErrorMessage"] = "Cannot delete event because tickets have already been sold.";
+
+                
+                if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                {
+                    return RedirectToAction("Events", "Admin");
+                }
+                return RedirectToAction("Index", "Organizer");
+            }
             try
             {
                 var deleted = await _eventService.DeleteEventAsync(id);
@@ -377,7 +436,11 @@ namespace GlobalFests.Controllers
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = $"Error deleting event: {ex.Message}";
-                return RedirectToAction(nameof(Delete), new { id });
+                if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                {
+                    return RedirectToAction("Events", "Admin");
+                }
+                return RedirectToAction("Index", "Organizer");
             }
         }
 

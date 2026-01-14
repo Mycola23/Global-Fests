@@ -95,7 +95,13 @@
                     <div class="form-group">
                         <label asp-for="Event.TicketPrice" class="form-label">Price ($)</label>
                         <div class="custom-input-group">
-                            <input asp-for="Event.TicketPrice" type="number" step="0.01" class="form-control-custom" />
+                            <input asp-for="Event.TicketPrice" type="number" step="0.01" class="form-control-custom"
+                                   readonly="@(Model.HasSoldTickets ? "readonly" : null)"
+                                   style="@(Model.HasSoldTickets ? "opacity: 0.5; cursor: not-allowed;" : "")" />
+                            @if (Model.HasSoldTickets)
+                            {
+                                <span class="text-warning" style="font-size: 12px;">Price cannot be changed because tickets have been sold.</span>
+                            }
                         </div>
                     </div>
                     <div class="form-group">

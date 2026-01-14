@@ -41,7 +41,7 @@ namespace GlobalFests.Repositories
 
             return await _context.Set<Performer>()
                 .Include(p => p.Country)
-                .Include(p => p.Genres) 
+                .Include(p => p.Genres)
                 .Where(p => ids.Contains(p.Id))
                 .ToListAsync(cancellationToken);
         }

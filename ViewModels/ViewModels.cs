@@ -158,6 +158,9 @@ namespace GlobalFests.ViewModels
         [ValidateNever]
         public CursorResult<PerformerDto> Performers { get; set; } = new();
         public List<int> SelectedPerformerIds { get; set; } = new List<int>();
+
+        public bool HasSoldTickets { get; set; } 
+        public bool IsEventInProgress { get; set; }
     }
 
     public class EventDetailsViewModel

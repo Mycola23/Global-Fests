@@ -263,7 +263,12 @@ namespace GlobalFests.Controllers
                 return Forbid();
             }
 
-           
+            if (performer.Events != null && performer.Events.Any())
+            {
+                TempData["ErrorMessage"] = $"Cannot delete performer '{performer.Name}' because they are assigned to {performer.Events.Count} event(s). Please remove them from events first.";
+                return RedirectToAction(nameof(Index));
+            }
+
             try
             {
                 bool isDeleted = await _performerRepo.DeleteAsync(id);
@@ -279,7 +284,7 @@ namespace GlobalFests.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Cannot delete performer because they are assigned to events.";
+                TempData["ErrorMessage"] = "Cannot delete performer because of database constraints.";
             }
 
             return RedirectToAction(nameof(Index));
