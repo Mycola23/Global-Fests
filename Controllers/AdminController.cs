@@ -434,6 +434,11 @@ namespace GlobalFests.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateUser(AdminUserFormViewModel model)
         {
+            var superAdminRole = await _context.Roles.FirstOrDefaultAsync(r => r.Role1 == "SuperAdmin");
+            if (superAdminRole != null && model.RoleId == superAdminRole.Id)
+            {
+                ModelState.AddModelError("RoleId", "You cannot create a user with the SuperAdmin role.");
+            }
             if (ModelState.IsValid)
             {
                 var salt = _userService.GenerateSalt();
@@ -485,16 +490,29 @@ namespace GlobalFests.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditUser(AdminUserFormViewModel model)
         {
+
+            var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var superAdminRole = await _context.Roles.FirstOrDefaultAsync(r => r.Role1 == "SuperAdmin");
+
+            var userToEdit = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == model.Id);
+            if (userToEdit == null) return NotFound();
+
+            if (model.Id == currentUserId && model.RoleId != userToEdit.RoleId)
+            {
+                ModelState.AddModelError("RoleId", "You cannot change your own role.");
+            }
+            // in our system exist only one superadmin 
+            if (superAdminRole != null && model.RoleId == superAdminRole.Id && userToEdit.RoleId != superAdminRole.Id)
+            {
+                ModelState.AddModelError("RoleId", "You cannot promote a user to SuperAdmin.");
+            }
             if (ModelState.IsValid)
             {
-                var user = await _context.Users.FindAsync(model.Id);
-                if (user == null) return NotFound();
-
-                user.Username = model.Username;
-                user.Email = model.Email;
-                user.RoleId = model.RoleId;
-                user.CountryId = model.CountryId;
-                user.Verified = model.Verified;
+                userToEdit.Username = model.Username;
+                userToEdit.Email = model.Email;
+                userToEdit.RoleId = model.RoleId;
+                userToEdit.CountryId = model.CountryId;
+                userToEdit.Verified = model.Verified;
 
                 
                 if (!string.IsNullOrEmpty(model.NewPassword))
@@ -502,8 +520,8 @@ namespace GlobalFests.Controllers
 
                     var salt = _userService.GenerateSalt();
                     var hash = _userService.HashPassword(model.NewPassword, salt);
-                    user.PasswordHash = hash;
-                    user.Salt = salt;
+                    userToEdit.PasswordHash = hash;
+                    userToEdit.Salt = salt;
                 }
 
                 await _context.SaveChangesAsync();
@@ -520,6 +538,10 @@ namespace GlobalFests.Controllers
         public async Task<IActionResult> DeleteUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
+            if (User.IsInRole("SuperAdmin")){
+                TempData["ErrorMessage"] = "You can`t delete your own account";
+                return RedirectToAction(nameof(Users));
+            }
             if (user != null)
             {
                 _context.Users.Remove(user);
@@ -532,6 +554,7 @@ namespace GlobalFests.Controllers
         public async Task<List<SelectListItem>> GetRolesList()
         {
             return await _context.Roles
+                .Where(r => r.Role1 != "SuperAdmin")
                 .Select(r => new SelectListItem { Value = r.Id.ToString(), Text = r.Role1 })
                 .ToListAsync();
         }

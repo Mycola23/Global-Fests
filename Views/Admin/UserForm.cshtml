@@ -1,7 +1,13 @@
 ﻿@model GlobalFests.ViewModels.AdminUserFormViewModel
+@using System.Security.Claims
 @{
     var isEdit = Model.Id != 0;
     ViewData["Title"] = isEdit ? "Edit User" : "Create User";
+
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+    int currentUserId = userIdClaim != null ? int.Parse(userIdClaim.Value) : 0;
+
+    bool isSelfEditing = Model.Id == currentUserId;
 }
 
 <div class="organizer__container" style="max-width: 800px;">
@@ -48,8 +54,20 @@
                 <div class="form-group">
                     <label class="form-label">Role</label>
                     <div class="custom-input-group">
-                        <select asp-for="RoleId" asp-items="Model.Roles" class="form-control-custom">
-                        </select>
+                        @if (isSelfEditing && User.IsInRole("SuperAdmin"))
+                        {
+                            <select asp-for="RoleId" asp-items="Model.Roles" class="form-control-custom" disabled
+                                    style="opacity: 0.6; cursor: not-allowed; background: rgba(255,255,255,0.05);">
+                                    <option selected>SuperAdmin</option>
+                            </select>
+                            <input type="hidden" asp-for="RoleId" />
+                        }
+                        else
+                        {
+                            <select asp-for="RoleId" asp-items="Model.Roles" class="form-control-custom">
+                            </select>
+                        }
+                        
                     </div>
                 </div>
 

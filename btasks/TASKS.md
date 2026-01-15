@@ -23,7 +23,7 @@
 
 ### Plans
 - [ ] clear all code
-- [ ] редагування евенту доступно до першої продажі(поле кількості квитків) або до дати початку евенту після настання дати евенту взагалі не можна редагувати подію
+- ✅ редагування евенту доступно до першої продажі(поле кількості квитків) або до дати початку евенту після настання дати евенту взагалі не можна редагувати подію
 - ✅ delete functionality for organizer panel (btn + method in controller with all checks)
 - ✅ make possibility by click in Events details on performer go to PerformerDetails page
 - ✅ make interactive World Map
@@ -40,7 +40,7 @@
 - [ ] add more stats for admin (especially for superadmin(God⚡))
 - [ ] make dropdown (guest- button) customazible to each of role
 - [ ] add travel back in cursor paginations where it has used
-- [ ] add all filters and sorting for search panel in progress(need sorting)
+- ✅ add all filters and sorting for search panel in progress(need sorting)
 - ✅ make profile page
 - ✅ make wishList page
 - ✅ add reviews system for autorized users
