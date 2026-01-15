@@ -86,7 +86,28 @@
                         </div>
                     </div>
                 </div>
-
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label asp-for="Event.Latitude" class="form-label">Latitude</label>
+                        <div class="custom-input-group">
+                            <input asp-for="Event.Latitude"
+                                   type="number"
+                                   step="0.000001"
+                                   value="@Model.Event.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                   class="form-control-custom" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Event.Longitude" class="form-label">Longitude</label>
+                        <div class="custom-input-group">
+                            <input asp-for="Event.Longitude"
+                                   type="number"
+                                   step="0.000001"
+                                   value="@Model.Event.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                                   class="form-control-custom" />
+                        </div>
+                    </div>
+                </div>
                 <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;" />
 
                 <h3 style="color:white; font-size:18px; margin-bottom:15px;">Ticketing & Media</h3>
@@ -164,7 +185,14 @@
                     </div>
                 </div>
                 <div style="display: flex; gap: 15px; margin-top: 30px;">
-                    <a asp-controller="Organizer" asp-action="Index" class="btn-main btn-secondary-custom">Cancel</a>
+                    @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                    {
+                        <a asp-controller="Admin" asp-action="Events" class="btn-main btn-secondary-custom">Cancel</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Organizer" asp-action="Index" class="btn-main btn-secondary-custom">Cancel</a>
+                    }
                     <button type="submit" class="btn-main">Save Changes</button>
                 </div>
             </form>

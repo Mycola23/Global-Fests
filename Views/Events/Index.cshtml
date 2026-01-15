@@ -43,7 +43,7 @@
                 <select asp-for="Search.TypeId"
                         asp-items="@(Model.EventTypes != null ? new SelectList(Model.EventTypes, "Id", "Type") : null)"
                         class="form-control-custom">
-                    <option value="">All Types</option>
+                        <option value="">@Localizer["All Types"]</option>
                 </select>
             </div>
             <!-- Genre -->
@@ -52,12 +52,12 @@
                 <select asp-for="Search.GenreId"
                         asp-items="@(Model.Genres != null ? new SelectList(Model.Genres, "Id", "Genre1") : null)"
                         class="form-control-custom">
-                    <option value="">All Genres</option>
+                        <option value="">@Localizer["All Genres"]</option>
                 </select>
             </div>
 
             <!-- Search Button -->
-            <button type="submit" class="search-btn">SEARCH</button>
+                <button type="submit" class="search-btn">@Localizer["Search"]</button>
         </div>
 
         <!-- Secondary Row: Price, Country, City -->
@@ -66,15 +66,15 @@
             <!-- Price Range -->
             <div class="input-group price-group">
                 <i class="fas fa-dollar-sign"></i>
-                <input type="number" asp-for="Search.MinPrice" min="0" placeholder="Min price" />
+                    <input type="number" asp-for="Search.MinPrice" min="0" placeholder="@Localizer["Min price"]" />
                 <span style="color:#444;">-</span>
-                <input type="number" asp-for="Search.MaxPrice" min="0" placeholder="Max price" />
+                    <input type="number" asp-for="Search.MaxPrice" min="0" placeholder="@Localizer["Max price"]" />
             </div>
 
             <!-- City Input -->
             <div class="input-group dropdown-group">
                 <i class="fas fa-city"></i>
-                <input type="text" asp-for="Search.City" placeholder="City name..." />
+                    <input type="text" asp-for="Search.City" placeholder="@Localizer["City name..."]" />
             </div>
 
             <!-- Country -->
@@ -83,7 +83,7 @@
                 <select asp-for="Search.CountryId"
                         asp-items="@(Model.Countries != null ? new SelectList(Model.Countries, "Id", "CountryName") : null)"
                         class="form-control-custom">
-                    <option value="">All Countries</option>
+                        <option value="">@Localizer["All Countries"]</option>
                 </select>
             </div>
                 <!-- Sorting  -->
@@ -95,7 +95,7 @@
                     </select>
                 </div>
             <!-- Reset   -->
-            <a asp-action="Index" class="input-group" style="width: 50px; flex: 0; justify-content: center; cursor: pointer; text-decoration: none;" title="Reset Filters">
+                <a asp-action="Index" class="input-group" style="width: 50px; flex: 0; justify-content: center; cursor: pointer; text-decoration: none;" title="@Localizer["Reset Filters"]">
                 <i class="fas fa-redo" style="margin: 0; color: #777;"></i>
             </a>
         </div>
@@ -106,7 +106,7 @@
     <!-- events  -->
     @if (Model.Events?.Items?.Any() == true)
     {
-        <p class="grid-container__sub-title">Found @Model.Events.Items.Count event(s)</p>
+        <p class="grid-container__sub-title">@Localizer["Found"] @Model.Events.Items.Count @Localizer["event(s)"]</p>
 
         <div class="grid-container">
             @foreach (var eventItem in Model.Events.Items)
@@ -154,7 +154,7 @@
                    asp-route-cursorValue="@Model.Events.NextCursorValue" 
                    asp-route-cursorId="@Model.Events.NextCursorId"
                    class="btn-main btn-secondary-custom" >
-                    Load More
+                    @Localizer["Load More"]
                 </a>
             </div>
         }

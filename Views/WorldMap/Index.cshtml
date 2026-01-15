@@ -1,5 +1,7 @@
 ﻿@model GlobalFests.ViewModels.WorldMapViewModel
-
+@using Microsoft.AspNetCore.Mvc.Localization
+@using GlobalFests.Helpers
+@inject IHtmlLocalizer<SharedResource> Localizer
 @{
     ViewData["Title"] = "World Map";
 }
@@ -12,35 +14,35 @@
         <!-- FILTERS  -->
         <div class="sidebar-filters">
             <div class="form-group mb-2">
-                <input type="text" id="searchTitle" class="form-control-custom" placeholder="Event Title..." />
+                <input type="text" id="searchTitle" class="form-control-custom" placeholder="@Localizer["Find your next event, performer..."]" />
             </div>
             <div class="form-group mb-2">
-                <input type="text" id="searchCity" class="form-control-custom" placeholder="City..." />
+                <input type="text" id="searchCity" class="form-control-custom" placeholder="@Localizer["City name..."]" />
             </div>
             <div class="form-group mb-2">
                 <select id="searchCountry" class="form-control-custom" asp-items="@(new SelectList(Model.Countries, "Id", "CountryName"))">
-                    <option value="">All Countries</option>
+                    <option value="">@Localizer["All Countries"]</option>
                 </select>
             </div>
             <div class="form-group mb-2">
                 <select id="searchType" class="form-control-custom" asp-items="@(new SelectList(Model.EventTypes, "Id", "Type"))">
-                    <option value="">All Types</option>
+                    <option value="">@Localizer["All Types"]</option>
                 </select>
             </div>
             <div class="form-group mb-2">
                 <select id="searchGenre" class="form-control-custom" asp-items="@(new SelectList(Model.Genres, "Id", "Genre1"))">
-                    <option value="">All Genres</option>
+                    <option value="">@Localizer["All Genres"]</option>
                 </select>
             </div>
             <!-- Filter Button -->
             <button id="btnSearch" class="btn-main w-100 mt-2">
-                <i class="fas fa-search"></i> Apply Filters
+                <i class="fas fa-search"></i> @Localizer["Apply Filters"]
             </button>
         </div>
 
         <!-- RESULTS LIST -->
         <div class="sidebar-results">
-            <h4 class="results-header">Events</h4>
+            <h4 class="results-header">@Localizer["Events"]</h4>
             <div id="eventsList" class="events-list-container">
                
                 <p class="text-muted text-center mt-4">Loading events...</p>

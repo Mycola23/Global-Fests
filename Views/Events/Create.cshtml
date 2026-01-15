@@ -185,7 +185,15 @@
                     <div id="selectedPerformersInputs"></div>
                 </div>
                 <div style="display: flex; gap: 15px; margin-top: 30px;">
-                    <a asp-controller="Organizer" asp-action="Index" class="btn-main btn-secondary-custom">Cancel</a>
+                    @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                    {
+                        <a asp-controller="Admin" asp-action="Events" class="btn-main btn-secondary-custom">Cancel</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Organizer" asp-action="Index" class="btn-main btn-secondary-custom">Cancel</a>
+                    }
+                   
                     <button type="submit" name="submitAction" value="Draft" class="btn-main btn-secondary-custom"  style="border: 1px solid var(--accent-cyan);">
                         <i class="fas fa-save"></i> Save as Draft
                     </button>

@@ -151,7 +151,7 @@
         @if (Model.SearchResult.Items.Count >= 12)
         {
             <div class="load-more-container">
-                <a asp-controller="Events" asp-action="Index" class="load-more-btn">View All Events</a>
+                <a asp-controller="Events" asp-action="Index" class="load-more-btn">@Localizer["View All Events"]</a>
             </div>
         }
     }

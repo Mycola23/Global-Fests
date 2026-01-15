@@ -2,10 +2,12 @@
 @{
     ViewData["Title"] = "Login";
 }
-
+@using Microsoft.AspNetCore.Mvc.Localization
+@using GlobalFests.Helpers
+@inject IHtmlLocalizer<SharedResource> Localizer
 <div class="page-container auth-wrapper">
     <div class="glass-panel auth-box">
-        <h2 class="form-title"><i class="fas fa-sign-in-alt"></i> Login</h2>
+        <h2 class="form-title"><i class="fas fa-sign-in-alt"></i> @Localizer["Login"]</h2>
 
         <form asp-action="Login" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -13,7 +15,7 @@
 
             <!-- Email -->
             <div class="form-group">
-                <label asp-for="Email" class="form-label">Email Address</label>
+                <label asp-for="Email" class="form-label">@Localizer["Email Address"]</label>
                 <div class="custom-input-group">
                     <i class="fas fa-envelope input-icon"></i>
                     <input asp-for="Email" class="form-control-custom" placeholder="Enter your email" autofocus />
@@ -23,7 +25,7 @@
 
             <!-- Password -->
             <div class="form-group">
-                <label asp-for="Password" class="form-label">Password</label>
+                <label asp-for="Password" class="form-label">@Localizer["Password"]</label>
                 <div class="custom-input-group">
                     <i class="fas fa-lock input-icon"></i>
                     <input asp-for="Password" class="form-control-custom" placeholder="Enter your password" type="password" />
@@ -33,12 +35,11 @@
 
             <!-- Submit -->
             <button type="submit" class="btn-main">
-                LOGIN <i class="fas fa-arrow-right"></i>
+                @Localizer["LOGIN UPPER"] <i class="fas fa-arrow-right"></i>
             </button>
 
             <div class="auth-links">
-                <p>Don't have an account? <a asp-action="Register">Register here</a></p>
-                <p><a href="#">Forgot your password?</a></p>
+                <p>@Localizer["Don't have an account?"] <a asp-action="Register">@Localizer["Register here"]</a></p>
             </div>
         </form>
     </div>

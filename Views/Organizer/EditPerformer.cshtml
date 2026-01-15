@@ -79,7 +79,14 @@
                 </div>
 
                 <div class="form-actions-group" style="display: flex; gap: 15px; margin-top: 35px;">
-                    <a asp-action="Index" class="btn-main btn-secondary-custom">Cancel</a>
+                    @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                    {
+                        <a asp-controller="Admin" asp-action="Performers" class="btn-main btn-secondary-custom">Cancel</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Organizer" asp-action="Index" class="btn-main btn-secondary-custom">Cancel</a>
+                    }
                     <button type="submit" class="btn-main">Save Changes</button>
                 </div>
             </form>
