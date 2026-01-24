@@ -49,7 +49,7 @@
 | :--- | :--- |
 | **Framework** | ASP.NET Core 8.0 (MVC) |
 | **Database** | MS SQL Server |
-| **ORM** | Entity Framework Core (Code-First & Database-First hybrid) |
+| **ORM** | Entity Framework Core ( Database-First ) |
 | **Architecture** | Repository Pattern, Unit of Work, Service Layer |
 | **Frontend** | Razor Views, HTML5, CSS3 (Custom Glassmorphism) |
 | **JavaScript** | Leaflet.js (Maps), Swiper.js (Sliders), Flatpickr (Dates) |
