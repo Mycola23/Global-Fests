@@ -342,7 +342,7 @@ namespace GlobalFests.Controllers
             }
             catch (Exception ex) {
                 TempData["ErrorMessage"] = $"Збереження неуспішне, назва має бути унікальною";
-                return RedirectToAction(nameof(EditLookup), model);
+                return View("UniversalForm", model);
             }
 
         }
@@ -538,7 +538,9 @@ namespace GlobalFests.Controllers
         public async Task<IActionResult> DeleteUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
-            if (User.IsInRole("SuperAdmin")){
+            var currentuserId = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (id.ToString() == currentuserId.Value && User.IsInRole("SuperAdmin"))
+            {
                 TempData["ErrorMessage"] = "You can`t delete your own account";
                 return RedirectToAction(nameof(Users));
             }
