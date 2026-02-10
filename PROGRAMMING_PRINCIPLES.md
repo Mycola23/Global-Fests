@@ -6,9 +6,9 @@
 
 ### SRP (Single Responsibility Principle) — Принцип єдиної відповідальності
 Кожен клас або метод виконує лише одну задачу.
-- **Приклад:** Контролер `EventsController` не містить логіки доступу до БД. Він лише приймає запит і викликає сервіс. Вся логіка пошуку інкапсульована в репозиторії.
-- **Код:** [EventsController.cs: Index метод](https://github.com/Mycola23/Global-Fests/blob/e404e1b7c5939cbd2f018dc9ce1bfda9819dccab/Controllers/EventsController.cs#L38C9-L71C10) (тільки виклик сервісу)
-- **Код:** [EventRepository.cs: SearchEventsSortedAsync](/Repositories/EventRepository.cs#L15) (логіка побудови запиту)
+- **Приклад:**Методи контролера `EventsController`,`AccountController` не містять логіки доступу до БД. Вони лише приймають запити і викликають потрібні їм сервіси. Вся логіка розміщена на рівні сервісів і репозиторіїв
+- **Код:** [EventsController.cs: Index метод](https://github.com/Mycola23/Global-Fests/blob/e404e1b7c5939cbd2f018dc9ce1bfda9819dccab/Controllers/EventsController.cs#L38C9-L71C10) 
+- **Код:** [EventsController.cs:](https://github.com/Mycola23/Global-Fests/blob/234a158e02f63e7ad9646d42edad57431e6fdf74/Controllers/AccountController.cs#L29C9-L160C10) 
 
 ### OCP (Open/Closed Principle) — Принцип відкритості/закритості
 Система спроєктована так, щоб її можна було розширювати без зміни існуючого коду.
