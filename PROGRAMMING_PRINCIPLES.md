@@ -32,7 +32,7 @@
 ## 5. KISS (Keep It Simple, Stupid) — Роби простіше
 Де це можливо, складні операції C# замінені на оптимізовані збережені процедури для підвищення продуктивності.
 - **Приклад:** Статистика для організатора рахується через збережені процедури SQL, а не витягуванням всіх даних у пам'ять.
-- **Код:** [OrganizerStatsService.cs: GetEventTypeSalesDataAsync](https://github.com/Mycola23/Global-Fests/blob/e6af8bac463b5152dfc9be4bbfb9fd4f86a3954e/Services/OrganizerStatsService.cs#L69C9-L78C10))
+- **Код:** [OrganizerStatsService.cs: GetEventTypeSalesDataAsync](https://github.com/Mycola23/Global-Fests/blob/e6af8bac463b5152dfc9be4bbfb9fd4f86a3954e/Services/OrganizerStatsService.cs#L69C9-L78C10)
 
  ## 6. Encapsulation — Інкапсуляція
 Принцип, що полягає в приховуванні внутрішньої реалізації об'єкта від зовнішнього світу та наданні доступу лише через публічні методи.
