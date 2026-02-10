@@ -1,8 +1,13 @@
 ﻿# Принципи програмування в проєкті GlobalFests
-
 ---
 
-## 1. SOLID Принципи
+## 1. Separation of Concerns (SoC) — Розділення обов'язків
+Проєкт побудовано на архітектурному патерні MVC (Model-View-Controller),який  дозволяв  розділити логіку обробки запитів, представлення даних користувачеві та структуру самих даних.
+*Контролери** (наприклад, [`Controllers/WorldMapController`](Controllers/WorldMapController.cs)) обробляють запити.
+
+**Моделі** (наприклад, [`EFModels/Event.cs`](EFModels/Event.cs)) описують структуру даних.
+
+**Представлення** (наприклад, [`Views/WorldMap/Index.cshtml`](Views/WorldMap/Index.cshtml)) відповідають лише за HTML-інтерфейс.
 
 ### SRP (Single Responsibility Principle) — Принцип єдиної відповідальності
 Кожен клас або метод виконує лише одну задачу.
@@ -16,8 +21,6 @@
 - **Код:** [EventsController.cs: Constructor](https://github.com/Mycola23/Global-Fests/blob/cecfcae1ac535200713584457a556b779eed7979/Controllers/EventsController.cs#L13C5-L35C10)
 - **Код:** [OrganizerController.cs: Constructor](https://github.com/Mycola23/Global-Fests/blob/cecfcae1ac535200713584457a556b779eed7979/Controllers/OrganizerController.cs#L13C5-L27C10)
 ---
-
-## 2. Інші принципи
 
 ### DRY (Don't Repeat Yourself) — Не повторюй себе
 Повторювані фрагменти коду винесені в окремі компоненти.
