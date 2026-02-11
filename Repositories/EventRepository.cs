@@ -191,33 +191,6 @@ namespace GlobalFests.Repositories
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<CursorResult<EventDto>> GetEventsByCursorAsync(
-           DateTime? cursorDate,
-           int? cursorId,
-           int pageSize,
-           CancellationToken cancellationToken = default)
-        {
-
-            var query = _context.Events
-                .FromSqlInterpolated($@"
-                    SELECT TOP({pageSize}) *
-                    FROM Events
-                    WHERE {cursorDate} IS NULL 
-                       OR StartDate < {cursorDate} 
-                       OR (StartDate = {cursorDate} AND Id < {cursorId})
-                    ORDER BY StartDate DESC, Id DESC
-                ")
-                .Include(e => e.Organizer)
-                .Include(e => e.Country)
-                .Include(e => e.Type)
-                .AsNoTracking();
-
-            var events = await query.ToListAsync(cancellationToken);
-
-
-            return CreateCursorResult(events, pageSize);
-        }
-
         // ==========================================
         // search cursor
         // ==========================================

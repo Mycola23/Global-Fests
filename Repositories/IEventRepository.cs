@@ -15,11 +15,6 @@ namespace GlobalFests.Repositories
         Task<EventWithDetailsDto?> GetEventWithDetailsDtoAsync(int id, CancellationToken cancellationToken = default);
 
         // pagination
-        Task<CursorResult<EventDto>> GetEventsByCursorAsync(
-             DateTime? cursorDate,
-             int? cursorId,
-             int pageSize,
-             CancellationToken cancellationToken = default);
 
         Task<CursorSortingResult<T>> SearchEventsSortedAsync<T>(
         string? title = null,

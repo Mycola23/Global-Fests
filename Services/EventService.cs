@@ -13,7 +13,6 @@ namespace GlobalFests.Services
         Task<EventDto?> GetEventByIdAsync(int id);
         Task<EventWithDetailsDto?> GetEventWithDetailsAsync(int id);
         Task<List<EventDto>> GetAllEventsAsync();
-        Task<CursorResult<EventDto>> GetEventsPaginatedAsync(DateTime? cursorDate, int? cursorId, int pageSize = 15);
         Task<CursorResult<T>> SearchEventsAsync<T>(
             string? title, string? city, int? countryId, int? typeId, int? genreId,
             decimal? minPrice, decimal? maxPrice, DateTime? startDateFrom,
@@ -56,12 +55,6 @@ namespace GlobalFests.Services
         public async Task<List<EventDto>> GetAllEventsAsync()
         {
             return await _eventRepository.GetAllEventDtosAsync();
-        }
-
-        public async Task<CursorResult<EventDto>> GetEventsPaginatedAsync(
-            DateTime? cursorDate, int? cursorId, int pageSize = 15)
-        {
-            return await _eventRepository.GetEventsByCursorAsync(cursorDate, cursorId, pageSize);
         }
 
         public async Task<CursorResult<T>> SearchEventsAsync<T>(
