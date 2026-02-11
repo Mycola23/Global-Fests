@@ -22,7 +22,7 @@ namespace GlobalFests.Services
         Task<Event> CreateEventAsync(Event eventEntity);
         Task<Event> UpdateEventAsync(Event eventEntity);
         Task<bool> DeleteEventAsync(int id);
-
+        Task UpdateEventFullAsync(int id, EditEventsViewModel model, bool isOrganizer);
         Task<HomeViewModel> GetHomePageDataAsync(int? currentUserId);
         Task<bool> HasTicketsAsync(int eventId);
     }
@@ -31,10 +31,15 @@ namespace GlobalFests.Services
     {
         private readonly IEventRepository _eventRepository;
         private readonly GlobalFestsContext _context;
+        private readonly ILookupService _lookupService;
+        private readonly IPerformerRepository _performerRepo;
 
-        public EventService(IEventRepository eventRepository, GlobalFestsContext context)
+        public EventService(IEventRepository eventRepository, GlobalFestsContext context, ILookupService lookupService,
+            IPerformerRepository performerRepo)
         {
             _eventRepository = eventRepository;
+            _lookupService = lookupService;
+            _performerRepo = performerRepo;
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
@@ -83,6 +88,91 @@ namespace GlobalFests.Services
                 throw new ArgumentNullException(nameof(eventEntity));
 
             return await _eventRepository.UpdateAsync(eventEntity);
+        }
+
+        public async Task UpdateEventFullAsync(int id, EditEventsViewModel model, bool isOrganizer)
+        {
+          
+            var existingEvent = await _eventRepository.GetByIdAsync(id);
+            if (existingEvent == null)
+            {
+                throw new KeyNotFoundException($"Event with ID {id} not found.");
+            }
+
+            //business-checks
+            bool hasSoldTickets = await HasTicketsAsync(id);
+            bool eventStarted = existingEvent.StartDate <= DateTime.Now;
+            bool eventEnded = existingEvent.EndDate <= DateTime.Now;
+
+           
+            if (isOrganizer && eventStarted && !eventEnded)
+            {
+                throw new InvalidOperationException("You cannot edit an event while it is in progress.");
+            }
+
+            
+            if (hasSoldTickets)
+            {
+                if (existingEvent.TicketPrice != model.Event.TicketPrice)
+                {
+                    
+                    throw new ArgumentException("Cannot change price because tickets have already been sold.", "Event.TicketPrice");
+                }
+                if (existingEvent.TicketAmount != model.Event.TicketAmount)
+                {
+                    throw new ArgumentException("Cannot change ticket quantity because sales have started.", "Event.TicketAmount");
+                }
+            }
+
+            
+            // mapping
+            existingEvent.Title = model.Event.Title;
+            existingEvent.Description = model.Event.Description;
+            existingEvent.Poster = model.Event.Poster;
+            existingEvent.TypeId = model.Event.TypeId;
+            existingEvent.CountryId = model.Event.CountryId;
+            existingEvent.City = model.Event.City;
+            existingEvent.Address = model.Event.Address;
+            existingEvent.Latitude = model.Event.Latitude;
+            existingEvent.Longitude = model.Event.Longitude;
+
+           
+            if (!hasSoldTickets)
+            {
+                existingEvent.StartDate = model.Event.StartDate;
+                existingEvent.EndDate = model.Event.EndDate;
+                existingEvent.TicketPrice = model.Event.TicketPrice;
+                existingEvent.TicketAmount = model.Event.TicketAmount;
+            }
+
+            if (isOrganizer)
+            {
+                existingEvent.Status = (int)Status.Pending;
+            }
+
+            //  update genres
+            existingEvent.Genres.Clear();
+            if (model.SelectedGenreIds != null && model.SelectedGenreIds.Any())
+            {
+                foreach (var genreId in model.SelectedGenreIds)
+                {
+                    var genre = await _lookupService.GetGenreByIdAsync(genreId);
+                    if (genre != null) existingEvent.Genres.Add(genre);
+                }
+            }
+
+            //  update performers
+            existingEvent.Performers.Clear();
+            if (model.SelectedPerformerIds != null && model.SelectedPerformerIds.Any())
+            {
+                var selectedPerformers = await _performerRepo.GetPerformersByIdsAsync(model.SelectedPerformerIds);
+                foreach (var performer in selectedPerformers)
+                {
+                    existingEvent.Performers.Add(performer);
+                }
+            }
+
+            await _eventRepository.UpdateAsync(existingEvent);
         }
 
         public async Task<bool> DeleteEventAsync(int id)
