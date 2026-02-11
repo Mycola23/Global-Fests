@@ -27,7 +27,7 @@
 - **Приклад:** Картка події (`Event Card`) використовується на Головній сторінці, у пошуку подій та у списку бажаного (WishList). Щоб уникнути дублювання HTML-розмітки та логіки відображення, вона реалізована як Partial View.
 - **Код:** [Views/Shared/_EventCardPartial.cshtml](Views/Shared/EventCardPartial.cshtml)
 - **Приклад:** Generic-метод  `SearchEventsAsync<T>` сервісу EventService дозволяє виконувати складну фільтрацію, сортування та пагінацію, повертаючи різні типи даних ( повну модель події або спрощений DTO для сторінки WorldMap) через один універсальний механізм.
-- **Код:** [SearchEventsAsync<T>](https://github.com/Mycola23/Global-Fests/blob/cecfcae1ac535200713584457a556b779eed7979/Services/EventService.cs#L62C9-L71C10)
+- **Код:** [Services/EventService.cs.SearchEventsAsync<T>](https://github.com/Mycola23/Global-Fests/blob/cecfcae1ac535200713584457a556b779eed7979/Services/EventService.cs#L62C9-L71C10)
 
 ## 5. KISS (Keep It Simple, Stupid) — Роби простіше
 Де це можливо, складні операції C# замінені на оптимізовані збережені процедури для підвищення продуктивності.
