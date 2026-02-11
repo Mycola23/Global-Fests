@@ -220,11 +220,9 @@ namespace GlobalFests.Controllers
         {
             var eventEntity = await _eventRepo.GetByIdAsync(id);
             
-
             if (eventEntity == null)
                 return NotFound();
 
-           
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             
             if (eventEntity.OrganizerId != userId &&  !User.IsInRole("SuperAdmin") && !User.IsInRole("Admin"))
@@ -250,10 +248,9 @@ namespace GlobalFests.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, EditEventsViewModel model)
         {
-            if (id != model.Event.Id)
-                return BadRequest();
+            if (id != model.Event.Id) return BadRequest();
 
-            
+            //clearing validation properties
             ModelState.Remove("Event.Country");
             ModelState.Remove("Event.Type");
             ModelState.Remove("Event.Organizer");
@@ -262,113 +259,42 @@ namespace GlobalFests.Controllers
 
             if (!ModelState.IsValid)
             {
-                model.Countries = await _lookupService.GetAllCountriesAsync();
-                model.EventTypes = await _lookupService.GetAllEventTypesAsync();
-                model.Genres = await _lookupService.GetAllGenresAsync();
+                await ReloadEditViewData(model);
                 return View(model);
             }
 
             try
             {
-              
-                var existingEvent = await _eventRepo.GetByIdAsync(id);
-                if (existingEvent == null) return NotFound();
+                bool isOrganizer = User.IsInRole("Organizer") && !User.IsInRole("Admin") && !User.IsInRole("SuperAdmin");
 
-                bool isOrganizer = User.IsInRole("Organizer");
-                bool hasSoldTickets = await _eventService.HasTicketsAsync(id); 
-                bool eventStarted = existingEvent.StartDate <= DateTime.Now;
-                bool eventEnded = existingEvent.EndDate <= DateTime.Now;
-
-                // check for start event
-                if (isOrganizer && eventStarted && !eventEnded)
-                {
-                    TempData["ErrorMessage"] = "You cannot edit an event while it is in progress.";
-                    return RedirectToAction("Index", "Organizer");
-                }
-
-                // check for sold tickets
-                if (hasSoldTickets)
-                {
-
-                    if (existingEvent.TicketPrice != model.Event.TicketPrice)
-                    {
-                        ModelState.AddModelError("Event.TicketPrice", "Cannot change price because tickets have already been sold.");
-                    }
-
-
-                    if (existingEvent.TicketAmount != model.Event.TicketAmount)
-                    {
-                        ModelState.AddModelError("Event.TicketAmount", "Cannot change ticket quantity because sales have started.");
-                    }
-                }
-
-                if (!ModelState.IsValid)
-                {
-                    model.Countries = await _lookupService.GetAllCountriesAsync();
-                    model.EventTypes = await _lookupService.GetAllEventTypesAsync();
-                    model.Genres = await _lookupService.GetAllGenresAsync();
-                    model.SelectedPerformerIds = existingEvent.Performers.Select(p => p.Id).ToList();
-                    return View(model);
-                }
-
-                existingEvent.Title = model.Event.Title;
-                existingEvent.Description = model.Event.Description;
-                existingEvent.Poster = model.Event.Poster;
-                existingEvent.TypeId = model.Event.TypeId;
-                existingEvent.CountryId = model.Event.CountryId;
-                existingEvent.City = model.Event.City;
-                existingEvent.Address = model.Event.Address;
-                
-                existingEvent.Latitude = model.Event.Latitude;
-                existingEvent.Longitude = model.Event.Longitude;
-
-                existingEvent.StartDate = model.Event.StartDate;
-                existingEvent.EndDate = model.Event.EndDate;
-              
-
-                if (!hasSoldTickets)
-                {
-                    existingEvent.TicketPrice = model.Event.TicketPrice;
-                    existingEvent.TicketAmount = model.Event.TicketAmount;
-                }
-
-                existingEvent.Status = (int)Status.Pending;
-
-                existingEvent.Genres.Clear(); 
-                if (model.SelectedGenreIds != null && model.SelectedGenreIds.Any())
-                {
-                    foreach (var genreId in model.SelectedGenreIds)
-                    {
-                        var genre = await _lookupService.GetGenreByIdAsync(genreId);
-                        if (genre != null) existingEvent.Genres.Add(genre);
-                    }
-                }
-
-                existingEvent.Performers.Clear();
-                if (model.SelectedPerformerIds != null && model.SelectedPerformerIds.Any())
-                {
-                    var selectedPerformers = await _performerRepo.GetPerformersByIdsAsync(model.SelectedPerformerIds);
-                    foreach (var performer in selectedPerformers)
-                    {
-                        existingEvent.Performers.Add(performer);
-                    }
-                }
-
-                await _eventRepo.UpdateAsync(existingEvent);
-
+                await _eventService.UpdateEventFullAsync(id, model, isOrganizer);
                 TempData["SuccessMessage"] = "Event updated successfully!";
+
                 if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
                 {
                     return RedirectToAction("Events", "Admin");
                 }
                 return RedirectToAction("Index", "Organizer");
             }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (ArgumentException ex) 
+            {
+                ModelState.AddModelError(ex.ParamName ?? string.Empty, ex.Message);
+                await ReloadEditViewData(model);
+                return View(model);
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return RedirectToAction("Index", "Organizer");
+            }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", $"Error updating event: {ex.Message}");
-                model.Countries = await _lookupService.GetAllCountriesAsync();
-                model.EventTypes = await _lookupService.GetAllEventTypesAsync();
-                model.Genres = await _lookupService.GetAllGenresAsync();
+                await ReloadEditViewData(model);
                 return View(model);
             }
         }
@@ -472,6 +398,13 @@ namespace GlobalFests.Controllers
                 pageSize: 100);
 
             return View(result);
+        }
+
+        private async Task ReloadEditViewData(EditEventsViewModel model)
+        {
+            model.Countries = await _lookupService.GetAllCountriesAsync();
+            model.EventTypes = await _lookupService.GetAllEventTypesAsync();
+            model.Genres = await _lookupService.GetAllGenresAsync();
         }
     }
 }
