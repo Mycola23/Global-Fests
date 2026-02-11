@@ -44,9 +44,7 @@ namespace GlobalFests.Controllers
             {
                 model.Search = new EventsSearchModel();
             }
-            model.EventTypes = await _lookupService.GetAllEventTypesAsync();
-            model.Countries = await _lookupService.GetAllCountriesAsync();
-            model.Genres = await _lookupService.GetAllGenresAsync();
+            await LoadEventViewData(model);
 
             var searchResult = await _eventRepo.SearchEventsSortedAsync<EventDto>(
                 title: model.Search.Title,
@@ -111,12 +109,9 @@ namespace GlobalFests.Controllers
                     StartDate = startDateClean,
                     EndDate = startDateClean.AddHours(2),
                 },
-                Countries = await _lookupService.GetAllCountriesAsync(),
-                EventTypes = await _lookupService.GetAllEventTypesAsync(),
-                Genres = await _lookupService.GetAllGenresAsync(),
                 Performers = await _performerRepo.SearchPerformersAsync(null,null,null,null,15),
             };
-            
+            await LoadEventViewData(model);
 
             if (!User.Identity?.IsAuthenticated ?? true)
                 return RedirectToAction("Login", "Account", new { returnUrl = "/Events/Create" });
@@ -165,9 +160,7 @@ namespace GlobalFests.Controllers
                     Console.WriteLine($"Validation Error: {error.ErrorMessage}");
                 }
 
-                model.Countries = await _lookupService.GetAllCountriesAsync();
-                model.EventTypes = await _lookupService.GetAllEventTypesAsync();
-                model.Genres = await _lookupService.GetAllGenresAsync();
+                await LoadEventViewData(model);
                 return View(model);
             }
 
@@ -208,9 +201,7 @@ namespace GlobalFests.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", $"Error creating event: {ex.Message}");
-                model.Countries = await _lookupService.GetAllCountriesAsync();
-                model.EventTypes = await _lookupService.GetAllEventTypesAsync();
-                model.Genres = await _lookupService.GetAllGenresAsync();
+                await LoadEventViewData(model);
                 return View(model);
             }
         }
@@ -231,15 +222,12 @@ namespace GlobalFests.Controllers
             var model = new EditEventsViewModel
             {
                 Event = eventEntity,
-                Countries = await _lookupService.GetAllCountriesAsync(),
-                EventTypes = await _lookupService.GetAllEventTypesAsync(),
-                Genres = await _lookupService.GetAllGenresAsync(),
                 SelectedPerformerIds = eventEntity.Performers.Select(p => p.Id).ToList(),
                 SelectedGenreIds = eventEntity.Genres.Select(g => g.Id).ToList(),
                 HasSoldTickets = await _eventService.HasTicketsAsync(id),
                 IsEventInProgress = eventEntity.StartDate <= DateTime.Now && eventEntity.EndDate > DateTime.Now
             };
-
+            await LoadEventViewData(model);
             return View(model);
         }
 
@@ -259,7 +247,7 @@ namespace GlobalFests.Controllers
 
             if (!ModelState.IsValid)
             {
-                await ReloadEditViewData(model);
+                await LoadEventViewData(model);
                 return View(model);
             }
 
@@ -283,7 +271,7 @@ namespace GlobalFests.Controllers
             catch (ArgumentException ex) 
             {
                 ModelState.AddModelError(ex.ParamName ?? string.Empty, ex.Message);
-                await ReloadEditViewData(model);
+                await LoadEventViewData(model);
                 return View(model);
             }
             catch (InvalidOperationException ex)
@@ -294,7 +282,7 @@ namespace GlobalFests.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", $"Error updating event: {ex.Message}");
-                await ReloadEditViewData(model);
+                await LoadEventViewData(model);
                 return View(model);
             }
         }
@@ -400,11 +388,12 @@ namespace GlobalFests.Controllers
             return View(result);
         }
 
-        private async Task ReloadEditViewData(EditEventsViewModel model)
+        private async Task LoadEventViewData<T>(T model) where T : class
         {
-            model.Countries = await _lookupService.GetAllCountriesAsync();
-            model.EventTypes = await _lookupService.GetAllEventTypesAsync();
-            model.Genres = await _lookupService.GetAllGenresAsync();
+            dynamic dynamicModel = model;
+            dynamicModel.Countries = await _lookupService.GetAllCountriesAsync();
+            dynamicModel.EventTypes = await _lookupService.GetAllEventTypesAsync();
+            dynamicModel.Genres = await _lookupService.GetAllGenresAsync();
         }
     }
 }
